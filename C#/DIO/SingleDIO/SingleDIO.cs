@@ -21,7 +21,8 @@ namespace SingleDIO
 
         public void showErrorMessage(LJM.LJMException e)
         {
-            Console.Out.WriteLine("Error: " + e.ToString());
+            Console.Out.WriteLine("LJMException: " + e.ToString());
+            Console.Out.WriteLine(e.StackTrace);
         }
 
         public void performActions()
@@ -38,11 +39,11 @@ namespace SingleDIO
             try
             {
                 //Open first found LabJack
-                devType = LJM.CONSTANTS.dtANY; //Any device type
-                conType = LJM.CONSTANTS.ctANY; //Any connection type
-                LJM.Open(devType, conType, "LJM_idANY", ref handle);
-                //LJM.OpenS("ANY", "ANY", "ANY", ref handle);
-
+                LJM.OpenS("ANY", "ANY", "ANY", ref handle);
+                //devType = LJM.CONSTANTS.dtANY; //Any device type
+                //conType = LJM.CONSTANTS.ctANY; //Any connection type
+                //LJM.Open(devType, conType, "LJM_idANY", ref handle);
+                
                 LJM.GetHandleInfo(handle, ref devType, ref conType, ref serNum, ref ipAddr, ref port, ref maxBytesPerMB);
                 LJM.NumberToIP(ipAddr, ref ipAddrStr);
                 Console.WriteLine("Opened a LabJack with Device type: " + devType + ", Connection type: " + conType + ",");

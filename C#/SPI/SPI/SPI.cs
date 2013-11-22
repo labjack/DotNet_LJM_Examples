@@ -32,7 +32,7 @@ namespace SPI
 
         public void showErrorMessage(LJM.LJMException e)
         {
-            Console.Out.WriteLine(e.ToString());
+            Console.Out.WriteLine("LJMException: " + e.ToString());
             Console.Out.WriteLine(e.StackTrace);
         }
 

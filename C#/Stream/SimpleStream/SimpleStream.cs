@@ -22,7 +22,8 @@ namespace SimpleStream
 
         public void showErrorMessage(LJM.LJMException e)
         {
-            Console.Out.WriteLine("Error: " + e.ToString());
+            Console.Out.WriteLine("LJMException: " + e.ToString());
+            Console.Out.WriteLine(e.StackTrace);
         }
 
         public void performActions()
@@ -39,11 +40,11 @@ namespace SimpleStream
             try
             {
                 //Open first found LabJack
-                devType = LJM.CONSTANTS.dtANY; //Any device type
-                conType = LJM.CONSTANTS.ctANY; //Any connection type
-                LJM.Open(devType, conType, "ANY", ref handle);
-                //LJM.OpenS("ANY", "ANY", "ANY", ref handle);
-
+                LJM.OpenS("ANY", "ANY", "ANY", ref handle);
+                //devType = LJM.CONSTANTS.dtANY; //Any device type
+                //conType = LJM.CONSTANTS.ctANY; //Any connection type
+                //LJM.Open(devType, conType, "ANY", ref handle);
+                
                 LJM.GetHandleInfo(handle, ref devType, ref conType, ref serNum, ref ipAddr, ref port, ref maxBytesPerMB);
                 LJM.NumberToIP(ipAddr, ref ipAddrStr);
                 Console.WriteLine("Opened a LabJack with Device type: " + devType + ", Connection type: " + conType + ",");
@@ -68,7 +69,7 @@ namespace SimpleStream
                 try
                 {
                     Console.WriteLine("\nStarting stream. Press a key to stop streaming.");
-                    System.Threading.Thread.Sleep(2000); //Delay so user's can read message
+                    System.Threading.Thread.Sleep(1000); //Delay so user's can read message
 
                     //Configure and start Stream
                     LJM.eStreamStart(handle, scansPerRead, numAddresses, aScanList, ref scanRate);
