@@ -131,9 +131,7 @@ namespace I2CEeprom
 
                 Console.Write("Write User Memory [0-3] = ");
                 for (int i = 1; i < 5; i++)
-                {
                     Console.Write(aValues[i] + " ");
-                }
                 Console.WriteLine("");
 
 
