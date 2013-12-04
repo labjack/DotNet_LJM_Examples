@@ -1,22 +1,22 @@
 ﻿//-----------------------------------------------------------------------------
-// ReadEthernetConfig.cs
+// ReadWifiRssi.cs
 //
-// Demonstrates how to read the ethernet configuration settings from a LabJack.
+// Demonstrates how to read the WiFi RSSI from a LabJack.
 //
 // support@labjack.com
-// Dec. 3, 2013
+// Dec. 4, 2013
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;
 
-namespace ReadEthernetConfig
+namespace ReadWifiRssi
 {
-    class ReadEthernetConfig
+    class ReadWifiRssi
     {
         static void Main(string[] args)
         {
-            ReadEthernetConfig rec = new ReadEthernetConfig();
-            rec.performActions();
+            ReadWifiRssi rwr = new ReadWifiRssi();
+            rwr.performActions();
         }
 
         public void showErrorMessage(LJM.LJMException e)
@@ -50,33 +50,13 @@ namespace ReadEthernetConfig
                 Console.WriteLine("Serial number: " + serNum + ", IP address: " + ipAddrStr + ", Port: " + port + ",");
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
 
-                //Setup and call eReadNames to read ethernet configuration from
-                //the LabJack.
-                string[] aNames = new string[] { "ETHERNET_IP",
-                    "ETHERNET_SUBNET", "ETHERNET_GATEWAY",
-                    "ETHERNET_IP_DEFAULT", "ETHERNET_SUBNET_DEFAULT",
-                    "ETHERNET_GATEWAY_DEFAULT", "ETHERNET_DHCP_ENABLE",
-                    "ETHERNET_DHCP_ENABLE_DEFAULT" };
-                double[] aValues = new double[aNames.Length];
-                int numFrames = aNames.Length;
-                int errAddr = -1;
-                LJM.eReadNames(handle, numFrames, aNames, aValues, ref errAddr);
+                //Setup and call eReadName to read the WiFi RSSI from the
+                //LabJack.
+                string name = "WIFI_RSSI";
+                double value = 0;
+                LJM.eReadName(handle, name, ref value);
 
-                Console.WriteLine("\nEthernet configuration: ");
-                string str = "";
-                for (int i = 0; i < numFrames; i++)
-                {
-                    if (aNames[i].StartsWith("ETHERNET_DHCP_ENABLE"))
-                    {
-                        Console.WriteLine("    " + aNames[i] + " : " + aValues[i]);
-                    }
-                    else
-                    {
-                        LJM.NumberToIP((int)Convert.ToUInt32(aValues[i]), ref str);
-                        Console.WriteLine("    " + aNames[i] + " : " + aValues[i] +
-                            " - " + str);
-                    }
-                }
+                Console.WriteLine("\n" + name + " : " + value);
             }
             catch (LJM.LJMException e)
             {
@@ -90,3 +70,4 @@ namespace ReadEthernetConfig
         }
     }
 }
+

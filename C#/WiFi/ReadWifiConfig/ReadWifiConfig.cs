@@ -1,22 +1,22 @@
 ﻿//-----------------------------------------------------------------------------
-// ReadEthernetConfig.cs
+// ReadWifiConfig.cs
 //
-// Demonstrates how to read the ethernet configuration settings from a LabJack.
+// Demonstrates how to read the WiFi configuration from a LabJack.
 //
 // support@labjack.com
-// Dec. 3, 2013
+// Dec. 4, 2013
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;
 
-namespace ReadEthernetConfig
+namespace ReadWifiConfig
 {
-    class ReadEthernetConfig
+    class ReadWifiConfig
     {
         static void Main(string[] args)
         {
-            ReadEthernetConfig rec = new ReadEthernetConfig();
-            rec.performActions();
+            ReadWifiConfig rwc = new ReadWifiConfig();
+            rwc.performActions();
         }
 
         public void showErrorMessage(LJM.LJMException e)
@@ -50,33 +50,39 @@ namespace ReadEthernetConfig
                 Console.WriteLine("Serial number: " + serNum + ", IP address: " + ipAddrStr + ", Port: " + port + ",");
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
 
-                //Setup and call eReadNames to read ethernet configuration from
-                //the LabJack.
-                string[] aNames = new string[] { "ETHERNET_IP",
-                    "ETHERNET_SUBNET", "ETHERNET_GATEWAY",
-                    "ETHERNET_IP_DEFAULT", "ETHERNET_SUBNET_DEFAULT",
-                    "ETHERNET_GATEWAY_DEFAULT", "ETHERNET_DHCP_ENABLE",
-                    "ETHERNET_DHCP_ENABLE_DEFAULT" };
+                //Setup and call eReadNames to read WiFi configuration from the LabJack.
+                string[] aNames = new string[] { "WIFI_IP", "WIFI_SUBNET",
+                    "WIFI_GATEWAY", "WIFI_DHCP_ENABLE", "WIFI_IP_DEFAULT",
+                    "WIFI_SUBNET_DEFAULT", "WIFI_GATEWAY_DEFAULT",
+                    "WIFI_DHCP_ENABLE_DEFAULT", "WIFI_STATUS" };
                 double[] aValues = new double[aNames.Length];
                 int numFrames = aNames.Length;
                 int errAddr = -1;
                 LJM.eReadNames(handle, numFrames, aNames, aValues, ref errAddr);
 
-                Console.WriteLine("\nEthernet configuration: ");
+                Console.WriteLine("\neWifi configuration: ");
                 string str = "";
-                for (int i = 0; i < numFrames; i++)
+                for(int i = 0; i < numFrames; i++)
                 {
-                    if (aNames[i].StartsWith("ETHERNET_DHCP_ENABLE"))
+                    if(aNames[i] == "WIFI_STATUS" || aNames[i].StartsWith("WIFI_DHCP_ENABLE"))
                     {
                         Console.WriteLine("    " + aNames[i] + " : " + aValues[i]);
                     }
                     else
                     {
                         LJM.NumberToIP((int)Convert.ToUInt32(aValues[i]), ref str);
-                        Console.WriteLine("    " + aNames[i] + " : " + aValues[i] +
-                            " - " + str);
+                        Console.WriteLine("    " + aNames[i] + " : " +
+                            aValues[i] + " - " + str);
                     }
                 }
+
+                //Setup and call eReadNameString to read the WiFi SSID string
+                //from the LabJack.
+                string name = "WIFI_SSID";
+                str = "";
+                LJM.eReadNameString(handle, name, ref str);
+
+                Console.WriteLine("    " + name + " : " + str);
             }
             catch (LJM.LJMException e)
             {
@@ -90,3 +96,4 @@ namespace ReadEthernetConfig
         }
     }
 }
+

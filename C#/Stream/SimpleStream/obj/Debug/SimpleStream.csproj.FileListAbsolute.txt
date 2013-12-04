@@ -1,5 +1,0 @@
-C:\cygwin\home\David\Development\git\fonz\DotNet_LJM\Examples\C#\Stream\SimpleStream\bin\Debug\SimpleStream.exe
-C:\cygwin\home\David\Development\git\fonz\DotNet_LJM\Examples\C#\Stream\SimpleStream\bin\Debug\SimpleStream.pdb
-C:\cygwin\home\David\Development\git\fonz\DotNet_LJM\Examples\C#\Stream\SimpleStream\obj\Debug\ResolveAssemblyReference.cache
-C:\cygwin\home\David\Development\git\fonz\DotNet_LJM\Examples\C#\Stream\SimpleStream\obj\Debug\SimpleStream.exe
-C:\cygwin\home\David\Development\git\fonz\DotNet_LJM\Examples\C#\Stream\SimpleStream\obj\Debug\SimpleStream.pdb

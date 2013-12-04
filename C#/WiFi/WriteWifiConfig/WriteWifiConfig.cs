@@ -1,22 +1,22 @@
 ﻿//-----------------------------------------------------------------------------
-// WriteEthernetConfig.cs
+// WriteWifiConfig.cs
 //
-// Demonstrates how to set ethernet configuration settings on a LabJack.
+// Demonstrates how to configure the WiFi settings on a LabJack.
 //
 // support@labjack.com
-// Dec. 3, 2013
+// Dec. 4, 2013
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;
 
-namespace WriteEthernetConfig
+namespace WriteWifiConfig
 {
-    class WriteEthernetConfig
+    class WriteWifiConfig
     {
         static void Main(string[] args)
         {
-            WriteEthernetConfig wec = new WriteEthernetConfig();
-            wec.performActions();
+            WriteWifiConfig wwc = new WriteWifiConfig();
+            wwc.performActions();
         }
 
         public void showErrorMessage(LJM.LJMException e)
@@ -39,7 +39,7 @@ namespace WriteEthernetConfig
             try
             {
                 //Open first found LabJack
-                LJM.OpenS("ANY", "ANY", "ANY", ref handle);
+                LJM.OpenS("ANY", "USB", "ANY", ref handle);
                 //devType = LJM.CONSTANTS.dtANY; //Any device type
                 //conType = LJM.CONSTANTS.ctANY; //Any connection type
                 //LJM.Open(devType, conType, "ANY", ref handle);
@@ -50,40 +50,53 @@ namespace WriteEthernetConfig
                 Console.WriteLine("Serial number: " + serNum + ", IP address: " + ipAddrStr + ", Port: " + port + ",");
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
 
-                //Setup and call eWriteNames to set the ethernet configuration
+                //Setup and call eWriteNames to configure WiFi default settings
                 //on the LabJack.
-                string[] aNames = new string[] { "ETHERNET_IP_DEFAULT",
-                    "ETHERNET_SUBNET_DEFAULT", "ETHERNET_GATEWAY_DEFAULT",
-                    "ETHERNET_DHCP_ENABLE_DEFAULT" };
+                string[] aNames = new string[] { "WIFI_IP_DEFAULT",
+                    "WIFI_SUBNET_DEFAULT", "WIFI_GATEWAY_DEFAULT" };
                 int ip = 0;
                 int subnet = 0;
                 int gateway = 0;
-                int dhcpEnable = 0;
-                LJM.IPToNumber("192.168.1.207", ref ip);
+                LJM.IPToNumber("192.168.1.176", ref ip); //LJM.IPToNumber("192.168.1.207", ref ip);
                 LJM.IPToNumber("255.255.255.0", ref subnet);
                 LJM.IPToNumber("192.168.1.1", ref gateway);
-                dhcpEnable = 1; //1 = Enable, 0 = Disable
-                double[] aValues = new double[] { (uint)ip, (uint)subnet,
-                    (uint)gateway, dhcpEnable };
+                double[] aValues = new double[] { (uint)ip,
+                    (uint)subnet, (uint)gateway };
                 int numFrames = aNames.Length;
                 int errAddr = -1;
                 LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errAddr);
 
-                Console.WriteLine("\nSet ethernet configuration: ");
+                Console.WriteLine("\nSet WiFi configuration:");
                 string str = "";
                 for(int i = 0; i < numFrames; i++)
                 {
-                    if(aNames[i] == "ETHERNET_DHCP_ENABLE_DEFAULT")
-                    {
-                        Console.WriteLine("    " + aNames[i] + " : " + aValues[i]);
-                    }
-                    else
-                    {
-                        LJM.NumberToIP((int)Convert.ToUInt32(aValues[i]), ref str);
-                        Console.WriteLine("    " + aNames[i] + " : " + aValues[i] +
-                            " - " + str);
-                    }
+                    LJM.NumberToIP((int)Convert.ToUInt32(aValues[i]), ref str);
+                    Console.WriteLine("    " + aNames[i] + " : " + aValues[i] +
+                        " - " + str);
                 }
+
+                //Setup and call eWriteString to configure the default WiFi
+                //SSID on the LabJack.
+                string name = "WIFI_SSID_DEFAULT";
+                //str = "LJOpen";
+                str = "5PoundBass";
+                LJM.eWriteNameString(handle, name, str);
+                Console.WriteLine("    " + name + " : " + str);
+
+                //Setup and call eWriteString to configure the default WiFi
+                //password on the LabJack.
+                name = "WIFI_PASSWORD_DEFAULT";
+                //str = "none";
+                str = "smgmtbmb3cmtbc";
+                LJM.eWriteNameString(handle, name, str);
+                Console.WriteLine("    " + name + " : " + str);
+
+                //Setup and call eWriteName to apply the new WiFi configuration
+                //on the LabJack.
+                name = "WIFI_APPLY_SETTINGS";
+                double value = 1; //1 = apply
+                LJM.eWriteName(handle, name, value);
+                Console.WriteLine("    " + name + " : " + value);
             }
             catch (LJM.LJMException e)
             {
@@ -97,3 +110,4 @@ namespace WriteEthernetConfig
         }
     }
 }
+

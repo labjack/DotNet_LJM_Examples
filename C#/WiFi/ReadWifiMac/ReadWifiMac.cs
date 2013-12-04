@@ -1,22 +1,22 @@
 ﻿//-----------------------------------------------------------------------------
-// ReadEthernetConfig.cs
+// ReadWifiMac.cs
 //
-// Demonstrates how to read the ethernet configuration settings from a LabJack.
+// Demonstrates how to read the WiFi MAC from a LabJack.
 //
 // support@labjack.com
-// Dec. 3, 2013
+// Dec. 4, 2013
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;
 
-namespace ReadEthernetConfig
+namespace ReadWifiMac
 {
-    class ReadEthernetConfig
+    class ReadWifiMac
     {
         static void Main(string[] args)
         {
-            ReadEthernetConfig rec = new ReadEthernetConfig();
-            rec.performActions();
+            ReadWifiMac rwm = new ReadWifiMac();
+            rwm.performActions();
         }
 
         public void showErrorMessage(LJM.LJMException e)
@@ -50,33 +50,33 @@ namespace ReadEthernetConfig
                 Console.WriteLine("Serial number: " + serNum + ", IP address: " + ipAddrStr + ", Port: " + port + ",");
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
 
-                //Setup and call eReadNames to read ethernet configuration from
-                //the LabJack.
-                string[] aNames = new string[] { "ETHERNET_IP",
-                    "ETHERNET_SUBNET", "ETHERNET_GATEWAY",
-                    "ETHERNET_IP_DEFAULT", "ETHERNET_SUBNET_DEFAULT",
-                    "ETHERNET_GATEWAY_DEFAULT", "ETHERNET_DHCP_ENABLE",
-                    "ETHERNET_DHCP_ENABLE_DEFAULT" };
-                double[] aValues = new double[aNames.Length];
-                int numFrames = aNames.Length;
+                //Call eAddresses to read the WiFi MAC from the LabJack. Note
+                //that we are reading a byte array which is the big endian
+                //binary representation of the 64-bit MAC.
+                int numFrames = 1;
+                int[] aAddresses = new int[] { 60024 };
+                int[] aTypes = new int[] { LJM.CONSTANTS.BYTE };
+                int[] aWrites = new int[] { LJM.CONSTANTS.READ };
+                int[] aNumValues = new int[] { 8 };
+                double[] aValues = new double[8];
                 int errAddr = -1;
-                LJM.eReadNames(handle, numFrames, aNames, aValues, ref errAddr);
+                LJM.eAddresses(handle, numFrames, aAddresses, aTypes, aWrites,
+                    aNumValues, aValues, ref errAddr);
 
-                Console.WriteLine("\nEthernet configuration: ");
-                string str = "";
-                for (int i = 0; i < numFrames; i++)
-                {
-                    if (aNames[i].StartsWith("ETHERNET_DHCP_ENABLE"))
-                    {
-                        Console.WriteLine("    " + aNames[i] + " : " + aValues[i]);
-                    }
-                    else
-                    {
-                        LJM.NumberToIP((int)Convert.ToUInt32(aValues[i]), ref str);
-                        Console.WriteLine("    " + aNames[i] + " : " + aValues[i] +
-                            " - " + str);
-                    }
-                }
+                //Convert returned values to bytes 
+                byte[] macBytes = Array.ConvertAll<double, byte>(aValues, Convert.ToByte);
+
+                //Convert big endian byte array to a 64-bit unsigned integer
+                //value
+                if (BitConverter.IsLittleEndian)
+                    Array.Reverse(macBytes);
+                Int64 macNumber = BitConverter.ToInt64(macBytes, 0);
+
+                //Convert the MAC value/number to its string representation
+                string macString = "";
+                LJM.NumberToMAC(macNumber, ref macString);
+
+                Console.WriteLine("\nEthernet MAC : " + macNumber + " - " + macString);
             }
             catch (LJM.LJMException e)
             {
@@ -90,3 +90,4 @@ namespace ReadEthernetConfig
         }
     }
 }
+
