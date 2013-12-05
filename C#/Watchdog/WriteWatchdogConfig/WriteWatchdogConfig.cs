@@ -1,21 +1,21 @@
 ﻿//-----------------------------------------------------------------------------
-// WriteWifiConfig.cs
+// WriteWatchdogConfig.cs
 //
-// Demonstrates how to configure the WiFi settings on a LabJack.
+// Demonstrates how to configure the Watchdog on a LabJack.
 //
 // support@labjack.com
-// Dec. 4, 2013
+// Dec. 5, 2013
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;
 
-namespace WriteWifiConfig
+namespace WriteWatchdogConfig
 {
-    class WriteWifiConfig
+    class WriteWatchdogConfig
     {
         static void Main(string[] args)
         {
-            WriteWifiConfig wwc = new WriteWifiConfig();
+            WriteWatchdogConfig wwc = new WriteWatchdogConfig();
             wwc.performActions();
         }
 
@@ -50,51 +50,31 @@ namespace WriteWifiConfig
                 Console.WriteLine("Serial number: " + serNum + ", IP address: " + ipAddrStr + ", Port: " + port + ",");
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
 
-                //Setup and call eWriteNames to configure WiFi default settings
-                //on the LabJack.
-                string[] aNames = new string[] { "WIFI_IP_DEFAULT",
-                    "WIFI_SUBNET_DEFAULT", "WIFI_GATEWAY_DEFAULT" };
-                int ip = 0;
-                int subnet = 0;
-                int gateway = 0;
-                LJM.IPToNumber("192.168.1.207", ref ip);
-                LJM.IPToNumber("255.255.255.0", ref subnet);
-                LJM.IPToNumber("192.168.1.1", ref gateway);
-                double[] aValues = new double[] { (uint)ip,
-                    (uint)subnet, (uint)gateway };
+                //Setup and call eWriteNames to configure the Watchdog on a
+                //LabJack. Disable the Watchdog first before any other
+                //configuration.
+                string[] aNames = new string[] {
+                    "WATCHDOG_ENABLE_DEFAULT", "WATCHDOG_OPTIONS_DEFAULT",
+                    "WATCHDOG_TIMEOUT_S_DEFAULT", "WATCHDOG_STARTUP_DELAY_S_DEFAULT",
+                    "WATCHDOG_DIO_STATE_DEFAULT", "WATCHDOG_DIO_DIRECTION_DEFAULT",
+                    "WATCHDOG_DIO_INHIBIT_DEFAULT", "WATCHDOG_DAC0_DEFAULT",
+                    "WATCHDOG_DAC1_DEFAULT", "WATCHDOG_KEY_DEFAULT",
+                    "WATCHDOG_ENABLE_DEFAULT" };
+                double[] aValues = new double[] {
+                    0, 1,
+                    20, 0,
+                    0, 0,
+                    0, 0,
+                    0, 0,
+                    0}; //Set WATCHDOG_ENABLE_DEFAULT to 1 to enable
                 int numFrames = aNames.Length;
                 int errAddr = -1;
                 LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errAddr);
 
-                Console.WriteLine("\nSet WiFi configuration:");
-                string str = "";
+                Console.WriteLine("\nSet Watchdog configuration:");
                 for(int i = 0; i < numFrames; i++)
-                {
-                    LJM.NumberToIP((int)Convert.ToUInt32(aValues[i]), ref str);
-                    Console.WriteLine("    " + aNames[i] + " : " + aValues[i] +
-                        " - " + str);
-                }
+                    Console.WriteLine("    " + aNames[i] +" : " + aValues[i]);
 
-                //Setup and call eWriteString to configure the default WiFi
-                //SSID on the LabJack.
-                string name = "WIFI_SSID_DEFAULT";
-                str = "LJOpen";
-                LJM.eWriteNameString(handle, name, str);
-                Console.WriteLine("    " + name + " : " + str);
-
-                //Setup and call eWriteString to configure the default WiFi
-                //password on the LabJack.
-                name = "WIFI_PASSWORD_DEFAULT";
-                str = "none";
-                LJM.eWriteNameString(handle, name, str);
-                Console.WriteLine("    " + name + " : " + str);
-
-                //Setup and call eWriteName to apply the new WiFi configuration
-                //on the LabJack.
-                name = "WIFI_APPLY_SETTINGS";
-                double value = 1; //1 = apply
-                LJM.eWriteName(handle, name, value);
-                Console.WriteLine("    " + name + " : " + value);
             }
             catch (LJM.LJMException e)
             {
@@ -108,4 +88,3 @@ namespace WriteWifiConfig
         }
     }
 }
-
