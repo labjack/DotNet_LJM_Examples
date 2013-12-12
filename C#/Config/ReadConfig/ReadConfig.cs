@@ -52,7 +52,7 @@ namespace ReadConfig
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
 
                 //Setup and call eReadNames to read config. values from the
-                //from the LabJack.
+                //LabJack.
                 string[] aNames = { "PRODUCT_ID", "HARDWARE_VERSION",
                                       "FIRMWARE_VERSION", "BOOTLOADER_VERSION",
                                       "WIFI_VERSION", "SERIAL_NUMBER",
