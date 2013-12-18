@@ -76,7 +76,7 @@ namespace ReadWifiMac
                 string macString = "";
                 LJM.NumberToMAC(macNumber, ref macString);
 
-                Console.WriteLine("\nEthernet MAC : " + macNumber + " - " + macString);
+                Console.WriteLine("\nWiFi MAC : " + macNumber + " - " + macString);
             }
             catch (LJM.LJMException e)
             {
