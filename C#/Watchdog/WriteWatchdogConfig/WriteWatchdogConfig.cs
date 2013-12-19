@@ -4,7 +4,7 @@
 // Demonstrates how to configure the Watchdog on a LabJack.
 //
 // support@labjack.com
-// Dec. 5, 2013
+// Dec. 19, 2013
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;
@@ -54,19 +54,23 @@ namespace WriteWatchdogConfig
                 //LabJack. Disable the Watchdog first before any other
                 //configuration.
                 string[] aNames = new string[] {
-                    "WATCHDOG_ENABLE_DEFAULT", "WATCHDOG_OPTIONS_DEFAULT",
+                    "WATCHDOG_ENABLE_DEFAULT", "WATCHDOG_ADVANCED_DEFAULT",
                     "WATCHDOG_TIMEOUT_S_DEFAULT", "WATCHDOG_STARTUP_DELAY_S_DEFAULT",
+                    "WATCHDOG_STRICT_ENABLE_DEFAULT", "WATCHDOG_STRICT_KEY_DEFAULT",
+                    "WATCHDOG_RESET_ENABLE_DEFAULT", "WATCHDOG_DIO_ENABLE_DEFAULT",
                     "WATCHDOG_DIO_STATE_DEFAULT", "WATCHDOG_DIO_DIRECTION_DEFAULT",
-                    "WATCHDOG_DIO_INHIBIT_DEFAULT", "WATCHDOG_DAC0_DEFAULT",
-                    "WATCHDOG_DAC1_DEFAULT", "WATCHDOG_KEY_DEFAULT",
-                    "WATCHDOG_ENABLE_DEFAULT" };
+                    "WATCHDOG_DIO_INHIBIT_DEFAULT", "WATCHDOG_DAC0_ENABLE_DEFAULT",
+                    "WATCHDOG_DAC0_DEFAULT", "WATCHDOG_DAC1_ENABLE_DEFAULT",
+                    "WATCHDOG_DAC1_DEFAULT", "WATCHDOG_ENABLE_DEFAULT"};
                 double[] aValues = new double[] {
-                    0, 1,
+                    0, 0,
                     20, 0,
                     0, 0,
+                    1, 0,
                     0, 0,
                     0, 0,
-                    0}; //Set WATCHDOG_ENABLE_DEFAULT to 1 to enable
+                    0, 0,
+                    0, 0}; //Set WATCHDOG_ENABLE_DEFAULT to 1 to enable
                 int numFrames = aNames.Length;
                 int errAddr = -1;
                 LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errAddr);

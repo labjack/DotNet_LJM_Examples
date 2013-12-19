@@ -4,7 +4,7 @@
 // Demonstrates how to read the Watchdog configuration from a LabJack.
 //
 // support@labjack.com
-// Dec. 5, 2013
+// Dec. 19, 2013
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;
@@ -50,13 +50,17 @@ namespace ReadWatchdogConfig
                 Console.WriteLine("Serial number: " + serNum + ", IP address: " + ipAddrStr + ", Port: " + port + ",");
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
 
-                //Setup and call eReadNames to read the Watchdog config. from the LabJack.
+                //Setup and call eReadNames to read the Watchdog configuration
+                //from the LabJack.
                 string[] aNames = new string[] {
-                    "WATCHDOG_ENABLE_DEFAULT", "WATCHDOG_OPTIONS_DEFAULT",
+                    "WATCHDOG_ENABLE_DEFAULT", "WATCHDOG_ADVANCED_DEFAULT",
                     "WATCHDOG_TIMEOUT_S_DEFAULT", "WATCHDOG_STARTUP_DELAY_S_DEFAULT",
+                    "WATCHDOG_STRICT_ENABLE_DEFAULT", "WATCHDOG_STRICT_KEY_DEFAULT",
+                    "WATCHDOG_RESET_ENABLE_DEFAULT", "WATCHDOG_DIO_ENABLE_DEFAULT",
                     "WATCHDOG_DIO_STATE_DEFAULT", "WATCHDOG_DIO_DIRECTION_DEFAULT",
-                    "WATCHDOG_DIO_INHIBIT_DEFAULT", "WATCHDOG_DAC0_DEFAULT",
-                    "WATCHDOG_DAC1_DEFAULT" };
+                    "WATCHDOG_DIO_INHIBIT_DEFAULT", "WATCHDOG_DAC0_ENABLE_DEFAULT",
+                    "WATCHDOG_DAC0_DEFAULT", "WATCHDOG_DAC1_ENABLE_DEFAULT",
+                    "WATCHDOG_DAC1_DEFAULT"};
                 double[] aValues = new double[aNames.Length];
                 int numFrames = aNames.Length;
                 int errAddr = -1;
