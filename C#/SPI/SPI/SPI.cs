@@ -15,7 +15,7 @@
 // short MISO to VS or leave it unconnected, you will read back 255s.
 //
 // support@labjack.com
-// Nov. 19, 2013
+// Dec. 19, 2013
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;
@@ -65,6 +65,7 @@ namespace SPI
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
                 Console.Out.WriteLine("");
 
+
                 //CS is FIO1
                 LJM.eWriteName(handle, "SPI_CS_DIONUM", 1);
                 
@@ -102,15 +103,14 @@ namespace SPI
                 //Selecting Mode: A - CPHA=1, CPOL=1.
                 LJM.eWriteName(handle, "SPI_MODE", 0);
 
-                //Speed:
-                //Frequency = 1000000000 / (175*(65536-Speed) + 1020)
-                //Valid speed values are 1 to 65536 where 0 = 65536.
-                //Note: The above equation and its frequency range
-                //was tested for firmware 1.0009 and may change in
-                //the future.
+                //Speed Throttle:
+                //Frequency = 1000000000 / (175*(65536-SpeedThrottle) + 1020)
+                //Valid speed throttle values are 1 to 65536 where 0 = 65536.
+                //Note: The above equation and its frequency range were tested for
+                //firmware 1.0009 and may change in the future.
 
-                //Configuring Max. Speed of about 980kHz.
-                LJM.eWriteName(handle, "SPI_SPEED", 0);
+                //Configuring Max. Speed (~ 1 MHz)
+                LJM.eWriteName(handle, "SPI_SPEED_THROTTLE", 0);
 
                 //Options
                 //bit 0:
@@ -129,7 +129,7 @@ namespace SPI
                 //Read back and display the SPI settings
                 string[] aNames = {"SPI_CS_DIONUM", "SPI_CLK_DIONUM",
                                    "SPI_MISO_DIONUM", "SPI_MOSI_DIONUM",
-                                   "SPI_MODE", "SPI_SPEED",
+                                   "SPI_MODE", "SPI_SPEED_THROTTLE",
                                    "SPI_OPTIONS" };
                 double[] aValues = new double[aNames.Length];
                 LJM.eReadNames(handle, aNames.Length, aNames, aValues, ref errAddr);
@@ -153,17 +153,15 @@ namespace SPI
                 {
                     dataWrite[i] = Convert.ToDouble(rand.Next(255));
                 }
-                int[] aAddresses = new int[1];
-                int[] aTypes = new int[1];
+                aNames = new string[1];
                 int[] aWrites = new int[1];
                 int[] aNumValues = new int[1];
     
                 //Write the bytes
-                aAddresses[0] = 5010; //"SPI_DATA_WRITE"
-                aTypes[0] = LJM.CONSTANTS.BYTE;
+                aNames[0] = "SPI_DATA_WRITE";
                 aWrites[0] = LJM.CONSTANTS.WRITE;
                 aNumValues[0] = numBytes;
-                LJM.eAddresses(handle, 1, aAddresses, aTypes, aWrites, aNumValues, dataWrite, ref errAddr);
+                LJM.eNames(handle, 1, aNames, aWrites, aNumValues, dataWrite, ref errAddr);
 
                 //Display the bytes written
                 Console.WriteLine("");
@@ -175,11 +173,10 @@ namespace SPI
 
                 //Read the bytes
                 double[] dataRead = new double[numBytes];
-                aAddresses[0] = 5050; //"SPI_DATA_READ"
-                aTypes[0] = LJM.CONSTANTS.BYTE;
+                aNames[0] = "SPI_DATA_READ";
                 aWrites[0] = LJM.CONSTANTS.READ;
                 aNumValues[0] = numBytes;
-                LJM.eAddresses(handle, 1, aAddresses, aTypes, aWrites, aNumValues, dataRead, ref errAddr);
+                LJM.eNames(handle, 1, aNames, aWrites, aNumValues, dataRead, ref errAddr);
 
                 //Display the bytes read
                 Console.Out.WriteLine("");
