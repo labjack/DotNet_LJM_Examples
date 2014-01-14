@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "SingleDIO", "SingleDIO.vbproj", "{A2B2C6C9-FA18-490E-BC4D-C83A0E13DCFB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A2B2C6C9-FA18-490E-BC4D-C83A0E13DCFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2B2C6C9-FA18-490E-BC4D-C83A0E13DCFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2B2C6C9-FA18-490E-BC4D-C83A0E13DCFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2B2C6C9-FA18-490E-BC4D-C83A0E13DCFB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,8 +1,8 @@
 ﻿//-----------------------------------------------------------------------------
 // EasyFunctions.cs
 //
-// Demonstrates easy functions usage. For eStream usage look in the Stream
-// examples folder.
+// Demonstrates easy functions usage. For eStream usage look at the stream
+// example.
 //
 // support@labjack.com
 // April 16, 2013
