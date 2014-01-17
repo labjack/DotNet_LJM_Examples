@@ -104,22 +104,20 @@ namespace SimpleStream
                         Console.WriteLine("\neStreamRead " + loop);
                         Console.Write("  First scan out of " + scansPerRead + ": ");
                         for(int j = 0; j < numAddresses; j++)
-                            Console.Write(aScanListNames[j] + " = " + aData[j] + ", ");
+                            Console.Write(aScanListNames[j] + " = " + aData[j].ToString("F4") + ", ");
                         Console.WriteLine("\n  numSkippedScans: " + skippedCur/numAddresses + ", deviceScanBacklog: " + deviceScanBacklog + ", ljmScanBacklog: " + ljmScanBacklog);
-                        if (skippedTotal > 0)
-                            break;
                     }
                     sw.Stop();
 
                     Console.ReadKey(true); //Doing this to prevent Enter key from closing the program right away.
 
                     Console.WriteLine("\nTotal scans: " + totScans);
-                    Console.WriteLine("Skipped scans: " + skippedTotal/numAddresses);
-                    double time = sw.ElapsedMilliseconds/1000.0;
+                    Console.WriteLine("Skipped scans: " + (skippedTotal / numAddresses));
+                    double time = sw.ElapsedMilliseconds / 1000.0;
                     Console.WriteLine("Time taken: " + time + " seconds");
                     Console.WriteLine("LJM Scan Rate: " + scanRate + " scans/second");
-                    Console.WriteLine("Timed Scan Rate: " + (totScans/time) + " scans/second");
-                    Console.WriteLine("Sample Rate: " + (totScans*numAddresses/time) + " samples/second");
+                    Console.WriteLine("Timed Scan Rate: " + (totScans / time).ToString("F2") + " scans/second");
+                    Console.WriteLine("Sample Rate: " + (totScans * numAddresses / time).ToString("F2") + " samples/second");
                 }
                 catch (LJM.LJMException e)
                 {

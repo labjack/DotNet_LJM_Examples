@@ -1,16 +1,16 @@
 ﻿'------------------------------------------------------------------------------
-' SingleDIO.vb
+' WritePowerConfig.vb
 '
-' Demonstrates how to set and read a single digital I/O.
+' Demonstrates how to configure default power settings.
 '
 ' support@labjack.com
-' Jan. 13, 2014
+' Jan. 15, 2014
 '------------------------------------------------------------------------------
 Option Explicit On
 
 Imports LabJack
 
-Module SingleDIO
+Module WritePowerConfig
 
     Sub showErrorMessage(ByVal e As LJM.LJMException)
         Console.WriteLine("LJMException: " & e.ToString)
@@ -38,8 +38,10 @@ Module SingleDIO
 
     Sub Main()
         Dim handle As Integer
-        Dim name As String
-        Dim state As Double
+        Dim numFrames As Integer
+        Dim aNames() As String
+        Dim aValues() As Double
+        Dim errAddr As Integer = -1
 
         Try
             ' Open first found LabJack
@@ -48,21 +50,27 @@ Module SingleDIO
 
             displayHandleInfo(handle)
 
-            ' Setup and call eWriteName to set the DIO state.
-            name = "FIO0"
-            state = 1 ' Output-low = 0, Output-high = 1
-            LJM.eWriteName(handle, name, state)
+            ' Setup and call eWriteNames to write configuration values to
+            ' the LabJack.
+            numFrames = 4
+            ReDim aNames(numFrames)
+            aNames(0) = "POWER_ETHERNET_DEFAULT"
+            aNames(1) = "POWER_WIFI_DEFAULT"
+            aNames(2) = "POWER_AIN_DEFAULT"
+            aNames(3) = "POWER_LED_DEFAULT"
+            ReDim aValues(numFrames)
+            aValues(0) = 1 ' Ethernet On
+            aValues(1) = 0 ' WiFi Off
+            aValues(2) = 1 ' AIN On
+            aValues(3) = 1 ' LED On
+            LJM.eWriteNames(handle, numFrames, aNames, aValues, errAddr)
 
             Console.WriteLine("")
-            Console.WriteLine("Set " & name & " state : " & state)
+            Console.WriteLine("Set configuration settings:")
 
-            ' Setup and call eReadName to read the DIO state.
-            name = "FIO1"
-            state = 0
-            LJM.eReadName(handle, name, state)
-
-            Console.WriteLine("")
-            Console.WriteLine(name & " state : " & state)
+            For i = 0 To numFrames - 1
+                Console.WriteLine("    " & aNames(i) & " : " & aValues(i))
+            Next
         Catch ljme As LJM.LJMException
             showErrorMessage(ljme)
         End Try

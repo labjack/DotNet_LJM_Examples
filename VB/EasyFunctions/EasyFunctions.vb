@@ -30,13 +30,11 @@ Module EasyFunctions
         LJM.GetHandleInfo(handle, devType, conType, serNum, ipAddr, port, _
                           maxBytesPerMB)
         LJM.NumberToIP(ipAddr, ipAddrStr)
-        Console.WriteLine("Opened a LabJack with Device type: " & _
-                          CStr(devType) & ", Connection type: " & _
-                          CStr(conType) & ",")
-        Console.WriteLine("Serial number: " & CStr(serNum) & _
-                          ", IP address: " & ipAddrStr & ", Port: " _
-                          & CStr(port) & ",")
-        Console.WriteLine("Max bytes per MB: " & CStr(maxBytesPerMB))
+        Console.WriteLine("Opened a LabJack with Device type: " & devType & _
+                          ", Connection type: " & conType & ",")
+        Console.WriteLine("Serial number: " & serNum & ", IP address: " & _
+                          ipAddrStr & ", Port: " & port & ",")
+        Console.WriteLine("Max bytes per MB: " & maxBytesPerMB)
     End Sub
 
     Sub Main()

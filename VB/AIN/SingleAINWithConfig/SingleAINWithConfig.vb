@@ -1,16 +1,16 @@
 ﻿'------------------------------------------------------------------------------
-' SingleDIO.vb
+' SingleAINWithConfig.vb
 '
-' Demonstrates how to set and read a single digital I/O.
+' Demonstrates configuring and reading a single analog input (AIN).
 '
 ' support@labjack.com
-' Jan. 13, 2014
+' Jan. 15, 2014
 '------------------------------------------------------------------------------
 Option Explicit On
 
 Imports LabJack
 
-Module SingleDIO
+Module SingleAINWithConfig
 
     Sub showErrorMessage(ByVal e As LJM.LJMException)
         Console.WriteLine("LJMException: " & e.ToString)
@@ -38,8 +38,12 @@ Module SingleDIO
 
     Sub Main()
         Dim handle As Integer
+        Dim numFrames As Integer
+        Dim aNames() As String
+        Dim aValues() As Double
+        Dim errAddr As Integer
         Dim name As String
-        Dim state As Double
+        Dim value As Double
 
         Try
             ' Open first found LabJack
@@ -48,21 +52,32 @@ Module SingleDIO
 
             displayHandleInfo(handle)
 
-            ' Setup and call eWriteName to set the DIO state.
-            name = "FIO0"
-            state = 1 ' Output-low = 0, Output-high = 1
-            LJM.eWriteName(handle, name, state)
+            ' Setup and call eWriteNames to configure the AIN.
+            numFrames = 3
+            ReDim aNames(numFrames)
+            aNames(0) = "AIN0_NEGATIVE_CH"
+            aNames(1) = "AIN0_RANGE"
+            aNames(2) = "AIN0_RESOLUTION_INDEX"
+            ReDim aValues(numFrames)
+            aValues(0) = 199
+            aValues(1) = 10
+            aValues(2) = 0
+            LJM.eWriteNames(handle, numFrames, aNames, aValues, errAddr)
 
             Console.WriteLine("")
-            Console.WriteLine("Set " & name & " state : " & state)
+            Console.WriteLine("Set configuration:")
+            For i = 0 To numFrames - 1
+                Console.WriteLine("    " & aNames(i) & " : " & aValues(i))
+            Next
 
-            ' Setup and call eReadName to read the DIO state.
-            name = "FIO1"
-            state = 0
-            LJM.eReadName(handle, name, state)
+            ' Setup and call eReadName to read an AIN.
+            name = "AIN0"
+            value = 0
+            LJM.eReadName(handle, name, value)
 
             Console.WriteLine("")
-            Console.WriteLine(name & " state : " & state)
+            Console.WriteLine(name & " reading : " & value.ToString("F4") & _
+                              " V")
         Catch ljme As LJM.LJMException
             showErrorMessage(ljme)
         End Try

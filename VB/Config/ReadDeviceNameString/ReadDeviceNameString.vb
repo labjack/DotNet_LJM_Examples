@@ -1,16 +1,16 @@
 ﻿'------------------------------------------------------------------------------
-' SingleDIO.vb
+' ReadDeviceNameString.vb
 '
-' Demonstrates how to set and read a single digital I/O.
+' Demonstrates how to read the device name string.
 '
 ' support@labjack.com
-' Jan. 13, 2014
+' Jan. 15, 2014
 '------------------------------------------------------------------------------
 Option Explicit On
 
 Imports LabJack
 
-Module SingleDIO
+Module ReadDeviceNameString
 
     Sub showErrorMessage(ByVal e As LJM.LJMException)
         Console.WriteLine("LJMException: " & e.ToString)
@@ -38,8 +38,7 @@ Module SingleDIO
 
     Sub Main()
         Dim handle As Integer
-        Dim name As String
-        Dim state As Double
+        Dim str As String = ""
 
         Try
             ' Open first found LabJack
@@ -48,21 +47,11 @@ Module SingleDIO
 
             displayHandleInfo(handle)
 
-            ' Setup and call eWriteName to set the DIO state.
-            name = "FIO0"
-            state = 1 ' Output-low = 0, Output-high = 1
-            LJM.eWriteName(handle, name, state)
+            ' Call eReadNameString to read the name string.
+            LJM.eReadNameString(handle, "DEVICE_NAME_DEFAULT", str)
 
             Console.WriteLine("")
-            Console.WriteLine("Set " & name & " state : " & state)
-
-            ' Setup and call eReadName to read the DIO state.
-            name = "FIO1"
-            state = 0
-            LJM.eReadName(handle, name, state)
-
-            Console.WriteLine("")
-            Console.WriteLine(name & " state : " & state)
+            Console.WriteLine("Device name : " & str)
         Catch ljme As LJM.LJMException
             showErrorMessage(ljme)
         End Try
