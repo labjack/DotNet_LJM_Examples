@@ -5,7 +5,6 @@
 ' example.
 '
 ' support@labjack.com
-' Jan. 13, 2014
 '------------------------------------------------------------------------------
 Option Explicit On
 
@@ -249,6 +248,8 @@ Module EasyFunctions
         Catch ljme As LJM.LJMException
             showErrorMessage(ljme)
         End Try
+
+        LJM.CloseAll() ' Close all handles
 
         Console.WriteLine("")
         Console.WriteLine("Done.")

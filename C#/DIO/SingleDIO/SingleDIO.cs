@@ -4,7 +4,6 @@
 // Demonstrates how to set and read a single digital I/O.
 //
 // support@labjack.com
-// April 16, 2013
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;

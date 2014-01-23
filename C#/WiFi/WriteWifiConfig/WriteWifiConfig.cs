@@ -4,7 +4,6 @@
 // Demonstrates how to configure the WiFi settings on a LabJack.
 //
 // support@labjack.com
-// Dec. 4, 2013
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;

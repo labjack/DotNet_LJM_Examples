@@ -4,7 +4,6 @@
 ' Demonstrates configuring and reading a single analog input (AIN).
 '
 ' support@labjack.com
-' Jan. 15, 2014
 '------------------------------------------------------------------------------
 Option Explicit On
 
@@ -81,6 +80,8 @@ Module SingleAINWithConfig
         Catch ljme As LJM.LJMException
             showErrorMessage(ljme)
         End Try
+
+        LJM.CloseAll() ' Close all handles
 
         Console.WriteLine("")
         Console.WriteLine("Done.")

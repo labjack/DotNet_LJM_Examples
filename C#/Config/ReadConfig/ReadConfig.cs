@@ -4,7 +4,6 @@
 // Demonstrates how to read configuration settings on a LabJack.
 //
 // support@labjack.com
-// Nov. 22, 2013
 //-----------------------------------------------------------------------------
 
 using System;

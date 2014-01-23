@@ -4,7 +4,6 @@
 ' Demonstrates how to stream using the eStream functions.
 '
 ' support@labjack.com
-' Jan. 16, 2014
 '------------------------------------------------------------------------------
 Option Explicit On
 
@@ -163,6 +162,8 @@ Module SimpleStream
         Catch ljme As LJM.LJMException
             showErrorMessage(ljme)
         End Try
+
+        LJM.CloseAll() ' Close all handles
 
         Console.WriteLine("")
         Console.WriteLine("Done.")

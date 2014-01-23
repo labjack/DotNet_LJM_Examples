@@ -4,7 +4,6 @@
 // Demonstrates how to read the ethernet MAC from a LabJack.
 //
 // support@labjack.com
-// Dec. 3, 2013
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;

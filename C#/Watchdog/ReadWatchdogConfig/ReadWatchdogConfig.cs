@@ -4,7 +4,6 @@
 // Demonstrates how to read the Watchdog configuration from a LabJack.
 //
 // support@labjack.com
-// Dec. 19, 2013
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;

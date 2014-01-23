@@ -6,7 +6,6 @@
 // writes and reads bytes from/to the EEPROM.
 //
 // support@labjack.com
-// Nov. 26, 2013
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;

@@ -15,7 +15,6 @@
 // short MISO to VS or leave it unconnected, you will read back 255s.
 //
 // support@labjack.com
-// Dec. 19, 2013
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;

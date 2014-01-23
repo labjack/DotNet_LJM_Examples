@@ -4,7 +4,6 @@
 // Demonstrates reading a single analog input (AIN) from a LabJack.
 //
 // support@labjack.com
-// Nov. 21, 2013
 //-----------------------------------------------------------------------------
 
 using System;

@@ -4,7 +4,6 @@
 // Demonstrates how to set ethernet configuration settings on a LabJack.
 //
 // support@labjack.com
-// Dec. 3, 2013
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;

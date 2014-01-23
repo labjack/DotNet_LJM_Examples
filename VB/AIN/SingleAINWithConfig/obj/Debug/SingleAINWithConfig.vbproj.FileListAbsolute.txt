@@ -1,0 +1,9 @@
+C:\cygwin\home\David\Development\git\fonz\DotNet_LJM\Examples\VB\AIN\SingleAINWithConfig\bin\Debug\SingleAINWithConfig.exe
+C:\cygwin\home\David\Development\git\fonz\DotNet_LJM\Examples\VB\AIN\SingleAINWithConfig\bin\Debug\SingleAINWithConfig.pdb
+C:\cygwin\home\David\Development\git\fonz\DotNet_LJM\Examples\VB\AIN\SingleAINWithConfig\bin\Debug\SingleAINWithConfig.xml
+C:\cygwin\home\David\Development\git\fonz\DotNet_LJM\Examples\VB\AIN\SingleAINWithConfig\obj\Debug\ResolveAssemblyReference.cache
+C:\cygwin\home\David\Development\git\fonz\DotNet_LJM\Examples\VB\AIN\SingleAINWithConfig\obj\Debug\SingleAINWithConfig.Resources.resources
+C:\cygwin\home\David\Development\git\fonz\DotNet_LJM\Examples\VB\AIN\SingleAINWithConfig\obj\Debug\SingleAINWithConfig.vbproj.GenerateResource.Cache
+C:\cygwin\home\David\Development\git\fonz\DotNet_LJM\Examples\VB\AIN\SingleAINWithConfig\obj\Debug\SingleAINWithConfig.exe
+C:\cygwin\home\David\Development\git\fonz\DotNet_LJM\Examples\VB\AIN\SingleAINWithConfig\obj\Debug\SingleAINWithConfig.xml
+C:\cygwin\home\David\Development\git\fonz\DotNet_LJM\Examples\VB\AIN\SingleAINWithConfig\obj\Debug\SingleAINWithConfig.pdb

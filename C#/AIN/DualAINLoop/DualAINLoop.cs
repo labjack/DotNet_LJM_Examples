@@ -4,7 +4,6 @@
 // Demonstrates reading 2 analog inputs (AINs) in a loop from a LabJack.
 //
 // support@labjack.com
-// July 16, 2013
 //-----------------------------------------------------------------------------
 
 using System;

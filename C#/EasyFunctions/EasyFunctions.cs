@@ -5,7 +5,6 @@
 // example.
 //
 // support@labjack.com
-// April 16, 2013
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;

@@ -4,7 +4,6 @@
 // Demonstrates how to stream using the eStream functions.
 //
 // support@labjack.com
-// Sept 18, 2013
 //-----------------------------------------------------------------------------
 using System;
 using System.Diagnostics;
