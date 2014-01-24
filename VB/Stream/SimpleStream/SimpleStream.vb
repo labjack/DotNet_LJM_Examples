@@ -69,17 +69,17 @@ Module SimpleStream
             ' Stream Configuration
             scansPerRead = 1000 ' # scans returned by eStreamRead call
             numAddresses = 2
-            ReDim aScanListNames(numAddresses) ' Scan list names to stream.
+            ReDim aScanListNames(numAddresses - 1) ' Scan list names to stream.
             aScanListNames(0) = "AIN0"
             aScanListNames(1) = "AIN1"
-            ReDim aTypes(numAddresses) ' Dummy
-            ReDim aScanList(numAddresses) ' Scan list addresses to stream. eStreamStart uses Modbus addresses.
+            ReDim aTypes(numAddresses - 1) ' Dummy
+            ReDim aScanList(numAddresses - 1) ' Scan list addresses to stream. eStreamStart uses Modbus addresses.
             LJM.NamesToAddresses(numAddresses, aScanListNames, aScanList, aTypes)
             scanRate = 1000 ' Scans per second
 
             ' Configure the negative channels for single ended readings.
-            ReDim aNames(numAddresses)
-            ReDim aValues(numAddresses)
+            ReDim aNames(numAddresses - 1)
+            ReDim aValues(numAddresses - 1)
             For i = 0 To numAddresses - 1
                 aNames(i) = aScanListNames(i) & "_NEGATIVE_CH"
                 aValues(i) = LJM.CONSTANTS.GND
@@ -97,7 +97,7 @@ Module SimpleStream
 
                 loopCnt = 0
                 totScans = 0
-                ReDim aData(scansPerRead * numAddresses) ' # of samples per eStreamRead is scansPerRead * numAddresses
+                ReDim aData(scansPerRead * numAddresses - 1) ' # of samples per eStreamRead is scansPerRead * numAddresses
                 skippedTotal = 0
                 skippedCur = 0
                 deviceScanBacklog = 0

@@ -55,14 +55,14 @@ Module DualAINLoop
             ' +-10 V, Resolution index to 0 (default: index 8 or 9 for Pro) and
             ' Settling to 0 (automatic).
             numFrames = 6
-            ReDim aNames(numFrames)
+            ReDim aNames(numFrames - 1)
             aNames(0) = "AIN0_NEGATIVE_CH"
             aNames(1) = "AIN0_RANGE"
             aNames(2) = "AIN0_RESOLUTION_INDEX"
             aNames(3) = "AIN1_NEGATIVE_CH"
             aNames(4) = "AIN1_RANGE"
             aNames(5) = "AIN1_RESOLUTION_INDEX"
-            ReDim aValues(numFrames)
+            ReDim aValues(numFrames - 1)
             aValues(0) = 199
             aValues(1) = 10
             aValues(2) = 0
@@ -79,10 +79,10 @@ Module DualAINLoop
 
             ' Setup and call eReadNames to read AINs.
             numFrames = 2
-            ReDim aNames(numFrames)
+            ReDim aNames(numFrames - 1)
             aNames(0) = "AIN0"
             aNames(1) = "AIN1"
-            ReDim aValues(numFrames)
+            ReDim aValues(numFrames - 1)
             aValues(0) = 0
             aValues(1) = 0
             

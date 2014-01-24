@@ -39,11 +39,11 @@ Module I2CEeprom
 
     Sub Main()
         Dim handle As Integer
-        Dim aNames(1) As String
-        Dim aWrites(1) As Integer
-        Dim aNumValues(1) As Integer
+        Dim aNames(0) As String
+        Dim aWrites(0) As Integer
+        Dim aNumValues(0) As Integer
         Dim aValues() As Double
-        Dim errAddr As Integer
+        Dim errAddr As Integer = -1
         Dim rand As Random
 
         Try
@@ -78,7 +78,7 @@ Module I2CEeprom
             LJM.eWriteName(handle, "I2C_NUM_BYTES_TX", 1) ' Set the number of bytes to transmit
             LJM.eWriteName(handle, "I2C_NUM_BYTES_RX", 4) ' Set the number of bytes to receive
 
-            ReDim aValues(5) ' TX/RX bytes will go here
+            ReDim aValues(4) ' TX/RX bytes will go here
 
             ' Set the TX bytes. We are sending 1 byte for the address.
             aNames(0) = "I2C_WRITE_DATA"

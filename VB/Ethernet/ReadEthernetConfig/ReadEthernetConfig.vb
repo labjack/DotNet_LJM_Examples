@@ -53,7 +53,7 @@ Module ReadEthernetConfig
 
             'Setup and call eReadNames to read ethernet configuration.
             numFrames = 8
-            ReDim aNames(numFrames)
+            ReDim aNames(numFrames - 1)
             aNames(0) = "ETHERNET_IP"
             aNames(1) = "ETHERNET_SUBNET"
             aNames(2) = "ETHERNET_GATEWAY"
@@ -62,7 +62,7 @@ Module ReadEthernetConfig
             aNames(5) = "ETHERNET_GATEWAY_DEFAULT"
             aNames(6) = "ETHERNET_DHCP_ENABLE"
             aNames(7) = "ETHERNET_DHCP_ENABLE_DEFAULT"
-            ReDim aValues(numFrames)
+            ReDim aValues(numFrames - 1)
             LJM.eReadNames(handle, numFrames, aNames, aValues, errAddr)
 
             Console.WriteLine("")

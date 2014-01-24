@@ -52,12 +52,12 @@ Module WritePowerConfig
             ' Setup and call eWriteNames to write configuration values to
             ' the LabJack.
             numFrames = 4
-            ReDim aNames(numFrames)
+            ReDim aNames(numFrames - 1)
             aNames(0) = "POWER_ETHERNET_DEFAULT"
             aNames(1) = "POWER_WIFI_DEFAULT"
             aNames(2) = "POWER_AIN_DEFAULT"
             aNames(3) = "POWER_LED_DEFAULT"
-            ReDim aValues(numFrames)
+            ReDim aValues(numFrames - 1)
             aValues(0) = 1 ' Ethernet On
             aValues(1) = 0 ' WiFi Off
             aValues(2) = 1 ' AIN On

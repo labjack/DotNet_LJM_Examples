@@ -53,11 +53,11 @@ Module SingleAINWithConfig
 
             ' Setup and call eWriteNames to configure the AIN.
             numFrames = 3
-            ReDim aNames(numFrames)
+            ReDim aNames(numFrames - 1)
             aNames(0) = "AIN0_NEGATIVE_CH"
             aNames(1) = "AIN0_RANGE"
             aNames(2) = "AIN0_RESOLUTION_INDEX"
-            ReDim aValues(numFrames)
+            ReDim aValues(numFrames - 1)
             aValues(0) = 199
             aValues(1) = 10
             aValues(2) = 0

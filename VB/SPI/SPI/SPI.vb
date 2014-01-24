@@ -49,9 +49,9 @@ Module SPI
     Sub Main()
         Dim handle As Integer
         Dim numFrames As Integer
-        Dim aNames(1) As String
-        Dim aWrites(1) As Integer
-        Dim aNumValues(1) As Integer
+        Dim aNames(0) As String
+        Dim aWrites(0) As Integer
+        Dim aNumValues(0) As Integer
         Dim aValues() As Double
         Dim errAddr As Integer
 
@@ -130,7 +130,7 @@ Module SPI
 
             ' Read back and display the SPI settings
             numFrames = 7
-            ReDim aNames(numFrames)
+            ReDim aNames(numFrames - 1)
             aNames(0) = "SPI_CS_DIONUM"
             aNames(1) = "SPI_CLK_DIONUM"
             aNames(2) = "SPI_MISO_DIONUM"
@@ -138,7 +138,7 @@ Module SPI
             aNames(4) = "SPI_MODE"
             aNames(5) = "SPI_SPEED_THROTTLE"
             aNames(6) = "SPI_OPTIONS"
-            ReDim aValues(numFrames)
+            ReDim aValues(numFrames - 1)
             LJM.eReadNames(handle, numFrames, aNames, aValues, errAddr)
 
             Console.WriteLine("")
@@ -154,7 +154,7 @@ Module SPI
 
 
             ' Setup write bytes
-            ReDim dataWrite(numBytes)
+            ReDim dataWrite(numBytes - 1)
             rand = New Random()
             For i = 0 To numBytes - 1
                 dataWrite(i) = Convert.ToDouble(rand.Next(255))
@@ -173,7 +173,7 @@ Module SPI
             Next
 
             ' Read the bytes
-            ReDim dataRead(numBytes)
+            ReDim dataRead(numBytes - 1)
             aNames(0) = "SPI_DATA_READ"
             aWrites(0) = LJM.CONSTANTS.READ
             aNumValues(0) = numBytes

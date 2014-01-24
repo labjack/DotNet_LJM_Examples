@@ -57,7 +57,7 @@ Module WriteEthernetConfig
 
             ' Setup and call eWriteNames to set the ethernet configuration.
             numFrames = 4
-            ReDim aNames(numFrames)
+            ReDim aNames(numFrames - 1)
             aNames(0) = "ETHERNET_IP_DEFAULT"
             aNames(1) = "ETHERNET_SUBNET_DEFAULT"
             aNames(2) = "ETHERNET_GATEWAY_DEFAULT"
@@ -66,7 +66,7 @@ Module WriteEthernetConfig
             LJM.IPToNumber("255.255.255.0", subnet)
             LJM.IPToNumber("192.168.1.1", gateway)
             dhcpEnable = 1 ' 1 = Enable, 0 = Disable
-            ReDim aValues(numFrames)
+            ReDim aValues(numFrames - 1)
             aValues(0) = Convert.ToDouble(BitConverter.ToUInt32(BitConverter.GetBytes(ip), 0))
             aValues(1) = Convert.ToDouble(BitConverter.ToUInt32(BitConverter.GetBytes(subnet), 0))
             aValues(2) = Convert.ToDouble(BitConverter.ToUInt32(BitConverter.GetBytes(gateway), 0))

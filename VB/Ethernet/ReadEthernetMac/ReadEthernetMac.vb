@@ -1,7 +1,7 @@
 ﻿'------------------------------------------------------------------------------
-' SingleAIN.vb
+' ReadEthernetMac.vb
 '
-' Demonstrates reading a single analog input (AIN).
+' Demonstrates how to read the ethernet MAC.
 '
 ' support@labjack.com
 '------------------------------------------------------------------------------
@@ -9,8 +9,7 @@ Option Explicit On
 
 Imports LabJack
 
-Module SingleAIN
-
+Module ReadEthernetMac
 
     Sub showErrorMessage(ByVal e As LJM.LJMException)
         Console.WriteLine("LJMException: " & e.ToString)
@@ -38,8 +37,17 @@ Module SingleAIN
 
     Sub Main()
         Dim handle As Integer
-        Dim name As String
-        Dim value As Double
+        Dim numFrames As Integer = 1
+        Dim aAddresses(0) As Integer
+        Dim aTypes(0) As Integer
+        Dim aWrites(0) As Integer
+        Dim aNumValues(0) As Integer
+        Dim aValues(7) As Double
+        Dim errAddr As Integer = -1
+
+        Dim macBytes(7) As Byte
+        Dim macNumber As Int64
+        Dim macString As String = ""
 
         Try
             ' Open first found LabJack
@@ -48,14 +56,36 @@ Module SingleAIN
 
             displayHandleInfo(handle)
 
-            ' Setup and call eReadName to read from an AIN.
-            name = "AIN0"
-            value = 0
-            LJM.eReadName(handle, name, value)
+            ' Call eAddresses to read the ethernet MAC from the LabJack. Note
+            ' that we are reading a byte array which is the big endian binary
+            ' representation of the 64-bit MAC.
+            numFrames = 1
+            aAddresses(0) = 60020
+            aTypes(0) = LJM.CONSTANTS.BYTE
+            aWrites(0) = LJM.CONSTANTS.READ
+            aNumValues(0) = 8
+            LJM.eAddresses(handle, numFrames, aAddresses, aTypes, aWrites, _
+                           aNumValues, aValues, errAddr)
+
+            ' Convert returned values to bytes
+            For i = 0 To 7
+                macBytes(i) = Convert.ToByte(aValues(i))
+            Next
+
+            ' Convert big endian byte array to a 64-bit unsigned integer value
+            If BitConverter.IsLittleEndian Then
+                Array.Reverse(macBytes)
+            End If
+
+            macNumber = BitConverter.ToInt64(macBytes, 0)
+
+            ' Convert the MAC value/number to its string representation
+            macString = ""
+            LJM.NumberToMAC(macNumber, macString)
 
             Console.WriteLine("")
-            Console.WriteLine(name & " reading : " & value.ToString("F4") & _
-                              " V")
+            Console.WriteLine("Ethernet MAC : " & macNumber & " - " & _
+                              macString)
         Catch ljme As LJM.LJMException
             showErrorMessage(ljme)
         End Try

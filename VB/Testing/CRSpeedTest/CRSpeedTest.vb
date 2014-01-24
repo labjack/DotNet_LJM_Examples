@@ -80,8 +80,8 @@ Module CRSpeedTest
             If numAIN > 0 Then
                 ' Configure analog input settings
                 numFrames = Math.Max(0, numAIN * 2)
-                ReDim aNames(numFrames)
-                ReDim aValues(numFrames)
+                ReDim aNames(numFrames - 1)
+                ReDim aValues(numFrames - 1)
                 For i = 0 To numAIN - 1
                     aNames(i * 2) = "AIN" + i.ToString() + "_RANGE"
                     aValues(i * 2) = rangeAIN
@@ -96,10 +96,10 @@ Module CRSpeedTest
             numFrames = Math.Max(0, numAIN) + Convert.ToInt32(readDigital) + _
                         Convert.ToInt32(writeDigital) + _
                         Convert.ToInt32(writeDACs) * 2
-            ReDim aNames(numFrames)
-            ReDim aWrites(numFrames)
-            ReDim aNumValues(numFrames)
-            ReDim aValues(numFrames) ' In this case numFrames is the size of aValue
+            ReDim aNames(numFrames - 1)
+            ReDim aWrites(numFrames - 1)
+            ReDim aNumValues(numFrames - 1)
+            ReDim aValues(numFrames - 1) ' In this case numFrames is the size of aValue
 
             ' Add analog input reads (AIN 0 to numAIN-1)
             For i = 0 To numAIN - 1

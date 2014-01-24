@@ -52,7 +52,7 @@ Module ReadConfig
             ' Setup and call eReadNames to read configuration values from the
             ' LabJack.
             numFrames = 10
-            ReDim aNames(numFrames)
+            ReDim aNames(numFrames - 1)
             aNames(0) = "PRODUCT_ID"
             aNames(1) = "HARDWARE_VERSION"
             aNames(2) = "FIRMWARE_VERSION"
@@ -63,7 +63,7 @@ Module ReadConfig
             aNames(7) = "POWER_WIFI_DEFAULT"
             aNames(8) = "POWER_AIN_DEFAULT"
             aNames(9) = "POWER_LED_DEFAULT"
-            ReDim aValues(numFrames)
+            ReDim aValues(numFrames - 1)
             LJM.eReadNames(handle, numFrames, aNames, aValues, errAddr)
 
             Console.WriteLine("")

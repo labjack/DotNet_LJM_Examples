@@ -80,10 +80,10 @@ Module EasyFunctions
 
             ' Setup and call eWriteNames to write values.
             numFrames = 2
-            ReDim aNames(numFrames)
+            ReDim aNames(numFrames - 1)
             aNames(0) = "DAC0"
             aNames(1) = "TEST_UINT16"
-            ReDim aValues(numFrames)
+            ReDim aValues(numFrames - 1)
             aValues(0) = 2.5 ' 2.5 V
             aValues(1) = 12345 ' 12345
             LJM.eWriteNames(handle, numFrames, aNames, aValues, errorAddress)
@@ -98,11 +98,11 @@ Module EasyFunctions
 
             ' Setup and call eReadNames to read values.
             numFrames = 3
-            ReDim aNames(numFrames)
+            ReDim aNames(numFrames - 1)
             aNames(0) = "SERIAL_NUMBER"
             aNames(1) = "PRODUCT_ID"
             aNames(2) = "FIRMWARE_VERSION"
-            ReDim aValues(numFrames)
+            ReDim aValues(numFrames - 1)
             LJM.eReadNames(handle, numFrames, aNames, aValues, errorAddress)
 
             Console.WriteLine("")
@@ -114,19 +114,19 @@ Module EasyFunctions
 
             ' Setup and call eNames to write/read values to/from the LabJack.
             numFrames = 3
-            ReDim aNames(numFrames)
+            ReDim aNames(numFrames - 1)
             aNames(0) = "DAC0"
             aNames(1) = "TEST_UINT16"
             aNames(2) = "TEST_UINT16"
-            ReDim aWrites(numFrames)
+            ReDim aWrites(numFrames - 1)
             aWrites(0) = LJM.CONSTANTS.WRITE
             aWrites(1) = LJM.CONSTANTS.WRITE
             aWrites(2) = LJM.CONSTANTS.READ
-            ReDim aNumValues(numFrames)
+            ReDim aNumValues(numFrames - 1)
             aNumValues(0) = 1
             aNumValues(1) = 1
             aNumValues(2) = 1
-            ReDim aValues(numFrames)
+            ReDim aValues(numFrames - 1)
             aValues(0) = 2.5 ' write 2.5 V
             aValues(1) = 12345 ' write 12345
             aValues(2) = 0 ' read
@@ -167,13 +167,13 @@ Module EasyFunctions
 
             ' Setup and call eWriteAddresses to write values.
             numFrames = 2
-            ReDim aAddresses(numFrames)
+            ReDim aAddresses(numFrames - 1)
             aAddresses(0) = 1000 ' DAC0
             aAddresses(1) = 55110 ' TEST_UINT16
-            ReDim aTypes(numFrames)
+            ReDim aTypes(numFrames - 1)
             aTypes(0) = LJM.CONSTANTS.FLOAT32
             aTypes(1) = LJM.CONSTANTS.UINT16
-            ReDim aValues(numFrames)
+            ReDim aValues(numFrames - 1)
             aValues(0) = 2.5 ' 2.5 V
             aValues(1) = 12345 ' 12345
             LJM.eWriteAddresses(handle, numFrames, aAddresses, aTypes, _
@@ -189,15 +189,15 @@ Module EasyFunctions
 
             ' Setup and call eReadAddresses to read values.
             numFrames = 3
-            ReDim aAddresses(numFrames)
+            ReDim aAddresses(numFrames - 1)
             aAddresses(0) = 60028 ' serial number
             aAddresses(1) = 60000 ' product ID
             aAddresses(2) = 60004 ' firmware version
-            ReDim aTypes(numFrames)
+            ReDim aTypes(numFrames - 1)
             aTypes(0) = LJM.CONSTANTS.UINT32
             aTypes(1) = LJM.CONSTANTS.FLOAT32
             aTypes(2) = LJM.CONSTANTS.FLOAT32
-            ReDim aValues(numFrames)
+            ReDim aValues(numFrames - 1)
             aValues(0) = 0
             aValues(1) = 0
             aValues(2) = 0
@@ -214,23 +214,23 @@ Module EasyFunctions
 
             ' Setup and call eAddresses to write/read values.
             numFrames = 3
-            ReDim aAddresses(numFrames)
+            ReDim aAddresses(numFrames - 1)
             aAddresses(0) = 1000 ' DAC0
             aAddresses(1) = 55110 ' TEST_UINT16 
             aAddresses(2) = 55110 ' TEST_UINT16
-            ReDim aTypes(numFrames)
+            ReDim aTypes(numFrames - 1)
             aTypes(0) = LJM.CONSTANTS.FLOAT32
             aTypes(1) = LJM.CONSTANTS.UINT16
             aTypes(2) = LJM.CONSTANTS.UINT16
-            ReDim aWrites(numFrames)
+            ReDim aWrites(numFrames - 1)
             aWrites(0) = LJM.CONSTANTS.WRITE
             aWrites(1) = LJM.CONSTANTS.WRITE
             aWrites(2) = LJM.CONSTANTS.READ
-            ReDim aNumValues(numFrames)
+            ReDim aNumValues(numFrames - 1)
             aNumValues(0) = 1
             aNumValues(1) = 1
             aNumValues(2) = 1
-            ReDim aValues(numFrames)
+            ReDim aValues(numFrames - 1)
             aValues(0) = 2.5 ' write 2.5 V
             aValues(1) = 12345 ' write 12345
             aValues(2) = 0 ' read
