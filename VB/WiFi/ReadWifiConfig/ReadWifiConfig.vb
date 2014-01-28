@@ -1,0 +1,102 @@
+﻿'------------------------------------------------------------------------------
+' ReadWifiConfig.vb
+'
+' Demonstrates how to read the WiFi configuration.
+'
+' support@labjack.com
+'------------------------------------------------------------------------------
+Option Explicit On
+
+Imports LabJack
+
+Module ReadWifiConfig
+
+    Sub showErrorMessage(ByVal e As LJM.LJMException)
+        Console.WriteLine("LJMException: " & e.ToString)
+        Console.WriteLine(e.StackTrace)
+    End Sub
+
+    Sub displayHandleInfo(ByVal handle As Integer)
+        Dim devType As Integer
+        Dim conType As Integer
+        Dim serNum As Integer
+        Dim ipAddr As Integer
+        Dim port As Integer
+        Dim maxBytesPerMB As Integer
+        Dim ipAddrStr As String = ""
+
+        LJM.GetHandleInfo(handle, devType, conType, serNum, ipAddr, port, _
+                          maxBytesPerMB)
+        LJM.NumberToIP(ipAddr, ipAddrStr)
+        Console.WriteLine("Opened a LabJack with Device type: " & devType & _
+                          ", Connection type: " & conType & ",")
+        Console.WriteLine("Serial number: " & serNum & ", IP address: " & _
+                          ipAddrStr & ", Port: " & port & ",")
+        Console.WriteLine("Max bytes per MB: " & maxBytesPerMB)
+    End Sub
+
+    Sub Main()
+        Dim handle As Integer
+        Dim numFrames As Integer
+        Dim aNames() As String
+        Dim aValues() As Double
+        Dim errAddr As Integer = -1
+        Dim name As String
+        Dim str As String
+        Dim intVal As Integer
+
+        Try
+            ' Open first found LabJack
+            LJM.OpenS("ANY", "ANY", "ANY", handle)
+            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)
+
+            displayHandleInfo(handle)
+
+            ' Setup and call eReadNames to read WiFi configuration.
+            numFrames = 9
+            ReDim aNames(numFrames - 1)
+            aNames(0) = "WIFI_IP"
+            aNames(1) = "WIFI_SUBNET"
+            aNames(2) = "WIFI_GATEWAY"
+            aNames(3) = "WIFI_DHCP_ENABLE"
+            aNames(4) = "WIFI_IP_DEFAULT"
+            aNames(5) = "WIFI_SUBNET_DEFAULT"
+            aNames(6) = "WIFI_GATEWAY_DEFAULT"
+            aNames(7) = "WIFI_DHCP_ENABLE_DEFAULT"
+            aNames(8) = "WIFI_STATUS"
+            ReDim aValues(numFrames - 1)
+            LJM.eReadNames(handle, numFrames, aNames, aValues, errAddr)
+
+            Console.WriteLine("")
+            Console.WriteLine("eWiFi configuration:")
+            str = ""
+            For i = 0 To numFrames - 1
+                If aNames(i) = "WIFI_STATUS" Or aNames(i).StartsWith("WIFI_DHCP_ENABLE") Then
+                    Console.WriteLine("    " & aNames(i) & " : " & aValues(i))
+                Else
+                    intVal = BitConverter.ToInt32(BitConverter.GetBytes(Convert.ToUInt32(aValues(i))), 0)
+                    LJM.NumberToIP(intVal, str)
+                    Console.WriteLine("    " & aNames(i) & " : " & _
+                                      aValues(i) & " - " & str)
+                End If
+            Next
+
+            ' Setup and call eReadNameString to read the WiFi SSID string.
+            name = "WIFI_SSID"
+            str = ""
+            LJM.eReadNameString(handle, name, str)
+
+            Console.WriteLine("    " & name & " : " & str)
+        Catch ljme As LJM.LJMException
+            showErrorMessage(ljme)
+        End Try
+
+        LJM.CloseAll()
+
+        Console.WriteLine("")
+        Console.WriteLine("Done.")
+        Console.WriteLine("Press the enter key to exit.")
+        Console.ReadLine() ' Pause for user
+    End Sub
+
+End Module

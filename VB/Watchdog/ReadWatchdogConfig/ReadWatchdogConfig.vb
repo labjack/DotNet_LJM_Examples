@@ -1,7 +1,7 @@
 ﻿'------------------------------------------------------------------------------
-' ReadEthernetMac.vb
+' ReadWatchdogConfig.vb
 '
-' Demonstrates how to read the ethernet MAC.
+' Demonstrates how to read the Watchdog configuration.
 '
 ' support@labjack.com
 '------------------------------------------------------------------------------
@@ -9,7 +9,7 @@ Option Explicit On
 
 Imports LabJack
 
-Module ReadEthernetMac
+Module ReadWatchdogConfig
 
     Sub showErrorMessage(ByVal e As LJM.LJMException)
         Console.WriteLine("LJMException: " & e.ToString)
@@ -37,17 +37,10 @@ Module ReadEthernetMac
 
     Sub Main()
         Dim handle As Integer
-        Dim numFrames As Integer = 1
-        Dim aAddresses(0) As Integer
-        Dim aTypes(0) As Integer
-        Dim aWrites(0) As Integer
-        Dim aNumValues(0) As Integer
-        Dim aValues(7) As Double
+        Dim numFrames As Integer
+        Dim aNames() As String
+        Dim aValues() As Double
         Dim errAddr As Integer = -1
-
-        Dim macBytes(7) As Byte
-        Dim macNumber As Int64
-        Dim macString As String = ""
 
         Try
             ' Open first found LabJack
@@ -56,35 +49,33 @@ Module ReadEthernetMac
 
             displayHandleInfo(handle)
 
-            ' Call eAddresses to read the ethernet MAC from the LabJack. Note
-            ' that we are reading a byte array which is the big endian binary
-            ' representation of the 64-bit MAC.
-            aAddresses(0) = 60020
-            aTypes(0) = LJM.CONSTANTS.BYTE
-            aWrites(0) = LJM.CONSTANTS.READ
-            aNumValues(0) = 8
-            LJM.eAddresses(handle, numFrames, aAddresses, aTypes, aWrites, _
-                           aNumValues, aValues, errAddr)
-
-            ' Convert returned values to bytes
-            For i = 0 To 7
-                macBytes(i) = Convert.ToByte(aValues(i))
-            Next
-
-            ' Convert big endian byte array to a 64-bit unsigned integer value
-            If BitConverter.IsLittleEndian Then
-                Array.Reverse(macBytes)
-            End If
-
-            macNumber = BitConverter.ToInt64(macBytes, 0)
-
-            ' Convert the MAC value/number to its string representation
-            macString = ""
-            LJM.NumberToMAC(macNumber, macString)
+            ' Setup and call eReadNames to read the Watchdog configuration from
+            ' the LabJack.
+            numFrames = 15
+            ReDim aNames(numFrames - 1)
+            aNames(0) = "WATCHDOG_ENABLE_DEFAULT"
+            aNames(1) = "WATCHDOG_ADVANCED_DEFAULT"
+            aNames(2) = "WATCHDOG_TIMEOUT_S_DEFAULT"
+            aNames(3) = "WATCHDOG_STARTUP_DELAY_S_DEFAULT"
+            aNames(4) = "WATCHDOG_STRICT_ENABLE_DEFAULT"
+            aNames(5) = "WATCHDOG_STRICT_KEY_DEFAULT"
+            aNames(6) = "WATCHDOG_RESET_ENABLE_DEFAULT"
+            aNames(7) = "WATCHDOG_DIO_ENABLE_DEFAULT"
+            aNames(8) = "WATCHDOG_DIO_STATE_DEFAULT"
+            aNames(9) = "WATCHDOG_DIO_DIRECTION_DEFAULT"
+            aNames(10) = "WATCHDOG_DIO_INHIBIT_DEFAULT"
+            aNames(11) = "WATCHDOG_DAC0_ENABLE_DEFAULT"
+            aNames(12) = "WATCHDOG_DAC0_DEFAULT"
+            aNames(13) = "WATCHDOG_DAC1_ENABLE_DEFAULT"
+            aNames(14) = "WATCHDOG_DAC1_DEFAULT"
+            ReDim aValues(numFrames)
+            LJM.eReadNames(handle, numFrames, aNames, aValues, errAddr)
 
             Console.WriteLine("")
-            Console.WriteLine("Ethernet MAC : " & macNumber & " - " & _
-                              macString)
+            Console.WriteLine("Watchdog configuration:")
+            For i = 0 To numFrames - 1
+                Console.WriteLine("    " & aNames(i) & " : " & aValues(i))
+            Next
         Catch ljme As LJM.LJMException
             showErrorMessage(ljme)
         End Try

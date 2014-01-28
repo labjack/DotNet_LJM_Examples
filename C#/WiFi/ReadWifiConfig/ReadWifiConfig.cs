@@ -59,7 +59,7 @@ namespace ReadWifiConfig
                 int errAddr = -1;
                 LJM.eReadNames(handle, numFrames, aNames, aValues, ref errAddr);
 
-                Console.WriteLine("\neWifi configuration: ");
+                Console.WriteLine("\neWiFi configuration: ");
                 string str = "";
                 for(int i = 0; i < numFrames; i++)
                 {

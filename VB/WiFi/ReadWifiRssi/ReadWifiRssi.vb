@@ -1,7 +1,7 @@
 ﻿'------------------------------------------------------------------------------
-' ReadEthernetMac.vb
+' ReadWifiRssi.vb
 '
-' Demonstrates how to read the ethernet MAC.
+' Demonstrates how to read the WiFi RSSI.
 '
 ' support@labjack.com
 '------------------------------------------------------------------------------
@@ -9,7 +9,7 @@ Option Explicit On
 
 Imports LabJack
 
-Module ReadEthernetMac
+Module ReadWifiRssi
 
     Sub showErrorMessage(ByVal e As LJM.LJMException)
         Console.WriteLine("LJMException: " & e.ToString)
@@ -37,17 +37,8 @@ Module ReadEthernetMac
 
     Sub Main()
         Dim handle As Integer
-        Dim numFrames As Integer = 1
-        Dim aAddresses(0) As Integer
-        Dim aTypes(0) As Integer
-        Dim aWrites(0) As Integer
-        Dim aNumValues(0) As Integer
-        Dim aValues(7) As Double
-        Dim errAddr As Integer = -1
-
-        Dim macBytes(7) As Byte
-        Dim macNumber As Int64
-        Dim macString As String = ""
+        Dim name As String
+        Dim value As Double
 
         Try
             ' Open first found LabJack
@@ -56,35 +47,13 @@ Module ReadEthernetMac
 
             displayHandleInfo(handle)
 
-            ' Call eAddresses to read the ethernet MAC from the LabJack. Note
-            ' that we are reading a byte array which is the big endian binary
-            ' representation of the 64-bit MAC.
-            aAddresses(0) = 60020
-            aTypes(0) = LJM.CONSTANTS.BYTE
-            aWrites(0) = LJM.CONSTANTS.READ
-            aNumValues(0) = 8
-            LJM.eAddresses(handle, numFrames, aAddresses, aTypes, aWrites, _
-                           aNumValues, aValues, errAddr)
-
-            ' Convert returned values to bytes
-            For i = 0 To 7
-                macBytes(i) = Convert.ToByte(aValues(i))
-            Next
-
-            ' Convert big endian byte array to a 64-bit unsigned integer value
-            If BitConverter.IsLittleEndian Then
-                Array.Reverse(macBytes)
-            End If
-
-            macNumber = BitConverter.ToInt64(macBytes, 0)
-
-            ' Convert the MAC value/number to its string representation
-            macString = ""
-            LJM.NumberToMAC(macNumber, macString)
+            ' Setup and call eReadName to read the WiFi RSSI.
+            name = "WIFI_RSSI"
+            value = 0
+            LJM.eReadName(handle, name, value)
 
             Console.WriteLine("")
-            Console.WriteLine("Ethernet MAC : " & macNumber & " - " & _
-                              macString)
+            Console.WriteLine(name & " : " & value)
         Catch ljme As LJM.LJMException
             showErrorMessage(ljme)
         End Try

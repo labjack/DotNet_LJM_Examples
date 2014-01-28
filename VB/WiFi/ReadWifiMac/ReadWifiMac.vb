@@ -1,7 +1,7 @@
 ﻿'------------------------------------------------------------------------------
-' ReadEthernetMac.vb
+' ReadWifiMac.vb
 '
-' Demonstrates how to read the ethernet MAC.
+' Demonstrates how to read the WiFi MAC.
 '
 ' support@labjack.com
 '------------------------------------------------------------------------------
@@ -9,7 +9,7 @@ Option Explicit On
 
 Imports LabJack
 
-Module ReadEthernetMac
+Module ReadWifiMac
 
     Sub showErrorMessage(ByVal e As LJM.LJMException)
         Console.WriteLine("LJMException: " & e.ToString)
@@ -56,10 +56,10 @@ Module ReadEthernetMac
 
             displayHandleInfo(handle)
 
-            ' Call eAddresses to read the ethernet MAC from the LabJack. Note
-            ' that we are reading a byte array which is the big endian binary
+            ' Call eAddresses to read the WiFi MAC from the LabJack. Note that
+            ' we are reading a byte array which is the big endian binary
             ' representation of the 64-bit MAC.
-            aAddresses(0) = 60020
+            aAddresses(0) = 60024
             aTypes(0) = LJM.CONSTANTS.BYTE
             aWrites(0) = LJM.CONSTANTS.READ
             aNumValues(0) = 8
@@ -83,7 +83,7 @@ Module ReadEthernetMac
             LJM.NumberToMAC(macNumber, macString)
 
             Console.WriteLine("")
-            Console.WriteLine("Ethernet MAC : " & macNumber & " - " & _
+            Console.WriteLine("WiFi MAC : " & macNumber & " - " & _
                               macString)
         Catch ljme As LJM.LJMException
             showErrorMessage(ljme)
