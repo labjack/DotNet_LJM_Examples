@@ -47,7 +47,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LabJack.LJM, Version=1.7.6.0, Culture=neutral, PublicKeyToken=9d6c109908595016, processorArchitecture=MSIL" />
+    <Reference Include="LabJack.LJM, Version=1.7.6.0, Culture=neutral, PublicKeyToken=9d6c109908595016, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
