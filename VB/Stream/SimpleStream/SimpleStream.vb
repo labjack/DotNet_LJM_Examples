@@ -77,16 +77,24 @@ Module SimpleStream
             LJM.NamesToAddresses(numAddresses, aScanListNames, aScanList, aTypes)
             scanRate = 1000 ' Scans per second
 
-            ' Configure the negative channels for single ended readings.
-            ReDim aNames(numAddresses - 1)
-            ReDim aValues(numAddresses - 1)
-            For i = 0 To numAddresses - 1
-                aNames(i) = aScanListNames(i) & "_NEGATIVE_CH"
-                aValues(i) = LJM.CONSTANTS.GND
-            Next
-            LJM.eWriteNames(handle, numAddresses, aNames, aValues, errAddr)
-
             Try
+                ' Configure the analog inputs' negative channel, range, settling time and
+                ' resolution.
+                ' Note when streaming, negative channels and ranges can be configured for
+                ' individual analog inputs, but the stream has only one settling time and
+                ' resolution.
+                ReDim aNames(3)
+                aNames(0) = "AIN_ALL_NEGATIVE_CH"
+                aNames(1) = "AIN_ALL_RANGE"
+                aNames(2) = "STREAM_SETTLING_US"
+                aNames(3) = "STREAM_RESOLUTION_INDEX"
+                ReDim aValues(3)
+                aValues(0) = LJM.CONSTANTS.GND ' single-ended
+                aValues(1) = 10.0 ' +/-10V
+                aValues(2) = 0 ' 0 = default
+                aValues(3) = 0 ' 0 = default
+                LJM.eWriteNames(handle, 4, aNames, aValues, errAddr)
+
                 Console.WriteLine("")
                 Console.WriteLine("Starting stream. Press a key to stop " & _
                                   "streaming.")

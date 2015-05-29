@@ -1,7 +1,9 @@
 ﻿//-----------------------------------------------------------------------------
 // SimpleStream.cs
 //
-// Demonstrates how to stream using the eStream functions.
+// Demonstrates how to stream a range of sequential analog inputs using the eStream
+// functions. Useful when streaming many analog inputs. AIN channel scan list is
+// FIRST_AIN_CHANNEL to FIRST_AIN_CHANNEL + NUMBER_OF_AINS - 1.
 //
 // support@labjack.com
 //-----------------------------------------------------------------------------
@@ -9,14 +11,14 @@ using System;
 using System.Diagnostics;
 using LabJack;
 
-namespace SimpleStream
+namespace StreamSequentialAIN
 {
-    class SimpleStream
+    class StreamSequentialAIN
     {
         static void Main(string[] args)
         {
-            SimpleStream es = new SimpleStream();
-            es.performActions();
+            StreamSequentialAIN ss = new StreamSequentialAIN();
+            ss.performActions();
         }
 
         public void showErrorMessage(LJM.LJMException e)
@@ -27,6 +29,9 @@ namespace SimpleStream
 
         public void performActions()
         {
+    		const int FIRST_AIN_CHANNEL = 0;  //0 = AIN0
+			const int NUMBER_OF_AINS = 16;
+
             int handle = 0;
             int devType = 0;
             int conType = 0;
@@ -43,7 +48,7 @@ namespace SimpleStream
                 //devType = LJM.CONSTANTS.dtANY; //Any device type
                 //conType = LJM.CONSTANTS.ctANY; //Any connection type
                 //LJM.Open(devType, conType, "ANY", ref handle);
-                
+
                 LJM.GetHandleInfo(handle, ref devType, ref conType, ref serNum, ref ipAddr, ref port, ref maxBytesPerMB);
                 LJM.NumberToIP(ipAddr, ref ipAddrStr);
                 Console.WriteLine("Opened a LabJack with Device type: " + devType + ", Connection type: " + conType + ",");
@@ -52,8 +57,11 @@ namespace SimpleStream
 
                 //Stream Configuration
                 int scansPerRead = 1000; //# scans returned by eStreamRead call
-                const int numAddresses = 2;
-                string[] aScanListNames = new String[] { "AIN0", "AIN1" }; //Scan list names to stream.
+                //Scan list names to stream. AIN(FIRST_AIN_CHANNEL) to AIN(NUMBER_OF_AINS-1).
+                string[] aScanListNames = new string[NUMBER_OF_AINS];
+                for (int i = 0; i < aScanListNames.Length; i++)
+                    aScanListNames[i] = "AIN" + (FIRST_AIN_CHANNEL + i).ToString();
+                const int numAddresses = NUMBER_OF_AINS;
                 int[] aTypes = new int[numAddresses]; //Dummy
                 int[] aScanList = new int[numAddresses]; //Scan list addresses to stream. eStreamStart uses Modbus addresses.
                 LJM.NamesToAddresses(numAddresses, aScanListNames, aScanList, aTypes);
@@ -76,10 +84,10 @@ namespace SimpleStream
 
                     //Configure and start Stream
                     LJM.eStreamStart(handle, scansPerRead, numAddresses, aScanList, ref scanRate);
-                    
+
                     UInt64 loop = 0;
                     UInt64 totScans = 0;
-                    double[] aData = new double[scansPerRead*numAddresses]; //# of samples per eStreamRead is scansPerRead * numAddresses
+                    double[] aData = new double[scansPerRead * numAddresses]; //# of samples per eStreamRead is scansPerRead * numAddresses
                     UInt64 skippedTotal = 0;
                     int skippedCur = 0;
                     int deviceScanBacklog = 0;
@@ -88,27 +96,27 @@ namespace SimpleStream
 
                     Console.WriteLine("Starting read loop.");
                     sw.Start();
-                    while(!Console.KeyAvailable)
+                    while (!Console.KeyAvailable)
                     {
                         LJM.eStreamRead(handle, aData, ref deviceScanBacklog, ref ljmScanBacklog);
                         totScans += (UInt64)scansPerRead;
-                        
+
                         //Count the skipped samples which are indicated by -9999 values. Missed
                         //samples occur after a device's stream buffer overflows and are reported
                         //after auto-recover mode ends.
                         skippedCur = 0;
-                        foreach(double d in aData)
+                        foreach (double d in aData)
                         {
-                            if(d == -9999.00)
+                            if (d == -9999.00)
                                 skippedCur++;
                         }
                         skippedTotal += (UInt64)skippedCur;
                         loop++;
                         Console.WriteLine("\neStreamRead " + loop);
-                        Console.Write("  First scan out of " + scansPerRead + ": ");
-                        for(int j = 0; j < numAddresses; j++)
-                            Console.Write(aScanListNames[j] + " = " + aData[j].ToString("F4") + ", ");
-                        Console.WriteLine("\n  numSkippedScans: " + skippedCur/numAddresses + ", deviceScanBacklog: " + deviceScanBacklog + ", ljmScanBacklog: " + ljmScanBacklog);
+                        Console.WriteLine("  1st scan out of " + scansPerRead + ":");
+                        for (int j = 0; j < numAddresses; j++)
+                            Console.WriteLine("    " + aScanListNames[j] + " = " + aData[j].ToString("F4"));
+                        Console.WriteLine("  numSkippedScans: " + skippedCur / numAddresses + ", deviceScanBacklog: " + deviceScanBacklog + ", ljmScanBacklog: " + ljmScanBacklog);
                     }
                     sw.Stop();
 
