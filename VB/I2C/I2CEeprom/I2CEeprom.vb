@@ -81,7 +81,7 @@ Module I2CEeprom
             ReDim aValues(4) ' TX/RX bytes will go here
 
             ' Set the TX bytes. We are sending 1 byte for the address.
-            aNames(0) = "I2C_WRITE_DATA"
+            aNames(0) = "I2C_DATA_TX"
             aWrites(0) = LJM.CONSTANTS.WRITE ' Indicates we are writing the values.
             aNumValues(0) = 1 ' The number of bytes
             aValues(0) = 0 ' Byte 0: Memory pointer = 0
@@ -90,7 +90,7 @@ Module I2CEeprom
             LJM.eWriteName(handle, "I2C_GO", 1) ' Do the I2C communications.
 
             ' Read the RX bytes.
-            aNames(0) = "I2C_READ_DATA"
+            aNames(0) = "I2C_DATA_RX"
             aWrites(0) = LJM.CONSTANTS.READ ' Indicates we are reading the values.
             aNumValues(0) = 4 ' The number of bytes
             ' aValues(0) to aValues(3) will contain the data
@@ -116,7 +116,7 @@ Module I2CEeprom
             LJM.eWriteName(handle, "I2C_NUM_BYTES_RX", 0) ' Set the number of bytes to receive
 
             ' Set the TX bytes.
-            aNames(0) = "I2C_WRITE_DATA"
+            aNames(0) = "I2C_DATA_TX"
             aWrites(0) = LJM.CONSTANTS.WRITE ' Indicates we are writing the values.
             aNumValues(0) = 5 ' The number of bytes
             aValues(0) = 0 ' Byte 0: Memory pointer = 0
@@ -143,7 +143,7 @@ Module I2CEeprom
             LJM.eWriteName(handle, "I2C_NUM_BYTES_RX", 4) ' Set the number of bytes to receive
 
             ' Set the TX bytes. We are sending 1 byte for the address.
-            aNames(0) = "I2C_WRITE_DATA"
+            aNames(0) = "I2C_DATA_TX"
             aWrites(0) = LJM.CONSTANTS.WRITE ' Indicates we are writing the values.
             aNumValues(0) = 1 ' The number of bytes
             aValues(0) = 0 ' Byte 0: Memory pointer = 0
@@ -152,7 +152,7 @@ Module I2CEeprom
             LJM.eWriteName(handle, "I2C_GO", 1) ' Do the I2C communications.
 
             ' Read the RX bytes.
-            aNames(0) = "I2C_READ_DATA"
+            aNames(0) = "I2C_DATA_RX"
             aWrites(0) = LJM.CONSTANTS.READ ' Indicates we are reading the values.
             aNumValues(0) = 4 ' The number of bytes
             ' aValues(0) to aValues(3) will contain the data
