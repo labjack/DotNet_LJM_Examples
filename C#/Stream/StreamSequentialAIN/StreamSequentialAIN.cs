@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// SimpleStream.cs
+// StreamSequentialAIN.cs
 //
 // Demonstrates how to stream a range of sequential analog inputs using the eStream
 // functions. Useful when streaming many analog inputs. AIN channel scan list is

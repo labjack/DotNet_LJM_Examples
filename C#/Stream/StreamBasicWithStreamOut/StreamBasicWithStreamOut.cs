@@ -3,7 +3,7 @@
 //
 // Demonstrates setting up stream-in and stream-out together, then reading
 // stream-in values.
-
+//
 // Connect a wire from AIN0 to DAC0 to see the effect of stream-out on stream-in
 // channel 0.
 //
@@ -120,7 +120,7 @@ namespace StreamBasicWithStreamOut
 
                     UInt64 loop = 0;
                     UInt64 totScans = 0;
-                    double[] aData = new double[scansPerRead * numAddressesIn]; //# of samples per eStreamRead is scansPerRead * numAddresses
+                    double[] aData = new double[scansPerRead * numAddressesIn]; //# of samples per eStreamRead is scansPerRead * numAddressesIn
                     UInt64 skippedTotal = 0;
                     int skippedCur = 0;
                     int deviceScanBacklog = 0;
