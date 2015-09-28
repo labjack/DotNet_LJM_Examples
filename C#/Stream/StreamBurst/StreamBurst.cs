@@ -51,13 +51,13 @@ namespace StreamBurst
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
 
                 //Stream Configuration
-                uint numScans = 10000; //Number of scans to perform
+                uint numScans = 20000; //Number of scans to perform
                 string[] aScanListNames = new String[] { "AIN0", "AIN1" }; //Scan list names to stream.
                 int numAddresses = aScanListNames.Length;
                 int[] aTypes = new int[numAddresses]; //Dummy
                 int[] aScanList = new int[numAddresses]; //Scan list addresses to stream. StreamBurst uses Modbus addresses.
                 LJM.NamesToAddresses(numAddresses, aScanListNames, aScanList, aTypes);
-                double scanRate = 5000; //Scans per second
+                double scanRate = 10000; //Scans per second
                 double[] aData = new double[numScans * numAddresses];
 
                 try
@@ -77,7 +77,8 @@ namespace StreamBurst
                         Console.WriteLine("  " + aScanListNames[i]);
                     Console.WriteLine("Scan rate = " + scanRate + " Hz");
                     Console.WriteLine("Sample rate = " + (scanRate * numAddresses) + " Hz");
-                    Console.WriteLine("Number of scans = " + numScans);
+                    Console.WriteLine("Total number of scans = " + numScans);
+                    Console.WriteLine("Total number of samples = " + (numScans * numAddresses));
                     Console.WriteLine("Seconds of samples = " + (numScans / scanRate) + " seconds");
 
                     Console.Write("\nStreaming with StreamBurst...");

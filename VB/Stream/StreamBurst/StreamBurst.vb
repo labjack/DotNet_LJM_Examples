@@ -62,7 +62,7 @@ Module StreamBurst
             displayHandleInfo(handle)
 
             ' Stream Configuration
-            numScans = 10000 ' Number of scans to perform
+            numScans = 20000 ' Number of scans to perform
             numAddresses = 2
             ReDim aScanListNames(numAddresses - 1) ' Scan list names to stream.
             aScanListNames(0) = "AIN0"
@@ -70,7 +70,7 @@ Module StreamBurst
             ReDim aTypes(numAddresses - 1) ' Dummy
             ReDim aScanList(numAddresses - 1) ' Scan list addresses to stream. StreamBurst uses Modbus addresses.
             LJM.NamesToAddresses(numAddresses, aScanListNames, aScanList, aTypes)
-            scanRate = 5000 ' Scans per second
+            scanRate = 10000 ' Scans per second
             ReDim aData(numScans * numAddresses - 1)
 
             Try
@@ -98,7 +98,8 @@ Module StreamBurst
                 Next
                 Console.WriteLine("Scan rate = " & scanRate & " Hz")
                 Console.WriteLine("Sample rate = " & (scanRate * numAddresses) & " Hz")
-                Console.WriteLine("Number of scans = " & numScans)
+                Console.WriteLine("Total number of scans = " & numScans)
+                Console.WriteLine("Total number of samples = " & (numScans * numAddresses))
                 Console.WriteLine("Seconds of samples = " & (numScans / scanRate) & " seconds")
 
                 Console.WriteLine("")
