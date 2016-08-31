@@ -42,21 +42,23 @@ Module StreamTriggered
         Dim sleepMS As Integer
         Dim portionScansReady As Double
 
-        portionScansReady = ljmScanBacklog / scansPerRead
+        portionScansReady = Convert.ToDouble(ljmScanBacklog) / Convert.ToDouble(scansPerRead)
         If portionScansReady > DECREASE_TOTAL Then
             sleepFactor = 0
+        Else
+            sleepFactor = (1 - portionScansReady) * DECREASE_TOTAL
         End If
-        sleepFactor = (1 - portionScansReady) * DECREASE_TOTAL
 
-        sleepMS = sleepFactor * 1000 * scansPerRead / Convert.ToDouble(scanRate)
+        sleepMS = sleepFactor * 1000.0 * scansPerRead / Convert.ToDouble(scanRate)
         If sleepMS < 1 Then
             Return
         End If
-        Console.WriteLine("Sleep " + Str(sleepMS) + " ms")
-        Thread.Sleep(sleepMS) ' Delay so users can read message
+        Thread.Sleep(sleepMS)
     End Sub
 
     Sub Main()
+        Const SCAN_RATE As Integer = 1000  ' Scans per second
+
         Dim handle As Integer
 
         Dim scansPerRead As Integer
@@ -64,7 +66,6 @@ Module StreamTriggered
         Dim aScanListNames() As String
         Dim aTypes() As Integer
         Dim aScanList() As Integer
-        Dim scanRate As Double
 
         Dim loopCnt As UInt64
         Dim totScans As UInt64
@@ -82,8 +83,7 @@ Module StreamTriggered
             displayHandleInfo(handle)
 
             ' Stream Configuration
-            scanRate = 1000 ' Scans per second
-            scansPerRead = scanRate / 2 ' # scans returned by eStreamRead call
+            scansPerRead = SCAN_RATE / 2 ' # scans returned by eStreamRead call
             numAddresses = 4
             ReDim aScanListNames(numAddresses - 1) ' Scan list names to stream.
             aScanListNames(0) = "AIN0"
@@ -111,15 +111,11 @@ Module StreamTriggered
             ' Enable DIO0_EF
             LJM.eWriteName(handle, "DIO0_EF_ENABLE", 1)
 
-            Console.WriteLine("Starting stream in one second. You can trigger stream now via a rising or falling edge on DIO0/FIO0.\n")
-            Console.WriteLine("Press a key to stop streaming.\n")
-
-            Thread.Sleep(1000) ' Delay so user's can read message
-
             Try
-
                 ' Configure and start Stream
-                LJM.eStreamStart(handle, scansPerRead, numAddresses, aScanList, scanRate)
+                LJM.eStreamStart(handle, scansPerRead, numAddresses, aScanList, SCAN_RATE)
+                Console.WriteLine("You can trigger stream now via a rising or falling edge on DIO0/FIO0.")
+                Console.WriteLine("Press a key to stop stream mode.")
 
                 loopCnt = 0
                 totScans = 0
@@ -131,8 +127,8 @@ Module StreamTriggered
 
                 While Console.KeyAvailable = False
                     Try
-                        variableStreamSleep(scansPerRead, scanRate, ljmScanBacklog)
-
+                        variableStreamSleep(scansPerRead, SCAN_RATE, ljmScanBacklog)
+                        ' Thread.Sleep(450)
                         LJM.eStreamRead(handle, aData, deviceScanBacklog, ljmScanBacklog)
                         totScans += scansPerRead
 
@@ -163,21 +159,20 @@ Module StreamTriggered
                         ' If the error is not NO_SCANS_RETURNS, throw an
                         ' exception to stop the loop
                         If ljme0.LJMError <> LJM.LJMERROR.NO_SCANS_RETURNED Then
-                            Throw New LJM.LJMException(ljme0.LJMError)
+                            Throw ljme0
                         End If
                     End Try
                 End While
-
             Catch ljme1 As LJM.LJMException
                 showErrorMessage(ljme1)
+            Finally
                 Try
-                    Console.WriteLine("Stop Stream")
+                    Console.WriteLine("Stop stream mode")
                     LJM.eStreamStop(handle)
                 Catch
                     ' Ignore stream stop exception
                 End Try
             End Try
-
         Catch ljme As LJM.LJMException
             showErrorMessage(ljme)
         End Try
