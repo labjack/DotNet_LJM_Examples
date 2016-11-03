@@ -40,10 +40,10 @@ namespace DualAINLoop
             try
             {
                 //Open first found LabJack
-                LJM.OpenS("ANY", "ANY", "ANY", ref handle);
-                //devType = LJM.CONSTANTS.dtANY; //Any device type
-                //conType = LJM.CONSTANTS.ctANY; //Any connection type
-                //LJM.Open(devType, conType, "ANY", ref handle);
+                LJM.OpenS("ANY", "ANY", "ANY", ref handle);  // Any device, Any connection, Any identifier
+                //LJM.OpenS("T7", "ANY", "ANY", ref handle);  // T7 device, Any connection, Any identifier
+                //LJM.OpenS("T4", "ANY", "ANY", ref handle);  // T4 device, Any connection, Any identifier
+                //LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", ref handle);  // Any device, Any connection, Any identifier
 
                 LJM.GetHandleInfo(handle, ref devType, ref conType, ref serNum, ref ipAddr, ref port, ref maxBytesPerMB);
                 LJM.NumberToIP(ipAddr, ref ipAddrStr);
@@ -51,13 +51,19 @@ namespace DualAINLoop
                 Console.WriteLine("Serial number: " + serNum + ", IP address: " + ipAddrStr + ", Port: " + port + ",");
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
 
-                //Setup and call eWriteNames to configure AINs
-                //Setting AIN0-1 Negative Channel to 199 (Single-ended), Range to +-10 V, Resolution
-                //index to 0 (default: index 8 or 9 for Pro) and Settling to 0 (automatic)
-                int numFrames = 6;
-                string[] names = new string[6] {"AIN0_NEGATIVE_CH", "AIN0_RANGE", "AIN0_RESOLUTION_INDEX",
-                    "AIN1_NEGATIVE_CH", "AIN1_RANGE", "AIN1_RESOLUTION_INDEX"};
-                double[] aValues = new double[6] {199, 10, 0, 199, 10, 0};
+                //Setup and call eWriteNames to configure AINs.
+                //AIN0 and AIN1:
+                //    Negative Channel = 199 (Single-ended)
+                //    Range = +/-10 V
+                //        T4 note: Only AIN0-AIN3 can support +/-10 V range.
+                //    Resolution index = 0 (default)
+                //        T7 note: 0 (default) is index 8, or 9 for Pro.
+                //    Settling = 0 (auto)
+                int numFrames = 8;
+                string[] names = new string[8] { "AIN0_NEGATIVE_CH", "AIN0_RANGE", "AIN0_RESOLUTION_INDEX",
+                    "AIN0_SETTLING_US", "AIN1_NEGATIVE_CH", "AIN1_RANGE", "AIN1_RESOLUTION_INDEX",
+                    "AIN1_SETTLING_US" };
+                double[] aValues = new double[8] {199, 10, 0, 0, 199, 10, 0, 0};
                 int errorAddress = 0;
                 LJM.eWriteNames(handle, numFrames, names, aValues, ref errorAddress);
 
@@ -72,7 +78,7 @@ namespace DualAINLoop
                 names = new string[2] {"AIN0", "AIN1"};
                 aValues = new double[2] {0, 0};
                 
-                Console.WriteLine("Starting read loop.  Press a key to stop.");
+                Console.WriteLine("\nStarting read loop.  Press a key to stop.");
                 while(!Console.KeyAvailable)
                 {
                     LJM.eReadNames(handle, numFrames, names, aValues, ref errorAddress);
@@ -85,10 +91,10 @@ namespace DualAINLoop
                 showErrorMessage(e);
             }
 
-            LJM.CloseAll(); //Close all handles
+            LJM.CloseAll();  //Close all handles
 
             Console.WriteLine("\nDone.\nPress the enter key to exit.");
-            Console.ReadLine(); // Pause for user
+            Console.ReadLine();  // Pause for user
         }
     }
 }
