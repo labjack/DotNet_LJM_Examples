@@ -10,6 +10,7 @@ Option Explicit On
 
 Imports LabJack
 
+
 Module EasyFunctions
 
     Sub showErrorMessage(ByVal e As LJM.LJMException)
@@ -53,8 +54,10 @@ Module EasyFunctions
 
         Try
             ' Open first found LabJack
-            LJM.OpenS("ANY", "ANY", "ANY", handle)
-            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)
+            LJM.OpenS("ANY", "ANY", "ANY", handle)  ' Any device, Any connection, Any identifier
+            'LJM.OpenS("T7", "ANY", "ANY", handle)  ' T7 device, Any connection, Any identifier
+            'LJM.OpenS("T4", "ANY", "ANY", handle)  ' T4 device, Any connection, Any identifier
+            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)  ' Any device, Any connection, Any identifier
 
             displayHandleInfo(handle)
 
@@ -84,8 +87,8 @@ Module EasyFunctions
             aNames(0) = "DAC0"
             aNames(1) = "TEST_UINT16"
             ReDim aValues(numFrames - 1)
-            aValues(0) = 2.5 ' 2.5 V
-            aValues(1) = 12345 ' 12345
+            aValues(0) = 2.5  ' 2.5 V
+            aValues(1) = 12345  ' 12345
             LJM.eWriteNames(handle, numFrames, aNames, aValues, errorAddress)
 
             Console.WriteLine("")
@@ -127,9 +130,9 @@ Module EasyFunctions
             aNumValues(1) = 1
             aNumValues(2) = 1
             ReDim aValues(numFrames - 1)
-            aValues(0) = 2.5 ' write 2.5 V
-            aValues(1) = 12345 ' write 12345
-            aValues(2) = 0 ' read
+            aValues(0) = 2.5  ' write 2.5 V
+            aValues(1) = 12345  ' write 12345
+            aValues(2) = 0  ' read
             LJM.eNames(handle, numFrames, aNames, aWrites, aNumValues, _
                        aValues, errorAddress)
 
@@ -142,9 +145,9 @@ Module EasyFunctions
             Next
 
             ' Setup and call eWriteAddress to write a value.
-            address = 1000 ' DAC0
+            address = 1000  ' DAC0
             type = LJM.CONSTANTS.FLOAT32
-            value = 2.5 ' 2.5 V
+            value = 2.5  ' 2.5 V
             LJM.eWriteAddress(handle, address, type, value)
 
             Console.WriteLine("")
@@ -154,7 +157,7 @@ Module EasyFunctions
 
 
             ' Setup and call eReadAddress to read a value.
-            address = 60028 ' Serial number
+            address = 60028  ' Serial number
             type = LJM.CONSTANTS.UINT32
             value = 0
             LJM.eReadAddress(handle, address, type, value)
@@ -168,14 +171,14 @@ Module EasyFunctions
             ' Setup and call eWriteAddresses to write values.
             numFrames = 2
             ReDim aAddresses(numFrames - 1)
-            aAddresses(0) = 1000 ' DAC0
-            aAddresses(1) = 55110 ' TEST_UINT16
+            aAddresses(0) = 1000  ' DAC0
+            aAddresses(1) = 55110  ' TEST_UINT16
             ReDim aTypes(numFrames - 1)
             aTypes(0) = LJM.CONSTANTS.FLOAT32
             aTypes(1) = LJM.CONSTANTS.UINT16
             ReDim aValues(numFrames - 1)
-            aValues(0) = 2.5 ' 2.5 V
-            aValues(1) = 12345 ' 12345
+            aValues(0) = 2.5  ' 2.5 V
+            aValues(1) = 12345  ' 12345
             LJM.eWriteAddresses(handle, numFrames, aAddresses, aTypes, _
                                 aValues, errorAddress)
 
@@ -190,9 +193,9 @@ Module EasyFunctions
             ' Setup and call eReadAddresses to read values.
             numFrames = 3
             ReDim aAddresses(numFrames - 1)
-            aAddresses(0) = 60028 ' serial number
-            aAddresses(1) = 60000 ' product ID
-            aAddresses(2) = 60004 ' firmware version
+            aAddresses(0) = 60028  ' serial number
+            aAddresses(1) = 60000  ' product ID
+            aAddresses(2) = 60004  ' firmware version
             ReDim aTypes(numFrames - 1)
             aTypes(0) = LJM.CONSTANTS.UINT32
             aTypes(1) = LJM.CONSTANTS.FLOAT32
@@ -215,9 +218,9 @@ Module EasyFunctions
             ' Setup and call eAddresses to write/read values.
             numFrames = 3
             ReDim aAddresses(numFrames - 1)
-            aAddresses(0) = 1000 ' DAC0
-            aAddresses(1) = 55110 ' TEST_UINT16 
-            aAddresses(2) = 55110 ' TEST_UINT16
+            aAddresses(0) = 1000  ' DAC0
+            aAddresses(1) = 55110  ' TEST_UINT16 
+            aAddresses(2) = 55110  ' TEST_UINT16
             ReDim aTypes(numFrames - 1)
             aTypes(0) = LJM.CONSTANTS.FLOAT32
             aTypes(1) = LJM.CONSTANTS.UINT16
@@ -231,9 +234,9 @@ Module EasyFunctions
             aNumValues(1) = 1
             aNumValues(2) = 1
             ReDim aValues(numFrames - 1)
-            aValues(0) = 2.5 ' write 2.5 V
-            aValues(1) = 12345 ' write 12345
-            aValues(2) = 0 ' read
+            aValues(0) = 2.5  ' write 2.5 V
+            aValues(1) = 12345  ' write 12345
+            aValues(2) = 0  ' read
             LJM.eAddresses(handle, numFrames, aAddresses, aTypes, aWrites, _
                            aNumValues, aValues, errorAddress)
 
@@ -249,12 +252,12 @@ Module EasyFunctions
             showErrorMessage(ljme)
         End Try
 
-        LJM.CloseAll() ' Close all handles
+        LJM.CloseAll()  ' Close all handles
 
         Console.WriteLine("")
         Console.WriteLine("Done.")
         Console.WriteLine("Press the enter key to exit.")
-        Console.ReadLine() ' Pause for user
+        Console.ReadLine()  ' Pause for user
     End Sub
 
 End Module
