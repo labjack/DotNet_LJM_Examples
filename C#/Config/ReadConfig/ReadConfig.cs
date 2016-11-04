@@ -35,6 +35,10 @@ namespace ReadConfig
             int port = 0;
             int maxBytesPerMB = 0;
             string ipAddrStr = "";
+            string[] aNames;
+            double[] aValues;
+            int numFrames = 0;
+            int errAddr = 0;
 
             try
             {
@@ -52,15 +56,30 @@ namespace ReadConfig
 
                 //Setup and call eReadNames to read config. values from the
                 //LabJack.
-                string[] aNames = { "PRODUCT_ID", "HARDWARE_VERSION",
-                                      "FIRMWARE_VERSION", "BOOTLOADER_VERSION",
-                                      "WIFI_VERSION", "SERIAL_NUMBER",
-                                      "POWER_ETHERNET_DEFAULT",
-                                      "POWER_WIFI_DEFAULT", "POWER_AIN_DEFAULT",
-                                      "POWER_LED_DEFAULT" };
-                int numFrames = aNames.Length;
-                double[] aValues = new double[numFrames];
-                int errAddr = 0;
+                if (devType == LJM.CONSTANTS.dtT4)
+                {
+                    //LabJack T4 configuration to read
+                    aNames = new string[] {
+                        "PRODUCT_ID", "HARDWARE_VERSION",
+                        "FIRMWARE_VERSION", "BOOTLOADER_VERSION",
+                        "SERIAL_NUMBER", "POWER_ETHERNET_DEFAULT",
+                        "POWER_AIN_DEFAULT", "POWER_LED_DEFAULT"
+                    };
+                }
+                else
+                {
+                    //LabJack T7 and other devices configuration to read
+                    aNames = new string[] {
+                        "PRODUCT_ID", "HARDWARE_VERSION",
+                        "FIRMWARE_VERSION", "BOOTLOADER_VERSION",
+                        "WIFI_VERSION", "SERIAL_NUMBER",
+                        "POWER_ETHERNET_DEFAULT", "POWER_WIFI_DEFAULT",
+                        "POWER_AIN_DEFAULT", "POWER_LED_DEFAULT"
+                    };
+                }
+                numFrames = aNames.Length;
+                aValues = new double[numFrames];
+                errAddr = 0;
                 LJM.eReadNames(handle, numFrames, aNames, aValues, ref errAddr);
 
                 Console.WriteLine("\nConfiguration settings:");
@@ -72,12 +91,10 @@ namespace ReadConfig
                 showErrorMessage(e);
             }
 
-            LJM.CloseAll(); //Close all handles
+            LJM.CloseAll();  //Close all handles
 
             Console.WriteLine("\nDone.\nPress the enter key to exit.");
-            Console.ReadLine(); // Pause for user
+            Console.ReadLine();  // Pause for user
         }
-
-
     }
 }
