@@ -1,13 +1,14 @@
 ﻿'------------------------------------------------------------------------------
 ' WriteWatchdogConfig.vb
 '
-' Demonstrates how to configure the Watchdog.
+' Demonstrates how to configure the Watchdog on a LabJack.
 '
 ' support@labjack.com
 '------------------------------------------------------------------------------
 Option Explicit On
 
 Imports LabJack
+
 
 Module WriteWatchdogConfig
 
@@ -44,8 +45,10 @@ Module WriteWatchdogConfig
 
         Try
             ' Open first found LabJack
-            LJM.OpenS("ANY", "ANY", "ANY", handle)
-            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)
+            LJM.OpenS("ANY", "ANY", "ANY", handle)  ' Any device, Any connection, Any identifier
+            'LJM.OpenS("T7", "ANY", "ANY", handle)  ' T7 device, Any connection, Any identifier
+            'LJM.OpenS("T4", "ANY", "ANY", handle)  ' T4 device, Any connection, Any identifier
+            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)  ' Any device, Any connection, Any identifier
 
             displayHandleInfo(handle)
 
@@ -86,7 +89,7 @@ Module WriteWatchdogConfig
             aValues(12) = 0
             aValues(13) = 0
             aValues(14) = 0
-            aValues(15) = 0 ' Set WATCHDOG_ENABLE_DEFAULT to 1 to enable
+            aValues(15) = 0  ' Set WATCHDOG_ENABLE_DEFAULT to 1 to enable
             LJM.eWriteNames(handle, numFrames, aNames, aValues, errAddr)
 
             Console.WriteLine("")
@@ -98,12 +101,12 @@ Module WriteWatchdogConfig
             showErrorMessage(ljme)
         End Try
 
-        LJM.CloseAll() ' Close all handles
+        LJM.CloseAll()  ' Close all handles
 
         Console.WriteLine("")
         Console.WriteLine("Done.")
         Console.WriteLine("Press the enter key to exit.")
-        Console.ReadLine() ' Pause for user
+        Console.ReadLine()  ' Pause for user
     End Sub
 
 End Module

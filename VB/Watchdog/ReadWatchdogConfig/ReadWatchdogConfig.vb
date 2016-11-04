@@ -9,6 +9,7 @@ Option Explicit On
 
 Imports LabJack
 
+
 Module ReadWatchdogConfig
 
     Sub showErrorMessage(ByVal e As LJM.LJMException)
@@ -80,12 +81,12 @@ Module ReadWatchdogConfig
             showErrorMessage(ljme)
         End Try
 
-        LJM.CloseAll() ' Close all handles
+        LJM.CloseAll()  ' Close all handles
 
         Console.WriteLine("")
         Console.WriteLine("Done.")
         Console.WriteLine("Press the enter key to exit.")
-        Console.ReadLine() ' Pause for user
+        Console.ReadLine()  ' Pause for user
     End Sub
 
 End Module

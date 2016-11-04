@@ -9,6 +9,7 @@
 using System;
 using LabJack;
 
+
 namespace ReadConfig
 {
     class ReadConfig

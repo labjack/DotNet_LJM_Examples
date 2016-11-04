@@ -8,6 +8,7 @@
 using System;
 using LabJack;
 
+
 namespace ReadDeviceNameString
 {
     class ReadDeviceNameString

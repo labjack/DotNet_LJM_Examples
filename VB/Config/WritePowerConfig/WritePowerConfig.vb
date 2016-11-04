@@ -9,6 +9,7 @@ Option Explicit On
 
 Imports LabJack
 
+
 Module WritePowerConfig
 
     Sub showErrorMessage(ByVal e As LJM.LJMException)

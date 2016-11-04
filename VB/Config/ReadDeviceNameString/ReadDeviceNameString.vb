@@ -9,6 +9,7 @@ Option Explicit On
 
 Imports LabJack
 
+
 Module ReadDeviceNameString
 
     Sub showErrorMessage(ByVal e As LJM.LJMException)
