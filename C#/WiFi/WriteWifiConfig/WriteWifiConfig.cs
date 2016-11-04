@@ -8,6 +8,7 @@
 using System;
 using LabJack;
 
+
 namespace WriteWifiConfig
 {
     class WriteWifiConfig
@@ -38,16 +39,21 @@ namespace WriteWifiConfig
             try
             {
                 //Open first found LabJack
-                LJM.OpenS("ANY", "ANY", "ANY", ref handle);
-                //devType = LJM.CONSTANTS.dtANY; //Any device type
-                //conType = LJM.CONSTANTS.ctANY; //Any connection type
-                //LJM.Open(devType, conType, "ANY", ref handle);
+                LJM.OpenS("ANY", "ANY", "ANY", ref handle);  // Any device, Any connection, Any identifier
+                //LJM.OpenS("T7", "ANY", "ANY", ref handle);  // T7 device, Any connection, Any identifier
+                //LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", ref handle);  // Any device, Any connection, Any identifier
 
                 LJM.GetHandleInfo(handle, ref devType, ref conType, ref serNum, ref ipAddr, ref port, ref maxBytesPerMB);
                 LJM.NumberToIP(ipAddr, ref ipAddrStr);
                 Console.WriteLine("Opened a LabJack with Device type: " + devType + ", Connection type: " + conType + ",");
                 Console.WriteLine("Serial number: " + serNum + ", IP address: " + ipAddrStr + ", Port: " + port + ",");
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
+
+                if (devType == LJM.CONSTANTS.dtT4)
+                {
+                    Console.WriteLine("\nThe LabJack T4 does not support WiFi.");
+                    goto Done;
+                }
 
                 //Setup and call eWriteNames to configure WiFi default settings
                 //on the LabJack.
@@ -59,8 +65,8 @@ namespace WriteWifiConfig
                 LJM.IPToNumber("192.168.1.207", ref ip);
                 LJM.IPToNumber("255.255.255.0", ref subnet);
                 LJM.IPToNumber("192.168.1.1", ref gateway);
-                double[] aValues = new double[] { (uint)ip,
-                    (uint)subnet, (uint)gateway };
+                double[] aValues = new double[] { (uint)ip, (uint)subnet,
+                    (uint)gateway };
                 int numFrames = aNames.Length;
                 int errAddr = -1;
                 LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errAddr);
@@ -91,7 +97,7 @@ namespace WriteWifiConfig
                 //Setup and call eWriteName to apply the new WiFi configuration
                 //on the LabJack.
                 name = "WIFI_APPLY_SETTINGS";
-                double value = 1; //1 = apply
+                double value = 1;  //1 = apply
                 LJM.eWriteName(handle, name, value);
                 Console.WriteLine("    " + name + " : " + value);
             }
@@ -100,10 +106,11 @@ namespace WriteWifiConfig
                 showErrorMessage(e);
             }
 
-            LJM.CloseAll(); //Close all handles
+        Done:
+            LJM.CloseAll();  //Close all handles
 
             Console.WriteLine("\nDone.\nPress the enter key to exit.");
-            Console.ReadLine(); // Pause for user
+            Console.ReadLine();  //Pause for user
         }
     }
 }

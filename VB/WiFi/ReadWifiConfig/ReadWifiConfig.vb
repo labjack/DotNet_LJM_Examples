@@ -9,6 +9,7 @@ Option Explicit On
 
 Imports LabJack
 
+
 Module ReadWifiConfig
 
     Sub showErrorMessage(ByVal e As LJM.LJMException)
@@ -35,6 +36,19 @@ Module ReadWifiConfig
         Console.WriteLine("Max bytes per MB: " & maxBytesPerMB)
     End Sub
 
+    Function getDeviceType(ByVal handle As Integer)
+        Dim devType As Integer
+        Dim conType As Integer
+        Dim serNum As Integer
+        Dim ipAddr As Integer
+        Dim port As Integer
+        Dim maxBytesPerMB As Integer
+
+        LJM.GetHandleInfo(handle, devType, conType, serNum, ipAddr, port, _
+                          maxBytesPerMB)
+        Return devType
+    End Function
+
     Sub Main()
         Dim handle As Integer
         Dim numFrames As Integer
@@ -44,13 +58,22 @@ Module ReadWifiConfig
         Dim name As String
         Dim str As String
         Dim intVal As Integer
+        Dim devType As Integer
 
         Try
             ' Open first found LabJack
-            LJM.OpenS("ANY", "ANY", "ANY", handle)
-            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)
+            LJM.OpenS("ANY", "ANY", "ANY", handle)  ' Any device, Any connection, Any identifier
+            'LJM.OpenS("T7", "ANY", "ANY", handle)  ' T7 device, Any connection, Any identifier
+            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)  ' Any device, Any connection, Any identifier
 
             displayHandleInfo(handle)
+
+            devType = getDeviceType(handle)
+            If devType = LJM.CONSTANTS.dtT4 Then
+                Console.WriteLine("")
+                Console.WriteLine("The LabJack T4 does not support WiFi.")
+                GoTo Done
+            End If
 
             ' Setup and call eReadNames to read WiFi configuration.
             numFrames = 9
@@ -91,12 +114,13 @@ Module ReadWifiConfig
             showErrorMessage(ljme)
         End Try
 
+Done:
         LJM.CloseAll()
 
         Console.WriteLine("")
         Console.WriteLine("Done.")
         Console.WriteLine("Press the enter key to exit.")
-        Console.ReadLine() ' Pause for user
+        Console.ReadLine()  ' Pause for user
     End Sub
 
 End Module

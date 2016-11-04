@@ -1,13 +1,14 @@
 ﻿'------------------------------------------------------------------------------
 ' WriteWifiConfig.vb
 '
-' Demonstrates how to configure the WiFi settings.
+' Demonstrates how to configure the WiFi settings on a LabJack.
 '
 ' support@labjack.com
 '------------------------------------------------------------------------------
 Option Explicit On
 
 Imports LabJack
+
 
 Module WriteWifiConfig
 
@@ -35,6 +36,19 @@ Module WriteWifiConfig
         Console.WriteLine("Max bytes per MB: " & maxBytesPerMB)
     End Sub
 
+    Function getDeviceType(ByVal handle As Integer)
+        Dim devType As Integer
+        Dim conType As Integer
+        Dim serNum As Integer
+        Dim ipAddr As Integer
+        Dim port As Integer
+        Dim maxBytesPerMB As Integer
+
+        LJM.GetHandleInfo(handle, devType, conType, serNum, ipAddr, port, _
+                          maxBytesPerMB)
+        Return devType
+    End Function
+
     Sub Main()
         Dim handle As Integer
         Dim numFrames As Integer
@@ -49,13 +63,22 @@ Module WriteWifiConfig
         Dim subnet As Integer = 0
         Dim gateway As Integer = 0
         Dim dhcpEnable As Integer = 0
+        Dim devType As Integer
 
         Try
             ' Open first found LabJack
-            LJM.OpenS("ANY", "ANY", "ANY", handle)
-            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)
+            LJM.OpenS("ANY", "ANY", "ANY", handle)  ' Any device, Any connection, Any identifier
+            'LJM.OpenS("T7", "ANY", "ANY", handle)  ' T7 device, Any connection, Any identifier
+            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)  ' Any device, Any connection, Any identifier
 
             displayHandleInfo(handle)
+
+            devType = getDeviceType(handle)
+            If devType = LJM.CONSTANTS.dtT4 Then
+                Console.WriteLine("")
+                Console.WriteLine("The LabJack T4 does not support WiFi.")
+                GoTo Done
+            End If
 
             ' Setup and call eWriteNames to configure WiFi default settings.
             numFrames = 3
@@ -97,19 +120,20 @@ Module WriteWifiConfig
 
             ' Setup and call eWriteName to apply the new WiFi configuration.
             name = "WIFI_APPLY_SETTINGS"
-            value = 1 ' 1 = apply
+            value = 1  ' 1 = apply
             LJM.eWriteName(handle, name, value)
             Console.WriteLine("    " & name & " : " & value)
         Catch ljme As LJM.LJMException
             showErrorMessage(ljme)
         End Try
 
-        LJM.CloseAll()
+Done:
+        LJM.CloseAll()  ' Close all handles
 
         Console.WriteLine("")
         Console.WriteLine("Done.")
         Console.WriteLine("Press the enter key to exit.")
-        Console.ReadLine() ' Pause for user
+        Console.ReadLine()  ' Pause for user
     End Sub
 
 End Module
