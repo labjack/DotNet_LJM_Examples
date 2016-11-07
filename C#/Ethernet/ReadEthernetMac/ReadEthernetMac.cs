@@ -8,6 +8,7 @@
 using System;
 using LabJack;
 
+
 namespace ReadEthernetMac
 {
     class ReadEthernetMac
@@ -38,10 +39,10 @@ namespace ReadEthernetMac
             try
             {
                 //Open first found LabJack
-                LJM.OpenS("ANY", "ANY", "ANY", ref handle);
-                //devType = LJM.CONSTANTS.dtANY; //Any device type
-                //conType = LJM.CONSTANTS.ctANY; //Any connection type
-                //LJM.Open(devType, conType, "ANY", ref handle);
+                LJM.OpenS("ANY", "ANY", "ANY", ref handle);  // Any device, Any connection, Any identifier
+                //LJM.OpenS("T7", "ANY", "ANY", ref handle);  // T7 device, Any connection, Any identifier
+                //LJM.OpenS("T4", "ANY", "ANY", ref handle);  // T4 device, Any connection, Any identifier
+                //LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", ref handle);  // Any device, Any connection, Any identifier
 
                 LJM.GetHandleInfo(handle, ref devType, ref conType, ref serNum, ref ipAddr, ref port, ref maxBytesPerMB);
                 LJM.NumberToIP(ipAddr, ref ipAddrStr);
@@ -49,27 +50,18 @@ namespace ReadEthernetMac
                 Console.WriteLine("Serial number: " + serNum + ", IP address: " + ipAddrStr + ", Port: " + port + ",");
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
 
-                //Call eAddresses to read the ethernet MAC from the LabJack.
-                //Note that we are reading a byte array which is the big endian
-                //binary representation of the 64-bit MAC.
-                int numFrames = 1;
-                int[] aAddresses = new int[] { 60020 };
-                int[] aTypes = new int[] { LJM.CONSTANTS.BYTE };
-                int[] aWrites = new int[] { LJM.CONSTANTS.READ };
-                int[] aNumValues = new int[] { 8 };
-                double[] aValues = new double[8];
+                //Call eReadAddressByteArray to read the ethernet MAC. We are
+                //reading a byte array which is the big endian binary
+                //representation of the 64-bit MAC.
+                byte[] aBytes = new byte[8];
                 int errAddr = -1;
-                LJM.eAddresses(handle, numFrames, aAddresses, aTypes, aWrites,
-                    aNumValues, aValues, ref errAddr);
-
-                //Convert returned values to bytes 
-                byte[] macBytes = Array.ConvertAll<double, byte>(aValues, Convert.ToByte);
+                LJM.eReadAddressByteArray(handle, 60020, 8, aBytes, ref errAddr);
                 
                 //Convert big endian byte array to a 64-bit unsigned integer
                 //value
                 if (BitConverter.IsLittleEndian)
-                    Array.Reverse(macBytes);
-                Int64 macNumber = BitConverter.ToInt64(macBytes, 0);
+                    Array.Reverse(aBytes);
+                Int64 macNumber = BitConverter.ToInt64(aBytes, 0);
 
                 //Convert the MAC value/number to its string representation
                 string macString = "";
@@ -82,10 +74,10 @@ namespace ReadEthernetMac
                 showErrorMessage(e);
             }
 
-            LJM.CloseAll(); //Close all handles
+            LJM.CloseAll();  //Close all handles
 
             Console.WriteLine("\nDone.\nPress the enter key to exit.");
-            Console.ReadLine(); // Pause for user
+            Console.ReadLine();  //Pause for user
         }
     }
 }

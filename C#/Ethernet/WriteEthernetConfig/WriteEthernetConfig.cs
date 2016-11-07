@@ -8,6 +8,7 @@
 using System;
 using LabJack;
 
+
 namespace WriteEthernetConfig
 {
     class WriteEthernetConfig
@@ -38,10 +39,10 @@ namespace WriteEthernetConfig
             try
             {
                 //Open first found LabJack
-                LJM.OpenS("ANY", "ANY", "ANY", ref handle);
-                //devType = LJM.CONSTANTS.dtANY; //Any device type
-                //conType = LJM.CONSTANTS.ctANY; //Any connection type
-                //LJM.Open(devType, conType, "ANY", ref handle);
+                LJM.OpenS("ANY", "ANY", "ANY", ref handle);  // Any device, Any connection, Any identifier
+                //LJM.OpenS("T7", "ANY", "ANY", ref handle);  // T7 device, Any connection, Any identifier
+                //LJM.OpenS("T4", "ANY", "ANY", ref handle);  // T4 device, Any connection, Any identifier
+                //LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", ref handle);  // Any device, Any connection, Any identifier
 
                 LJM.GetHandleInfo(handle, ref devType, ref conType, ref serNum, ref ipAddr, ref port, ref maxBytesPerMB);
                 LJM.NumberToIP(ipAddr, ref ipAddrStr);
@@ -49,8 +50,7 @@ namespace WriteEthernetConfig
                 Console.WriteLine("Serial number: " + serNum + ", IP address: " + ipAddrStr + ", Port: " + port + ",");
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
 
-                //Setup and call eWriteNames to set the ethernet configuration
-                //on the LabJack.
+                //Setup and call eWriteNames to set the ethernet configuration.
                 string[] aNames = new string[] { "ETHERNET_IP_DEFAULT",
                     "ETHERNET_SUBNET_DEFAULT", "ETHERNET_GATEWAY_DEFAULT",
                     "ETHERNET_DHCP_ENABLE_DEFAULT" };
@@ -61,14 +61,14 @@ namespace WriteEthernetConfig
                 LJM.IPToNumber("192.168.1.207", ref ip);
                 LJM.IPToNumber("255.255.255.0", ref subnet);
                 LJM.IPToNumber("192.168.1.1", ref gateway);
-                dhcpEnable = 1; //1 = Enable, 0 = Disable
+                dhcpEnable = 1;  //1 = Enable, 0 = Disable
                 double[] aValues = new double[] { (uint)ip, (uint)subnet,
                     (uint)gateway, dhcpEnable };
                 int numFrames = aNames.Length;
                 int errAddr = -1;
                 LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errAddr);
 
-                Console.WriteLine("\nSet ethernet configuration: ");
+                Console.WriteLine("\nSet ethernet configuration:");
                 string str = "";
                 for(int i = 0; i < numFrames; i++)
                 {
@@ -89,10 +89,10 @@ namespace WriteEthernetConfig
                 showErrorMessage(e);
             }
 
-            LJM.CloseAll(); //Close all handles
+            LJM.CloseAll();  //Close all handles
 
             Console.WriteLine("\nDone.\nPress the enter key to exit.");
-            Console.ReadLine(); // Pause for user
+            Console.ReadLine();  //Pause for user
         }
     }
 }

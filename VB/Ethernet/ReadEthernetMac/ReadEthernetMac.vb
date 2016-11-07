@@ -1,13 +1,14 @@
 ﻿'------------------------------------------------------------------------------
 ' ReadEthernetMac.vb
 '
-' Demonstrates how to read the ethernet MAC.
+' Demonstrates how to read the ethernet MAC from a LabJack.
 '
 ' support@labjack.com
 '------------------------------------------------------------------------------
 Option Explicit On
 
 Imports LabJack
+
 
 Module ReadEthernetMac
 
@@ -37,12 +38,7 @@ Module ReadEthernetMac
 
     Sub Main()
         Dim handle As Integer
-        Dim numFrames As Integer = 1
-        Dim aAddresses(0) As Integer
-        Dim aTypes(0) As Integer
-        Dim aWrites(0) As Integer
-        Dim aNumValues(0) As Integer
-        Dim aValues(7) As Double
+        Dim aBytes(7) As Byte
         Dim errAddr As Integer = -1
 
         Dim macBytes(7) As Byte
@@ -51,32 +47,24 @@ Module ReadEthernetMac
 
         Try
             ' Open first found LabJack
-            LJM.OpenS("ANY", "ANY", "ANY", handle)
-            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)
+            LJM.OpenS("ANY", "ANY", "ANY", handle)  ' Any device, Any connection, Any identifier
+            'LJM.OpenS("T7", "ANY", "ANY", handle)  ' T7 device, Any connection, Any identifier
+            'LJM.OpenS("T4", "ANY", "ANY", handle)  ' T4 device, Any connection, Any identifier
+            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)  ' Any device, Any connection, Any identifier
 
             displayHandleInfo(handle)
 
-            ' Call eAddresses to read the ethernet MAC from the LabJack. Note
-            ' that we are reading a byte array which is the big endian binary
+            ' Call eReadAddressByteArray to read the ethernet MAC. We are
+            ' reading a byte array which is the big endian binary
             ' representation of the 64-bit MAC.
-            aAddresses(0) = 60020
-            aTypes(0) = LJM.CONSTANTS.BYTE
-            aWrites(0) = LJM.CONSTANTS.READ
-            aNumValues(0) = 8
-            LJM.eAddresses(handle, numFrames, aAddresses, aTypes, aWrites, _
-                           aNumValues, aValues, errAddr)
-
-            ' Convert returned values to bytes
-            For i = 0 To 7
-                macBytes(i) = Convert.ToByte(aValues(i))
-            Next
+            LJM.eReadAddressByteArray(handle, 60020, 8, aBytes, errAddr)
 
             ' Convert big endian byte array to a 64-bit unsigned integer value
             If BitConverter.IsLittleEndian Then
-                Array.Reverse(macBytes)
+                Array.Reverse(aBytes)
             End If
 
-            macNumber = BitConverter.ToInt64(macBytes, 0)
+            macNumber = BitConverter.ToInt64(aBytes, 0)
 
             ' Convert the MAC value/number to its string representation
             macString = ""
@@ -89,12 +77,12 @@ Module ReadEthernetMac
             showErrorMessage(ljme)
         End Try
 
-        LJM.CloseAll() ' Close all handles
+        LJM.CloseAll()  ' Close all handles
 
         Console.WriteLine("")
         Console.WriteLine("Done.")
         Console.WriteLine("Press the enter key to exit.")
-        Console.ReadLine() ' Pause for user
+        Console.ReadLine()  ' Pause for user
     End Sub
 
 End Module

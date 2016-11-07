@@ -1,13 +1,14 @@
 ﻿'------------------------------------------------------------------------------
 ' WriteEthernetConfig.vb
 '
-' Demonstrates how to set ethernet configuration settings.
+' Demonstrates how to set ethernet configuration settings on a LabJack.
 '
 ' support@labjack.com
 '------------------------------------------------------------------------------
 Option Explicit On
 
 Imports LabJack
+
 
 Module WriteEthernetConfig
 
@@ -50,8 +51,10 @@ Module WriteEthernetConfig
 
         Try
             ' Open first found LabJack
-            LJM.OpenS("ANY", "ANY", "ANY", handle)
-            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)
+            LJM.OpenS("ANY", "ANY", "ANY", handle)  ' Any device, Any connection, Any identifier
+            'LJM.OpenS("T7", "ANY", "ANY", handle)  ' T7 device, Any connection, Any identifier
+            'LJM.OpenS("T4", "ANY", "ANY", handle)  ' T4 device, Any connection, Any identifier
+            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)  ' Any device, Any connection, Any identifier
 
             displayHandleInfo(handle)
 
@@ -65,7 +68,7 @@ Module WriteEthernetConfig
             LJM.IPToNumber("192.168.1.207", ip)
             LJM.IPToNumber("255.255.255.0", subnet)
             LJM.IPToNumber("192.168.1.1", gateway)
-            dhcpEnable = 1 ' 1 = Enable, 0 = Disable
+            dhcpEnable = 1  ' 1 = Enable, 0 = Disable
             ReDim aValues(numFrames - 1)
             aValues(0) = Convert.ToDouble(BitConverter.ToUInt32(BitConverter.GetBytes(ip), 0))
             aValues(1) = Convert.ToDouble(BitConverter.ToUInt32(BitConverter.GetBytes(subnet), 0))
@@ -95,7 +98,7 @@ Module WriteEthernetConfig
         Console.WriteLine("")
         Console.WriteLine("Done.")
         Console.WriteLine("Press the enter key to exit.")
-        Console.ReadLine() ' Pause for user
+        Console.ReadLine()  'Pause for user
     End Sub
 
 End Module
