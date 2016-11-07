@@ -1,14 +1,16 @@
 ﻿//-----------------------------------------------------------------------------
 // I2CEeprom.cs
 //
-// Demonstrates I2C communication using the LJM driver. The demonstration uses
-// a LJTick-DAC connected to FIO0/FIO1, configures I2C settings, and reads,
-// writes and reads bytes from/to the EEPROM.
+// Demonstrates I2C communication using a LabJack. The demonstration uses a
+// LJTick-DAC connected to FIO0/FIO1 for the T7 or FIO4/FIO5 for the T4, and
+// configures the I2C settings. Then a read, write and again a read are
+// performed on the LJTick-DAC EEPROM.
 //
 // support@labjack.com
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;
+
 
 namespace I2CEeprom
 {
@@ -40,10 +42,10 @@ namespace I2CEeprom
             try
             {
                 //Open first found LabJack
-                LJM.OpenS("ANY", "ANY", "ANY", ref handle);
-                //devType = LJM.CONSTANTS.dtANY; //Any device type
-                //conType = LJM.CONSTANTS.ctANY; //Any connection type
-                //LJM.Open(devType, conType, "ANY", ref handle);
+                LJM.OpenS("ANY", "ANY", "ANY", ref handle);  // Any device, Any connection, Any identifier
+                //LJM.OpenS("T7", "ANY", "ANY", ref handle);  // T7 device, Any connection, Any identifier
+                //LJM.OpenS("T4", "ANY", "ANY", ref handle);  // T4 device, Any connection, Any identifier
+                //LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", ref handle);  // Any device, Any connection, Any identifier
 
                 LJM.GetHandleInfo(handle, ref devType, ref conType, ref serNum, ref ipAddr, ref port, ref maxBytesPerMB);
                 LJM.NumberToIP(ipAddr, ref ipAddrStr);
@@ -53,48 +55,60 @@ namespace I2CEeprom
 
 
                 //Configure the I2C communication.
-                LJM.eWriteName(handle, "I2C_SDA_DIONUM", 1); //SDA pin number = 1 (FIO1)
+                if (devType == LJM.CONSTANTS.dtT4)
+                {
+                    //For the T4, using FIO4 and FIO5 for SCL and SDA pins.
+                    //FIO0 to FIO3 are reserved for analog inputs, and digital
+                    //lines are required.
+                    LJM.eWriteName(handle, "I2C_SDA_DIONUM", 5);  //SDA pin number = 5 (FIO5)
+                    LJM.eWriteName(handle, "I2C_SCL_DIONUM", 4);  //SCL pin number = 4 (FIO4)
+                }
+                else
+                {
+                    //For the T7 and other devices, using FIO0 and FIO1 for the
+                    //SCL and SDA pins.
+                    LJM.eWriteName(handle, "I2C_SDA_DIONUM", 1);  //SDA pin number = 1 (FIO1)
+                    LJM.eWriteName(handle, "I2C_SCL_DIONUM", 0);  //SCL pin number = 0 (FIO0)
+                }
 
-                LJM.eWriteName(handle, "I2C_SCL_DIONUM", 0); //SCA pin number = 0 (FIO0)
-
-                //Speed throttle is inversely proportional to clock
-                //frequency. 0 = max.
-                LJM.eWriteName(handle, "I2C_SPEED_THROTTLE", 0); //Speed throttle = 0
+                //Speed throttle is inversely proportional to clock frequency.
+                //0 = max.
+                LJM.eWriteName(handle, "I2C_SPEED_THROTTLE", 65516);  //Speed throttle = 65516 (~100 kHz)
 
                 //Options bits:
                 //  bit0: Reset the I2C bus.
                 //  bit1: Restart w/o stop
                 //  bit2: Disable clock stretching.
-                LJM.eWriteName(handle, "I2C_OPTIONS", 0); //Options = 0
+                LJM.eWriteName(handle, "I2C_OPTIONS", 0);  //Options = 0
 
-                LJM.eWriteName(handle, "I2C_SLAVE_ADDRESS", 80); //Slave Address of the I2C chip = 80 (0x50)
+                LJM.eWriteName(handle, "I2C_SLAVE_ADDRESS", 80);  //Slave Address of the I2C chip = 80 (0x50)
 
 
                 //Initial read of EEPROM bytes 0-3 in the user memory area. We
                 //need a single I2C transmission that writes the chip's memory
                 //pointer and then reads the data.
-                LJM.eWriteName(handle, "I2C_NUM_BYTES_TX", 1); //Set the number of bytes to transmit
-                LJM.eWriteName(handle, "I2C_NUM_BYTES_RX", 4); //Set the number of bytes to receive
+                LJM.eWriteName(handle, "I2C_NUM_BYTES_TX", 1);  //Set the number of bytes to transmit
+                LJM.eWriteName(handle, "I2C_NUM_BYTES_RX", 4);  //Set the number of bytes to receive
 
                 string[] aNames = new string[1];
                 int[] aWrites = new int[1];
                 int[] aNumValues = new int[1];
-                double[] aValues = new double[5]; //TX/RX bytes will go here
+                double[] aValues = new double[5];  //TX/RX bytes will go here
                 int errorAddress = -1;
 
                 //Set the TX bytes. We are sending 1 byte for the address.
                 aNames[0] = "I2C_DATA_TX";
-                aWrites[0] = LJM.CONSTANTS.WRITE; //Indicates we are writing the values.
-                aNumValues[0] = 1; //The number of bytes
-                aValues[0] = 0; //Byte 0: Memory pointer = 0
+                aWrites[0] = LJM.CONSTANTS.WRITE;  //Indicates we are writing the values.
+                aNumValues[0] = 1;  //The number of bytes
+                aValues[0] = 0;  //Byte 0: Memory pointer = 0
                 LJM.eNames(handle, 1, aNames, aWrites, aNumValues, aValues, ref errorAddress);
 
-                LJM.eWriteName(handle, "I2C_GO", 1); //Do the I2C communications.
+                LJM.eWriteName(handle, "I2C_GO", 1);  //Do the I2C communications.
 
                 //Read the RX bytes.
                 aNames[0] = "I2C_DATA_RX";
-                aWrites[0] = LJM.CONSTANTS.READ; //Indicates we are reading the values.
-                aNumValues[0] = 4; //The number of bytes
+                aWrites[0] = LJM.CONSTANTS.READ;  //Indicates we are reading the values.
+                aNumValues[0] = 4;  //The number of bytes
                 //aValues[0] to aValues[3] will contain the data
                 for (int i = 0; i < 4; i++)
                     aValues[i] = 0;
@@ -112,21 +126,21 @@ namespace I2CEeprom
                 //intervals.  For instance, if you start writing at address 14,
                 //you can only write two bytes because byte 16 is the start of
                 //a new page.
-                LJM.eWriteName(handle, "I2C_NUM_BYTES_TX", 5); //Set the number of bytes to transmit
-                LJM.eWriteName(handle, "I2C_NUM_BYTES_RX", 0); //Set the number of bytes to receive
+                LJM.eWriteName(handle, "I2C_NUM_BYTES_TX", 5);  //Set the number of bytes to transmit
+                LJM.eWriteName(handle, "I2C_NUM_BYTES_RX", 0);  //Set the number of bytes to receive
 
                 //Set the TX bytes.
                 aNames[0] = "I2C_DATA_TX";
-                aWrites[0] = LJM.CONSTANTS.WRITE; //Indicates we are writing the values.
-                aNumValues[0] = 5; //The number of bytes
-                aValues[0] = 0; //Byte 0: Memory pointer = 0
+                aWrites[0] = LJM.CONSTANTS.WRITE;  //Indicates we are writing the values.
+                aNumValues[0] = 5;  //The number of bytes
+                aValues[0] = 0;  //Byte 0: Memory pointer = 0
                 //Create 4 new random numbers to write (aValues[1-4]).
                 Random rand = new Random();
                 for (int i = 1; i < 5; i++)
-                    aValues[i] = Convert.ToDouble(rand.Next(255)); //0 to 255
+                    aValues[i] = Convert.ToDouble(rand.Next(255));  //0 to 255
                 LJM.eNames(handle, 1, aNames, aWrites, aNumValues, aValues, ref errorAddress);
 
-                LJM.eWriteName(handle, "I2C_GO", 1); //Do the I2C communications.
+                LJM.eWriteName(handle, "I2C_GO", 1);  //Do the I2C communications.
 
                 Console.Write("Write User Memory [0-3] = ");
                 for (int i = 1; i < 5; i++)
@@ -137,22 +151,22 @@ namespace I2CEeprom
                 //Final read of EEPROM bytes 0-3 in the user memory area. We
                 //need a single I2C transmission that writes the address and
                 //then reads the data.
-                LJM.eWriteName(handle, "I2C_NUM_BYTES_TX", 1); //Set the number of bytes to transmit
-                LJM.eWriteName(handle, "I2C_NUM_BYTES_RX", 4); //Set the number of bytes to receive
+                LJM.eWriteName(handle, "I2C_NUM_BYTES_TX", 1);  //Set the number of bytes to transmit
+                LJM.eWriteName(handle, "I2C_NUM_BYTES_RX", 4);  //Set the number of bytes to receive
 
                 //Set the TX bytes. We are sending 1 byte for the address.
                 aNames[0] = "I2C_DATA_TX";
-                aWrites[0] = LJM.CONSTANTS.WRITE; //Indicates we are writing the values.
-                aNumValues[0] = 1; //The number of bytes
-                aValues[0] = 0; //Byte 0: Memory pointer = 0
+                aWrites[0] = LJM.CONSTANTS.WRITE;  //Indicates we are writing the values.
+                aNumValues[0] = 1;  //The number of bytes
+                aValues[0] = 0;  //Byte 0: Memory pointer = 0
                 LJM.eNames(handle, 1, aNames, aWrites, aNumValues, aValues, ref errorAddress);
 
-                LJM.eWriteName(handle, "I2C_GO", 1); //Do the I2C communications.
+                LJM.eWriteName(handle, "I2C_GO", 1);  //Do the I2C communications.
 
                 //Read the RX bytes.
                 aNames[0] = "I2C_DATA_RX";
-                aWrites[0] = LJM.CONSTANTS.READ; //Indicates we are reading the values.
-                aNumValues[0] = 4; //The number of bytes
+                aWrites[0] = LJM.CONSTANTS.READ;  //Indicates we are reading the values.
+                aNumValues[0] = 4;  //The number of bytes
                 //aValues[0] to aValues[3] will contain the data
                 for (int i = 0; i < 4; i++)
                     aValues[i] = 0;
@@ -168,10 +182,10 @@ namespace I2CEeprom
                 showErrorMessage(e);
             }
 
-            LJM.CloseAll(); //Close all handles
+            LJM.CloseAll();  //Close all handles
 
             Console.WriteLine("\nDone.\nPress the enter key to exit.");
-            Console.ReadLine(); //Pause for user
+            Console.ReadLine();  //Pause for user
         }
     }
 }

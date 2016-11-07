@@ -5,10 +5,17 @@
 //
 // You can short MOSI to MISO for testing.
 //
-// MOSI    FIO2
-// MISO    FIO3
-// CLK     FIO0
-// CS      FIO1
+// T7:
+//     MOSI    FIO2
+//     MISO    FIO3
+//     CLK     FIO0
+//     CS      FIO1
+//
+// T4:
+//     MOSI    FIO6
+//     MISO    FIO7
+//     CLK     FIO4
+//     CS      FIO5
 //
 // If you short MISO to MOSI, then you will read back the same bytes that you
 // write.  If you short MISO to GND, then you will read back zeros.  If you
@@ -18,6 +25,7 @@
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;
+
 
 namespace SPI
 {
@@ -37,25 +45,23 @@ namespace SPI
 
         public void performActions()
         {
+            int handle = 0;
+            int errAddr = -1;
+            int devType = 0;
+            int conType = 0;
+            int serNum = 0;
+            int ipAddr = 0;
+            int port = 0;
+            int maxBytesPerMB = 0;
+            string ipAddrStr = "";
+
             try
             {
-                int handle = 0;
-                int errAddr = 0;
-
-
                 //Open first found LabJack
-                LJM.OpenS("ANY", "ANY", "ANY", ref handle);
-                //int devType = LJM.CONSTANTS.dtANY; //Any device type
-                //int conType = LJM.CONSTANTS.ctANY; //Any connection type
-                //LJM.Open(devType, conType, "ANY", ref handle);
-
-                int devType = 0;
-                int conType = 0;
-                int serNum = 0;
-                int ipAddr = 0;
-                int port = 0;
-                int maxBytesPerMB = 0;
-                string ipAddrStr = "";
+                LJM.OpenS("ANY", "ANY", "ANY", ref handle);  // Any device, Any connection, Any identifier
+                //LJM.OpenS("T7", "ANY", "ANY", ref handle);  // T7 device, Any connection, Any identifier
+                //LJM.OpenS("T4", "ANY", "ANY", ref handle);  // T4 device, Any connection, Any identifier
+                //LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", ref handle);  // Any device, Any connection, Any identifier
 
                 LJM.GetHandleInfo(handle, ref devType, ref conType, ref serNum, ref ipAddr, ref port, ref maxBytesPerMB);
                 LJM.NumberToIP(ipAddr, ref ipAddrStr);
@@ -65,50 +71,32 @@ namespace SPI
                 Console.Out.WriteLine("");
 
 
-                //CS is FIO1
-                LJM.eWriteName(handle, "SPI_CS_DIONUM", 1);
-                
-                //CLK is FIO0
-                LJM.eWriteName(handle, "SPI_CLK_DIONUM", 0);
+                if (devType == LJM.CONSTANTS.dtT4)
+                {
+                    //Setting CS, CLK, MISO, and MOSI lines for the T4. FIO0
+                    //to FIO3 are reserved for analog inputs, and SPI requires
+                    //digital lines.
+                    LJM.eWriteName(handle, "SPI_CS_DIONUM", 5);  //CS is FIO5
+                    LJM.eWriteName(handle, "SPI_CLK_DIONUM", 4);  //CLK is FIO4
+                    LJM.eWriteName(handle, "SPI_MISO_DIONUM", 7);  //MISO is FIO7
+                    LJM.eWriteName(handle, "SPI_MOSI_DIONUM", 6);  //MOSI is FIO6
+                }
+                else
+                {
+                    //Setting CS, CLK, MISO, and MOSI lines for the T7 and
+                    //other devices.
+                    LJM.eWriteName(handle, "SPI_CS_DIONUM", 1);  //CS is FIO1
+                    LJM.eWriteName(handle, "SPI_CLK_DIONUM", 0);  //CLK is FIO0
+                    LJM.eWriteName(handle, "SPI_MISO_DIONUM", 3);  //MISO is FIO3
+                    LJM.eWriteName(handle, "SPI_MOSI_DIONUM", 2);  //MOSI is FIO2
+                }
 
-                //MISO is FIO3
-                LJM.eWriteName(handle, "SPI_MISO_DIONUM", 3);
-
-                //MOSI is FIO2
-                LJM.eWriteName(handle, "SPI_MOSI_DIONUM", 2);
-
-                //Modes:
-                //0 = A: CPHA=0, CPOL=0 
-                //    Data clocked on the rising edge
-                //    Data changed on the falling edge
-                //    Final clock state low
-                //    Initial clock state low
-                //1 = B: CPHA=0, CPOL=1
-                //    Data clocked on the falling edge
-                //    Data changed on the rising edge
-                //    Final clock state low
-                //    Initial clock state low
-                //2 = C: CPHA=1, CPOL=0 
-                //    Data clocked on the falling edge
-                //    Data changed on the rising edge
-                //    Final clock state high
-                //    Initial clock state high
-                //3 = D: CPHA=1, CPOL=1 
-                //    Data clocked on the rising edge
-                //    Data changed on the falling edge
-                //    Final clock state high
-                //    Initial clock state high
-
-                //Selecting Mode: A - CPHA=1, CPOL=1.
-                LJM.eWriteName(handle, "SPI_MODE", 0);
+                //Selecting Mode CPHA=1 (bit 0), CPOL=1 (bit 1)
+                LJM.eWriteName(handle, "SPI_MODE", 3);
 
                 //Speed Throttle:
-                //Frequency = 1000000000 / (175*(65536-SpeedThrottle) + 1020)
                 //Valid speed throttle values are 1 to 65536 where 0 = 65536.
-                //Note: The above equation and its frequency range were tested for
-                //firmware 1.0009 and may change in the future.
-
-                //Configuring Max. Speed (~ 1 MHz)
+                //Configuring Max. Speed (~800 kHz) = 0
                 LJM.eWriteName(handle, "SPI_SPEED_THROTTLE", 0);
 
                 //Options
@@ -140,27 +128,26 @@ namespace SPI
                 }
 
 
-                //Write/Read 4 bytes
+                //Write(TX)/Read(RX) 4 bytes
                 const int numBytes = 4;
                 LJM.eWriteName(handle, "SPI_NUM_BYTES", numBytes);
 
 
-                //Setup write bytes
-                double[] dataWrite = new double[numBytes];
+                //Write the bytes
                 Random rand = new Random();
+                double[] dataWrite = new double[numBytes];
                 for (int i = 0; i < numBytes; i++)
                 {
                     dataWrite[i] = Convert.ToDouble(rand.Next(255));
                 }
-                aNames = new string[1];
                 int[] aWrites = new int[1];
                 int[] aNumValues = new int[1];
-    
-                //Write the bytes
-                aNames[0] = "SPI_DATA_WRITE";
+                aNames = new string[1];
+                aNames[0] = "SPI_DATA_TX";
                 aWrites[0] = LJM.CONSTANTS.WRITE;
                 aNumValues[0] = numBytes;
                 LJM.eNames(handle, 1, aNames, aWrites, aNumValues, dataWrite, ref errAddr);
+                LJM.eWriteName(handle, "SPI_GO", 1);  //Do the SPI communications
 
                 //Display the bytes written
                 Console.WriteLine("");
@@ -168,14 +155,15 @@ namespace SPI
                 {
                     Console.Out.WriteLine("dataWrite[" + i + "] = " + dataWrite[i]);
                 }
-   
+
 
                 //Read the bytes
                 double[] dataRead = new double[numBytes];
-                aNames[0] = "SPI_DATA_READ";
+                aNames[0] = "SPI_DATA_RX";
                 aWrites[0] = LJM.CONSTANTS.READ;
                 aNumValues[0] = numBytes;
                 LJM.eNames(handle, 1, aNames, aWrites, aNumValues, dataRead, ref errAddr);
+                LJM.eWriteName(handle, "SPI_GO", 1);  //Do the SPI communications
 
                 //Display the bytes read
                 Console.Out.WriteLine("");
@@ -189,10 +177,10 @@ namespace SPI
                 showErrorMessage(ljme);
             }
 
-            LJM.CloseAll(); //Close all LabJack handles
+            LJM.CloseAll();  //Close all handles
 
             Console.WriteLine("\nDone.\nPress the enter key to exit.");
-            Console.ReadLine(); // Pause for user
+            Console.ReadLine();  //Pause for user
         }
     }
 }

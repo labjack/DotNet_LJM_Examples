@@ -5,10 +5,17 @@
 '
 ' You can short MOSI to MISO for testing.
 '
-' MOSI    FIO2
-' MISO    FIO3
-' CLK     FIO0
-' CS      FIO1
+' T7:
+'     MOSI    FIO2
+'     MISO    FIO3
+'     CLK     FIO0
+'     CS      FIO1
+'
+' T4:
+'     MOSI    FIO6
+'     MISO    FIO7
+'     CLK     FIO4
+'     CS      FIO5
 '
 ' If you short MISO to MOSI, then you will read back the same bytes that you
 ' write.  If you short MISO to GND, then you will read back zeros.  If you
@@ -19,6 +26,7 @@
 Option Explicit On
 
 Imports LabJack
+
 
 Module SPI
 
@@ -46,6 +54,19 @@ Module SPI
         Console.WriteLine("Max bytes per MB: " & maxBytesPerMB)
     End Sub
 
+    Function getDeviceType(ByVal handle As Integer)
+        Dim devType As Integer
+        Dim conType As Integer
+        Dim serNum As Integer
+        Dim ipAddr As Integer
+        Dim port As Integer
+        Dim maxBytesPerMB As Integer
+
+        LJM.GetHandleInfo(handle, devType, conType, serNum, ipAddr, port, _
+                          maxBytesPerMB)
+        Return devType
+    End Function
+
     Sub Main()
         Dim handle As Integer
         Dim numFrames As Integer
@@ -54,64 +75,47 @@ Module SPI
         Dim aNumValues(0) As Integer
         Dim aValues() As Double
         Dim errAddr As Integer
-
         Dim numBytes As Integer
         Dim dataWrite() As Double
         Dim dataRead() As Double
         Dim rand As Random
+        Dim devType As Integer
+
 
         Try
             ' Open first found LabJack
-            LJM.OpenS("ANY", "ANY", "ANY", handle)
-            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)
+            LJM.OpenS("ANY", "ANY", "ANY", handle)  ' Any device, Any connection, Any identifier
+            'LJM.OpenS("T7", "ANY", "ANY", handle)  ' T7 device, Any connection, Any identifier
+            'LJM.OpenS("T4", "ANY", "ANY", handle)  ' T4 device, Any connection, Any identifier
+            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)  ' Any device, Any connection, Any identifier
 
             displayHandleInfo(handle)
+            devType = getDeviceType(handle)
 
 
-            ' CS is FIO1
-            LJM.eWriteName(handle, "SPI_CS_DIONUM", 1)
+            If devType = LJM.CONSTANTS.dtT4 Then
+                ' Setting CS, CLK, MISO, and MOSI lines for the T4. FIO0 to
+                ' FIO3 are reserved for analog inputs, and SPI requires
+                ' digital lines.
+                LJM.eWriteName(handle, "SPI_CS_DIONUM", 5)  ' CS is FIO5
+                LJM.eWriteName(handle, "SPI_CLK_DIONUM", 4)  ' CLK is FIO4
+                LJM.eWriteName(handle, "SPI_MISO_DIONUM", 7)  ' MISO is FIO7
+                LJM.eWriteName(handle, "SPI_MOSI_DIONUM", 6)  ' MOSI is FIO6
+            Else
+                ' Setting CS, CLK, MISO, and MOSI lines for the T7 and other
+                ' devices.
+                LJM.eWriteName(handle, "SPI_CS_DIONUM", 1)  ' CS is FIO1
+                LJM.eWriteName(handle, "SPI_CLK_DIONUM", 0)  ' CLK is FIO0
+                LJM.eWriteName(handle, "SPI_MISO_DIONUM", 3)  ' MISO is FIO3
+                LJM.eWriteName(handle, "SPI_MOSI_DIONUM", 2)  ' MOSI is FIO2
+            End If
 
-            ' CLK is FIO0
-            LJM.eWriteName(handle, "SPI_CLK_DIONUM", 0)
-
-            ' MISO is FIO3
-            LJM.eWriteName(handle, "SPI_MISO_DIONUM", 3)
-
-            ' MOSI is FIO2
-            LJM.eWriteName(handle, "SPI_MOSI_DIONUM", 2)
-
-            ' Modes:
-            ' 0 = A: CPHA=0, CPOL=0 
-            '     Data clocked on the rising edge
-            '     Data changed on the falling edge
-            '     Final clock state low
-            '     Initial clock state low
-            ' 1 = B: CPHA=0, CPOL=1
-            '     Data clocked on the falling edge
-            '     Data changed on the rising edge
-            '     Final clock state low
-            '     Initial clock state low
-            ' 2 = C: CPHA=1, CPOL=0 
-            '     Data clocked on the falling edge
-            '     Data changed on the rising edge
-            '     Final clock state high
-            '     Initial clock state high
-            ' 3 = D: CPHA=1, CPOL=1 
-            '     Data clocked on the rising edge
-            '     Data changed on the falling edge
-            '     Final clock state high
-            '     Initial clock state high
-
-            ' Selecting Mode: A - CPHA=1, CPOL=1.
-            LJM.eWriteName(handle, "SPI_MODE", 0)
+            ' Selecting Mode CPHA=1 (bit 0), CPOL=1 (bit 1)
+            LJM.eWriteName(handle, "SPI_MODE", 3)
 
             ' Speed Throttle:
-            ' Frequency = 1000000000 / (175*(65536-SpeedThrottle) + 1020)
             ' Valid speed throttle values are 1 to 65536 where 0 = 65536.
-            ' Note: The above equation and its frequency range were tested for
-            ' firmware 1.0009 and may change in the future.
-
-            ' Configuring Max. Speed (~ 1 MHz)
+            ' Configuring Max. Speed (~800 kHz) = 0
             LJM.eWriteName(handle, "SPI_SPEED_THROTTLE", 0)
 
             ' Options
@@ -148,23 +152,22 @@ Module SPI
             Next
 
 
-            ' Write/Read 4 bytes
+            ' Write(TX)/Read(RX) 4 bytes
             numBytes = 4
             LJM.eWriteName(handle, "SPI_NUM_BYTES", numBytes)
 
 
-            ' Setup write bytes
+            ' Write the bytes
             ReDim dataWrite(numBytes - 1)
             rand = New Random()
             For i = 0 To numBytes - 1
                 dataWrite(i) = Convert.ToDouble(rand.Next(255))
             Next
-
-            ' Write the bytes
-            aNames(0) = "SPI_DATA_WRITE"
+            aNames(0) = "SPI_DATA_TX"
             aWrites(0) = LJM.CONSTANTS.WRITE
             aNumValues(0) = numBytes
             LJM.eNames(handle, 1, aNames, aWrites, aNumValues, dataWrite, errAddr)
+            LJM.eWriteName(handle, "SPI_GO", 1)  ' Do the SPI communications
 
             ' Display the bytes written
             Console.WriteLine("")
@@ -172,12 +175,14 @@ Module SPI
                 Console.Out.WriteLine("dataWrite[" & i & "] = " & dataWrite(i))
             Next
 
+
             ' Read the bytes
             ReDim dataRead(numBytes - 1)
-            aNames(0) = "SPI_DATA_READ"
+            aNames(0) = "SPI_DATA_RX"
             aWrites(0) = LJM.CONSTANTS.READ
             aNumValues(0) = numBytes
             LJM.eNames(handle, 1, aNames, aWrites, aNumValues, dataRead, errAddr)
+            LJM.eWriteName(handle, "SPI_GO", 1)  ' Do the SPI communications
 
             ' Display the bytes read
             Console.Out.WriteLine("")
@@ -188,12 +193,12 @@ Module SPI
             showErrorMessage(ljme)
         End Try
 
-        LJM.CloseAll() ' Close all handles
+        LJM.CloseAll()  ' Close all handles
 
         Console.WriteLine("")
         Console.WriteLine("Done.")
         Console.WriteLine("Press the enter key to exit.")
-        Console.ReadLine() ' Pause for user
+        Console.ReadLine()  ' Pause for user
     End Sub
 
 End Module
