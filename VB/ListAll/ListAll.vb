@@ -11,6 +11,7 @@ Option Explicit On
 
 Imports LabJack
 
+
 Module ListAll
 
     Sub showErrorMessage(ByVal e As LJM.LJMException)
@@ -34,6 +35,7 @@ Module ListAll
         Dim nl As String = Environment.NewLine
 
         DEVICE_NAMES.Add(LJM.CONSTANTS.dtT7, "T7")
+        DEVICE_NAMES.Add(LJM.CONSTANTS.dtT4, "T4")
         DEVICE_NAMES.Add(LJM.CONSTANTS.dtDIGIT, "Digit")
         
         CONN_NAMES.Add(LJM.CONSTANTS.ctUSB, "USB")
@@ -49,7 +51,7 @@ Module ListAll
             ' Find and display LabJack devices with listAll.
             'LJM.ListAll(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, numFound, aDeviceTypes, aConnectionTypes, aSerialNumbers, aIPAddresses)
             'Console.WriteLine("ListAll found " & numFound & " LabJacks:" & nl)
-            
+
             Console.WriteLine(String.Format("{0, -18}{1, -18}{2, -18}{3, -18}", "Device Type", "Connection Type", "Serial Number", "IP Address"))
             For i As Integer = 0 To numFound - 1
                 If DEVICE_NAMES.TryGetValue(aDeviceTypes(i), dev) = False Then
@@ -65,11 +67,11 @@ Module ListAll
             showErrorMessage(ljme)
         End Try
 
-        LJM.CloseAll() ' Close all handles
+        LJM.CloseAll()  ' Close all handles
 
         Console.WriteLine(nl & "Done.")
         Console.WriteLine("Press the enter key to exit.")
-        Console.ReadLine() ' Pause for user
+        Console.ReadLine()  ' Pause for user
     End Sub
 
 End Module

@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using LabJack;
 
+
 namespace ListAll
 {
     class ListAll
@@ -31,6 +32,7 @@ namespace ListAll
         {
             Dictionary<int, string> DEVICE_NAMES = new Dictionary<int, string> {
                 {LJM.CONSTANTS.dtT7, "T7"},
+                {LJM.CONSTANTS.dtT4, "T4"},
                 {LJM.CONSTANTS.dtDIGIT, "Digit"}
             };
 
@@ -39,7 +41,6 @@ namespace ListAll
                 {LJM.CONSTANTS.ctTCP, "TCP"},
                 {LJM.CONSTANTS.ctETHERNET, "Ethernet"},
                 {LJM.CONSTANTS.ctWIFI, "WiFi"},
-
             };
 
             const int MAX_SIZE = LJM.CONSTANTS.LIST_ALL_SIZE;
@@ -60,30 +61,30 @@ namespace ListAll
                 LJM.ListAll(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, ref numFound, aDeviceTypes, aConnectionTypes, aSerialNumbers, aIPAddresses);
                 Console.WriteLine("ListAll found " + numFound + " LabJacks:\n");
                 */
-       			    
-			    Console.WriteLine(String.Format("{0, -18}{1, -18}{2, -18}{3, -18}", "Device Type", "Connection Type", "Serial Number", "IP Address"));
-			    for(int i = 0; i < numFound; i++)
+
+                Console.WriteLine(String.Format("{0, -18}{1, -18}{2, -18}{3, -18}", "Device Type", "Connection Type", "Serial Number", "IP Address"));
+                for(int i = 0; i < numFound; i++)
                 {
                     string dev;
                     if(!DEVICE_NAMES.TryGetValue(aDeviceTypes[i], out dev))
                         dev = aDeviceTypes[i].ToString();
-				    string con;
+                    string con;
                     if(!CONN_NAMES.TryGetValue(aConnectionTypes[i], out con))
                         con = aConnectionTypes[i].ToString();
                     string ip = "";
-				    LJM.NumberToIP(aIPAddresses[i], ref ip);
+                    LJM.NumberToIP(aIPAddresses[i], ref ip);
                     Console.WriteLine(String.Format("{0, -18}{1, -18}{2, -18}{3, -18}", dev, con, aSerialNumbers[i], ip));
-			    }
+                }
             }
             catch (LJM.LJMException e)
             {
                 showErrorMessage(e);
             }
 
-            LJM.CloseAll(); //Close all handles
+            LJM.CloseAll();  //Close all handles
 
             Console.WriteLine("\nDone.\nPress the enter key to exit.");
-            Console.ReadLine(); // Pause for user
+            Console.ReadLine();  // Pause for user
         }
     }
 }
