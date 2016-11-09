@@ -11,6 +11,7 @@ using System;
 using System.Diagnostics;
 using LabJack;
 
+
 namespace CRSpeedTest
 {
     class CRSpeedTest
@@ -42,10 +43,10 @@ namespace CRSpeedTest
             try
             {
                 //Open first found LabJack
-                LJM.OpenS("ANY", "ANY", "ANY", ref handle);
-                //devType = LJM.CONSTANTS.dtANY; //Any device type
-                //conType = LJM.CONSTANTS.ctANY; //Any connection type
-                //LJM.Open(devType, conType, "ANY", ref handle);
+                LJM.OpenS("ANY", "ANY", "ANY", ref handle);  // Any device, Any connection, Any identifier
+                //LJM.OpenS("T7", "ANY", "ANY", ref handle);  // T7 device, Any connection, Any identifier
+                //LJM.OpenS("T4", "ANY", "ANY", ref handle);  // T4 device, Any connection, Any identifier
+                //LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", ref handle);  // Any device, Any connection, Any identifier
 
                 LJM.GetHandleInfo(handle, ref devType, ref conType, ref serNum, ref ipAddr, ref port, ref maxBytesPerMB);
                 LJM.NumberToIP(ipAddr, ref ipAddrStr);
@@ -54,13 +55,15 @@ namespace CRSpeedTest
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
 
 
-                const int numIterations = 1000; // Number of iterations to perform in the loop
+                const int numIterations = 1000;  //Number of iterations to perform in the loop
 
                 //Analog input settings
-                const int numAIN = 1; // Number of analog inputs to read
-                const double rangeAIN = 10.0;
+                const int numAIN = 1;  //Number of analog inputs to read
+                const double rangeAIN = 10.0;  // T7 AIN range
+                const double rangeAINHV = 10.0;  //T4 HV channels range
+                const double rangeAINLV = 2.4;  //T4 LV channels range
                 const double resolutionAIN = 1.0;
-
+                
                 //Digital settings
                 const bool readDigital = false;
                 const bool writeDigital = false;
@@ -76,6 +79,29 @@ namespace CRSpeedTest
                 double[] aValues;
                 int errAddr = 0;
 
+                if (devType == LJM.CONSTANTS.dtT4)
+                {
+                    //For the T4, configure the channels to analog input or
+                    //digital I/O.
+
+                    //Update all digital I/O channels.
+                    //b1 = Ignored. b0 = Affected.
+                    double dioInhibit = (double)0x00000;  //b00000000000000000000
+                    //Set AIN 0 to numAIN-1 as analog inputs (b1), the rest as
+                    //digital I/O (b0).
+                    double dioAnalogEnable = Math.Pow(2, numAIN) - 1;
+                    aNames = new string[2] { "DIO_INHIBIT", "DIO_ANALOG_ENABLE" };
+                    aValues = new double[2] { dioInhibit, dioAnalogEnable };
+                    LJM.eWriteNames(handle, 2, aNames, aValues, ref errAddr);
+                    if(writeDigital)
+                    {
+                        //Update only digital I/O channels in future digital
+                        //write calls. b1 = Ignored. b0 = Affected.
+                        dioInhibit = dioAnalogEnable;
+                        LJM.eWriteName(handle, "DIO_INHIBIT", dioInhibit);
+                    }
+                }
+
                 if(numAIN > 0)
                 {
                     //Configure analog input settings
@@ -85,20 +111,33 @@ namespace CRSpeedTest
                     for(i = 0; i < numAIN; i++)
                     {
                         aNames[i*2] = "AIN" + i + "_RANGE";
-                        aValues[i*2] = rangeAIN;
+                        if (devType == LJM.CONSTANTS.dtT4)
+                        {
+                            //T4 range
+                            if (i < 4)
+                                aValues[i * 2] = rangeAINHV;  //HV line
+                            else
+                                aValues[i * 2] = rangeAINLV;  //LV line
+                        }
+                        else
+                        {
+                            //T7 range
+                            aValues[i * 2] = rangeAIN;
+                        }
                         aNames[i*2+1] = "AIN" + i + "_RESOLUTION_INDEX";
                         aValues[i*2+1] = resolutionAIN;
                     }
                     LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errAddr);
                 }
 
-                //Initialize and configure eNames parameters for loop's eNames call
+                //Initialize and configure eNames parameters for loop's eNames
+                //call
                 numFrames = Math.Max(0, numAIN) + Convert.ToInt32(readDigital) +
                     Convert.ToInt32(writeDigital) + Convert.ToInt32(writeDACs)*2;
                 aNames = new string[numFrames];
                 aWrites = new int[numFrames];
                 aNumValues = new int[numFrames];
-                aValues = new double[numFrames]; //In this case numFrames is the size of aValue
+                aValues = new double[numFrames];  //In this case numFrames is the size of aValue
 
                 //Add analog input reads (AIN 0 to numAIN-1)
                 for(i = 0; i < numAIN; i++)
@@ -203,10 +242,10 @@ namespace CRSpeedTest
                 showErrorMessage(e);
             }
 
-            LJM.CloseAll(); //Close all handles
+            LJM.CloseAll();  //Close all handles
 
             Console.WriteLine("\nDone.\nPress the enter key to exit.");
-            Console.ReadLine(); // Pause for user
+            Console.ReadLine();  //Pause for user
         }
     }
 }

@@ -10,6 +10,7 @@ Option Explicit On
 
 Imports LabJack
 
+
 Module CRSpeedTest
 
     Sub showErrorMessage(ByVal e As LJM.LJMException)
@@ -30,11 +31,24 @@ Module CRSpeedTest
                           maxBytesPerMB)
         LJM.NumberToIP(ipAddr, ipAddrStr)
         Console.WriteLine("Opened a LabJack with Device type: " & devType & _
-                          ", Connection type: " & conType & ",")
+            ", Connection type: " & conType & ",")
         Console.WriteLine("Serial number: " & serNum & ", IP address: " & _
-                          ipAddrStr & ", Port: " & port & ",")
+            ipAddrStr & ", Port: " & port & ",")
         Console.WriteLine("Max bytes per MB: " & maxBytesPerMB)
     End Sub
+
+    Function getDeviceType(ByVal handle As Integer)
+        Dim devType As Integer
+        Dim conType As Integer
+        Dim serNum As Integer
+        Dim ipAddr As Integer
+        Dim port As Integer
+        Dim maxBytesPerMB As Integer
+
+        LJM.GetHandleInfo(handle, devType, conType, serNum, ipAddr, port, _
+                          maxBytesPerMB)
+        Return devType
+    End Function
 
     Sub Main()
         Dim handle As Integer
@@ -47,11 +61,17 @@ Module CRSpeedTest
 
         Dim i As Integer
         Dim wrStr As String
+        Dim devType As Integer
 
-        Const numIterations As Integer = 1000 ' Number of iterations to perform in the loop
+        Dim dioInhibit As Integer  ' T4 DIO inhibit setting
+        Dim dioAnalogEnable As Integer  ' T4 DIO analog enable setting
 
-        Const numAIN As Integer = 1 ' Number of analog inputs to read
-        Const rangeAIN As Double = 10.0
+        Const numIterations As Integer = 1000  ' Number of iterations to perform in the loop
+
+        Const numAIN As Integer = 1  ' Number of analog inputs to read
+        Const rangeAIN As Double = 10.0  ' T7 AIN range
+        Const rangeAINHV As Double = 10.0  ' T4 HV channels range
+        Const rangeAINLV As Double = 2.4  ' T4 LV channels range
         Const resolutionAIN As Double = 1.0
 
         ' Digital settings
@@ -71,11 +91,38 @@ Module CRSpeedTest
 
         Try
             ' Open first found LabJack
-            LJM.OpenS("ANY", "ANY", "ANY", handle)
-            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)
+            LJM.OpenS("ANY", "ANY", "ANY", handle)  ' Any device, Any connection, Any identifier
+            'LJM.OpenS("T7", "ANY", "ANY", handle)  ' T7 device, Any connection, Any identifier
+            'LJM.OpenS("T4", "ANY", "ANY", handle)  ' T4 device, Any connection, Any identifier
+            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)  ' Any device, Any connection, Any identifier
 
             displayHandleInfo(handle)
+            devType = getDeviceType(handle)
 
+
+            If devType = LJM.CONSTANTS.dtT4 Then
+                ' For the T4, configure the channels to analog input or
+                ' digital I/O.
+
+                ' Update all digital I/O channels. b1 = Ignored. b0 = Affected.
+                dioInhibit = 0  ' b00000000000000000000
+                ' Set AIN 0 to numAIN-1 as analog inputs (b1), the rest as
+                ' digital I/O (b0).
+                dioAnalogEnable = Math.Pow(2, numAIN) - 1
+                ReDim aNames(1)
+                aNames(0) = "DIO_INHIBIT"
+                aNames(1) = "DIO_ANALOG_ENABLE"
+                ReDim aValues(1)
+                aValues(0) = dioInhibit
+                aValues(1) = dioAnalogEnable
+                LJM.eWriteNames(handle, 2, aNames, aValues, errAddr)
+                If writeDigital = True Then
+                    ' Update only digital I/O channels in future digital write
+                    ' calls. b1 = Ignored. b0 = Affected.
+                    dioInhibit = dioAnalogEnable
+                    LJM.eWriteName(handle, "DIO_INHIBIT", dioInhibit)
+                End If
+            End If
 
             If numAIN > 0 Then
                 ' Configure analog input settings
@@ -84,7 +131,17 @@ Module CRSpeedTest
                 ReDim aValues(numFrames - 1)
                 For i = 0 To numAIN - 1
                     aNames(i * 2) = "AIN" + i.ToString() + "_RANGE"
-                    aValues(i * 2) = rangeAIN
+                    If devType = LJM.CONSTANTS.dtT4 Then
+                        ' T4 range
+                        If i < 4 Then
+                            aValues(i * 2) = rangeAINHV  ' HV line
+                        Else
+                            aValues(i * 2) = rangeAINLV  ' LV line
+                        End If
+                    Else
+                        ' T7 range
+                        aValues(i * 2) = rangeAIN
+                    End If
                     aNames(i * 2 + 1) = "AIN" + i.ToString() + _
                                         "_RESOLUTION_INDEX"
                     aValues(i * 2 + 1) = resolutionAIN
@@ -99,7 +156,7 @@ Module CRSpeedTest
             ReDim aNames(numFrames - 1)
             ReDim aWrites(numFrames - 1)
             ReDim aNumValues(numFrames - 1)
-            ReDim aValues(numFrames - 1) ' In this case numFrames is the size of aValue
+            ReDim aValues(numFrames - 1)  ' In this case numFrames is the size of aValue
 
             ' Add analog input reads (AIN 0 to numAIN-1)
             For i = 0 To numAIN - 1
@@ -123,7 +180,7 @@ Module CRSpeedTest
                 aNames(i) = "DIO_STATE"
                 aWrites(i) = LJM.CONSTANTS.WRITE
                 aNumValues(i) = 1
-                aValues(i) = 0 ' output-low
+                aValues(i) = 0  ' output-low
                 i += 1
             End If
 
@@ -138,8 +195,8 @@ Module CRSpeedTest
                 Next
             End If
 
-                    Console.WriteLine("")
-                    Console.WriteLine("Test frames:")
+            Console.WriteLine("")
+            Console.WriteLine("Test frames:")
 
             wrStr = ""
             For i = 0 To numFrames - 1
@@ -171,7 +228,7 @@ Module CRSpeedTest
             Console.WriteLine("")
             Console.WriteLine(numIterations & " iterations performed:")
             Console.WriteLine("    Time taken: " & totalMS.ToString("F3") & _
-                              " ms")
+                " ms")
             Console.WriteLine("    Average time per iteration: " & _
                 (totalMS / numIterations).ToString("F3") & " ms")
             Console.WriteLine("    Min / Max time for one iteration: " & _
@@ -187,18 +244,18 @@ Module CRSpeedTest
                     wrStr = "WRITE"
                 End If
                 Console.WriteLine("    " & aNames(i) & " " & wrStr & _
-                                  " value : " & aValues(i).ToString("0.####"))
+                    " value : " & aValues(i).ToString("0.####"))
             Next
         Catch ljme As LJM.LJMException
             showErrorMessage(ljme)
         End Try
 
-        LJM.CloseAll() ' Close all handles
+        LJM.CloseAll()  ' Close all handles
 
         Console.WriteLine("")
         Console.WriteLine("Done.")
         Console.WriteLine("Press the enter key to exit.")
-        Console.ReadLine() ' Pause for user
+        Console.ReadLine()  ' Pause for user
     End Sub
 
 End Module
