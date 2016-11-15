@@ -14,6 +14,7 @@ Option Explicit On
 Imports LabJack
 Imports System.Threading
 
+
 Module StreamBasicWithStreamOut
 
     Sub showErrorMessage(ByVal e As LJM.LJMException)
@@ -71,8 +72,10 @@ Module StreamBasicWithStreamOut
 
         Try
             ' Open first found LabJack
-            LJM.OpenS("ANY", "ANY", "ANY", handle)
-            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)
+            LJM.OpenS("ANY", "ANY", "ANY", handle)  ' Any device, Any connection, Any identifier
+            'LJM.OpenS("T7", "ANY", "ANY", handle)  ' T7 device, Any connection, Any identifier
+            'LJM.OpenS("T4", "ANY", "ANY", handle)  ' T4 device, Any connection, Any identifier
+            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)  ' Any device, Any connection, Any identifier
 
             displayHandleInfo(handle)
 
@@ -82,7 +85,7 @@ Module StreamBasicWithStreamOut
             ReDim outNames(numAddressesOut - 1)
             outNames(0) = "DAC0"
             ReDim outAddresses(numAddressesOut - 1)
-            ReDim aTypes(numAddressesOut - 1) ' Dummy
+            ReDim aTypes(numAddressesOut - 1)  ' Dummy
             LJM.NamesToAddresses(numAddressesOut, outNames, outAddresses, aTypes)
 
             ' Allocate memory for the stream-out buffer
@@ -106,19 +109,19 @@ Module StreamBasicWithStreamOut
             Console.WriteLine("\nSTREAM_OUT0_BUFFER_STATUS = " & value)
 
             ' Stream Configuration
-            scanRate = 2000 ' Scans per second
-            scansPerRead = 60 ' # scans returned by eStreamRead call
+            scanRate = 2000  ' Scans per second
+            scansPerRead = 60  ' # scans returned by eStreamRead call
             numAddressesIn = 2
-            ReDim aScanListNames(numAddressesIn - 1) ' Scan list names to stream.
+            ReDim aScanListNames(numAddressesIn - 1)  ' Scan list names to stream.
             aScanListNames(0) = "AIN0"
             aScanListNames(1) = "AIN1"
-            ReDim aTypes(numAddressesIn - 1) ' Dummy
-            ReDim aScanList(numAddressesIn + numAddressesOut - 1) ' Scan list addresses to stream. eStreamStart uses Modbus addresses.
+            ReDim aTypes(numAddressesIn - 1)  ' Dummy
+            ReDim aScanList(numAddressesIn + numAddressesOut - 1)  ' Scan list addresses to stream. eStreamStart uses Modbus addresses.
             LJM.NamesToAddresses(numAddressesIn, aScanListNames, aScanList, aTypes)
 
             ' Add the scan list outputs to the end of the scan list.
             ' STREAM_OUT0 = 4800, STREAM_OUT1 = 4801, ...
-            aScanList(numAddressesIn) = 4800 ' STREAM_OUT0
+            aScanList(numAddressesIn) = 4800  ' STREAM_OUT0
             ' If we had more STREAM_OUTs
             ' aScanList(numAddressesIn + 1) = 4801  ' STREAM_OUT1
             ' etc.
@@ -129,29 +132,31 @@ Module StreamBasicWithStreamOut
                 ' Note when streaming, negative channels and ranges can be configured for
                 ' individual analog inputs, but the stream has only one settling time and
                 ' resolution.
-                ReDim aNames(3)
+                ReDim aNames(4)
                 aNames(0) = "AIN_ALL_NEGATIVE_CH"
-                aNames(1) = "AIN_ALL_RANGE"
-                aNames(2) = "STREAM_SETTLING_US"
-                aNames(3) = "STREAM_RESOLUTION_INDEX"
-                ReDim aValues(3)
-                aValues(0) = LJM.CONSTANTS.GND ' single-ended
-                aValues(1) = 10.0 ' +/-10V
-                aValues(2) = 0 ' 0 = default
-                aValues(3) = 0 ' 0 = default
+                aNames(1) = "AIN0_RANGE"
+                aNames(2) = "AIN1_RANGE"
+                aNames(3) = "STREAM_SETTLING_US"
+                aNames(4) = "STREAM_RESOLUTION_INDEX"
+                ReDim aValues(4)
+                aValues(0) = LJM.CONSTANTS.GND  ' single-ended
+                aValues(1) = 10.0  ' +/-10V
+                aValues(2) = 10.0  ' +/-10V
+                aValues(3) = 0  ' 0 = default
+                aValues(4) = 0  ' 0 = default
                 LJM.eWriteNames(handle, 4, aNames, aValues, errAddr)
 
                 Console.WriteLine("")
                 Console.WriteLine("Starting stream. Press a key to stop " & _
                                   "streaming.")
-                Thread.Sleep(1000) ' Delay so user's can read message
+                Thread.Sleep(1000)  ' Delay so user's can read message
 
                 ' Configure and start Stream
                 LJM.eStreamStart(handle, scansPerRead, aScanList.Length, aScanList, scanRate)
 
                 loopCnt = 0
                 totScans = 0
-                ReDim aData(scansPerRead * numAddressesIn - 1) ' # of samples per eStreamRead is scansPerRead * numAddressesIn
+                ReDim aData(scansPerRead * numAddressesIn - 1)  ' # of samples per eStreamRead is scansPerRead * numAddressesIn
                 skippedTotal = 0
                 skippedCur = 0
                 deviceScanBacklog = 0
@@ -177,7 +182,8 @@ Module StreamBasicWithStreamOut
                     Console.WriteLine("eStreamRead " & loopCnt)
                     For i As Integer = 0 To scansPerRead - 1
                         For j As Integer = 0 To numAddressesIn - 1
-                            Console.Write("  " & aScanListNames(j) & " = " & aData(i * numAddressesIn + j).ToString("F4") & ",")
+                            Console.Write("  " & aScanListNames(j) & " = " & _
+                                          aData(i * numAddressesIn + j).ToString("F4") & ",")
                         Next
                         Console.WriteLine("")
                     Next
@@ -213,12 +219,12 @@ Module StreamBasicWithStreamOut
             showErrorMessage(ljme)
         End Try
 
-        LJM.CloseAll() ' Close all handles
+        LJM.CloseAll()  ' Close all handles
 
         Console.WriteLine("")
         Console.WriteLine("Done.")
         Console.WriteLine("Press the enter key to exit.")
-        Console.ReadLine() ' Pause for user
+        Console.ReadLine()  ' Pause for user
     End Sub
 
 End Module

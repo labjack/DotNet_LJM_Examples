@@ -9,6 +9,7 @@ using System;
 using System.Diagnostics;
 using LabJack;
 
+
 namespace SimpleStream
 {
     class SimpleStream
@@ -39,10 +40,10 @@ namespace SimpleStream
             try
             {
                 //Open first found LabJack
-                LJM.OpenS("ANY", "ANY", "ANY", ref handle);
-                //devType = LJM.CONSTANTS.dtANY; //Any device type
-                //conType = LJM.CONSTANTS.ctANY; //Any connection type
-                //LJM.Open(devType, conType, "ANY", ref handle);
+                LJM.OpenS("ANY", "ANY", "ANY", ref handle);  // Any device, Any connection, Any identifier
+                //LJM.OpenS("T7", "ANY", "ANY", ref handle);  // T7 device, Any connection, Any identifier
+                //LJM.OpenS("T4", "ANY", "ANY", ref handle);  // T4 device, Any connection, Any identifier
+                //LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", ref handle);  // Any device, Any connection, Any identifier
                 
                 LJM.GetHandleInfo(handle, ref devType, ref conType, ref serNum, ref ipAddr, ref port, ref maxBytesPerMB);
                 LJM.NumberToIP(ipAddr, ref ipAddrStr);
@@ -51,13 +52,13 @@ namespace SimpleStream
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
 
                 //Stream Configuration
-                int scansPerRead = 1000; //# scans returned by eStreamRead call
+                int scansPerRead = 1000;  //# scans returned by eStreamRead call
                 const int numAddresses = 2;
-                string[] aScanListNames = new String[] { "AIN0", "AIN1" }; //Scan list names to stream.
-                int[] aTypes = new int[numAddresses]; //Dummy
-                int[] aScanList = new int[numAddresses]; //Scan list addresses to stream. eStreamStart uses Modbus addresses.
+                string[] aScanListNames = new String[] { "AIN0", "AIN1" };  //Scan list names to stream.
+                int[] aTypes = new int[numAddresses];  //Dummy
+                int[] aScanList = new int[numAddresses];  //Scan list addresses to stream. eStreamStart uses Modbus addresses.
                 LJM.NamesToAddresses(numAddresses, aScanListNames, aScanList, aTypes);
-                double scanRate = 1000; //Scans per second
+                double scanRate = 1000;  //Scans per second
 
                 try
                 {
@@ -66,20 +67,32 @@ namespace SimpleStream
                     //Note when streaming, negative channels and ranges can be configured for
                     //individual analog inputs, but the stream has only one settling time and
                     //resolution.
-                    string[] aNames = new string[] { "AIN_ALL_NEGATIVE_CH", "AIN_ALL_RANGE", "STREAM_SETTLING_US", "STREAM_RESOLUTION_INDEX" };
-                    double[] aValues = new double[] { LJM.CONSTANTS.GND, 10.0, 0, 0 };  //single-ended, +/-10V, 0 (default), 0 (default)
+                    string[] aNames = new string[] {
+                        "AIN_ALL_NEGATIVE_CH",
+                        "AIN0_RANGE",
+                        "AIN1_RANGE",
+                        "STREAM_SETTLING_US",
+                        "STREAM_RESOLUTION_INDEX"
+                    };
+                    double[] aValues = new double[] {
+                        LJM.CONSTANTS.GND,
+                        10.0,
+                        10.0,
+                        0,
+                        0
+                    };  //single-ended, +/-10V, +/-10V, 0 (default), 0 (default)
                     int errorAddress = 0;
                     LJM.eWriteNames(handle, aNames.Length, aNames, aValues, ref errorAddress);
 
                     Console.WriteLine("\nStarting stream. Press a key to stop streaming.");
-                    System.Threading.Thread.Sleep(1000); //Delay so user's can read message
+                    System.Threading.Thread.Sleep(1000);  //Delay so user's can read message
 
                     //Configure and start Stream
                     LJM.eStreamStart(handle, scansPerRead, numAddresses, aScanList, ref scanRate);
-                    
+
                     UInt64 loop = 0;
                     UInt64 totScans = 0;
-                    double[] aData = new double[scansPerRead*numAddresses]; //# of samples per eStreamRead is scansPerRead * numAddresses
+                    double[] aData = new double[scansPerRead*numAddresses];  //# of samples per eStreamRead is scansPerRead * numAddresses
                     UInt64 skippedTotal = 0;
                     int skippedCur = 0;
                     int deviceScanBacklog = 0;
@@ -108,11 +121,12 @@ namespace SimpleStream
                         Console.Write("  First scan out of " + scansPerRead + ": ");
                         for(int j = 0; j < numAddresses; j++)
                             Console.Write(aScanListNames[j] + " = " + aData[j].ToString("F4") + ", ");
-                        Console.WriteLine("\n  numSkippedScans: " + skippedCur/numAddresses + ", deviceScanBacklog: " + deviceScanBacklog + ", ljmScanBacklog: " + ljmScanBacklog);
+                        Console.WriteLine("\n  numSkippedScans: " + (skippedCur / numAddresses) + ", deviceScanBacklog: " +
+                            deviceScanBacklog + ", ljmScanBacklog: " + ljmScanBacklog);
                     }
                     sw.Stop();
 
-                    Console.ReadKey(true); //Doing this to prevent Enter key from closing the program right away.
+                    Console.ReadKey(true);  //Doing this to prevent Enter key from closing the program right away.
 
                     Console.WriteLine("\nTotal scans: " + totScans);
                     Console.WriteLine("Skipped scans: " + (skippedTotal / numAddresses));
@@ -134,10 +148,10 @@ namespace SimpleStream
                 showErrorMessage(e);
             }
 
-            LJM.CloseAll(); //Close all handles
+            LJM.CloseAll();  //Close all handles
 
             Console.WriteLine("\nDone.\nPress the enter key to exit.");
-            Console.ReadLine(); // Pause for user
+            Console.ReadLine();  //Pause for user
         }
     }
 }

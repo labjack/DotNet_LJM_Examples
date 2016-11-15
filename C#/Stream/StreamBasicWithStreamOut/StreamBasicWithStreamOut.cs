@@ -13,6 +13,7 @@ using System;
 using System.Diagnostics;
 using LabJack;
 
+
 namespace StreamBasicWithStreamOut
 {
     class StreamBasicWithStreamOut
@@ -45,10 +46,10 @@ namespace StreamBasicWithStreamOut
             try
             {
                 //Open first found LabJack
-                LJM.OpenS("ANY", "ANY", "ANY", ref handle);
-                //devType = LJM.CONSTANTS.dtANY; //Any device type
-                //conType = LJM.CONSTANTS.ctANY; //Any connection type
-                //LJM.Open(devType, conType, "ANY", ref handle);
+                LJM.OpenS("ANY", "ANY", "ANY", ref handle);  // Any device, Any connection, Any identifier
+                //LJM.OpenS("T7", "ANY", "ANY", ref handle);  // T7 device, Any connection, Any identifier
+                //LJM.OpenS("T4", "ANY", "ANY", ref handle);  // T4 device, Any connection, Any identifier
+                //LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", ref handle);  // Any device, Any connection, Any identifier
 
                 LJM.GetHandleInfo(handle, ref devType, ref conType, ref serNum, ref ipAddr, ref port, ref maxBytesPerMB);
                 LJM.NumberToIP(ipAddr, ref ipAddrStr);
@@ -56,46 +57,47 @@ namespace StreamBasicWithStreamOut
                 Console.WriteLine("Serial number: " + serNum + ", IP address: " + ipAddrStr + ", Port: " + port + ",");
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
 
-    			//Setup Stream Out
+
+                //Setup Stream Out
                 const int numAddressesOut = 1;
-		        String[] outNames = new String[numAddressesOut] {"DAC0"};
-		        int[] outAddresses = new int[numAddressesOut];
-		        int[] aTypes = new int[numAddressesOut]; //Dummy
-		        LJM.NamesToAddresses(numAddressesOut, outNames, outAddresses, aTypes);
+                String[] outNames = new String[numAddressesOut] {"DAC0"};
+                int[] outAddresses = new int[numAddressesOut];
+                int[] aTypes = new int[numAddressesOut];  //Dummy
+                LJM.NamesToAddresses(numAddressesOut, outNames, outAddresses, aTypes);
 
-		        //Allocate memory for the stream-out buffer
-		        LJM.eWriteName(handle, "STREAM_OUT0_TARGET", outAddresses[0]);
-		        LJM.eWriteName(handle, "STREAM_OUT0_BUFFER_SIZE", 512);
-		        LJM.eWriteName(handle, "STREAM_OUT0_ENABLE", 1);
+                //Allocate memory for the stream-out buffer
+                LJM.eWriteName(handle, "STREAM_OUT0_TARGET", outAddresses[0]);
+                LJM.eWriteName(handle, "STREAM_OUT0_BUFFER_SIZE", 512);
+                LJM.eWriteName(handle, "STREAM_OUT0_ENABLE", 1);
 
-		        //Write values to the stream-out buffer
-		        LJM.eWriteName(handle, "STREAM_OUT0_LOOP_SIZE", 6);
-		        LJM.eWriteName(handle, "STREAM_OUT0_BUFFER_F32", 0.0);  //0.0 V
-		        LJM.eWriteName(handle, "STREAM_OUT0_BUFFER_F32", 1.0);  //1.0 V
-		        LJM.eWriteName(handle, "STREAM_OUT0_BUFFER_F32", 2.0);  //2.0 V
-		        LJM.eWriteName(handle, "STREAM_OUT0_BUFFER_F32", 3.0);  //3.0 V
-		        LJM.eWriteName(handle, "STREAM_OUT0_BUFFER_F32", 4.0);  //4.0 V
-		        LJM.eWriteName(handle, "STREAM_OUT0_BUFFER_F32", 5.0);  //5.0 V
+                //Write values to the stream-out buffer
+                LJM.eWriteName(handle, "STREAM_OUT0_LOOP_SIZE", 6);
+                LJM.eWriteName(handle, "STREAM_OUT0_BUFFER_F32", 0.0);  //0.0 V
+                LJM.eWriteName(handle, "STREAM_OUT0_BUFFER_F32", 1.0);  //1.0 V
+                LJM.eWriteName(handle, "STREAM_OUT0_BUFFER_F32", 2.0);  //2.0 V
+                LJM.eWriteName(handle, "STREAM_OUT0_BUFFER_F32", 3.0);  //3.0 V
+                LJM.eWriteName(handle, "STREAM_OUT0_BUFFER_F32", 4.0);  //4.0 V
+                LJM.eWriteName(handle, "STREAM_OUT0_BUFFER_F32", 5.0);  //5.0 V
 
-		        LJM.eWriteName(handle, "STREAM_OUT0_SET_LOOP", 1);
+                LJM.eWriteName(handle, "STREAM_OUT0_SET_LOOP", 1);
 
                 double value = 0.0;
-		        LJM.eReadName(handle, "STREAM_OUT0_BUFFER_STATUS", ref value);
+                LJM.eReadName(handle, "STREAM_OUT0_BUFFER_STATUS", ref value);
                 Console.WriteLine("\nSTREAM_OUT0_BUFFER_STATUS = " + value);
 
                 //Stream Configuration
-                double scanRate = 2000; //Scans per second
-                int scansPerRead = 60; //# scans returned by eStreamRead call
+                double scanRate = 2000;  //Scans per second
+                int scansPerRead = 60;  //# scans returned by eStreamRead call
 
                 const int numAddressesIn = 2;
-                string[] aScanListNames = new String[numAddressesIn] { "AIN0", "AIN1" }; //Scan list names to stream.
-                aTypes = new int[numAddressesIn]; //Dummy
-                int[] aScanList = new int[numAddressesIn + numAddressesOut]; //Scan list addresses to stream. eStreamStart uses Modbus addresses.
+                string[] aScanListNames = new String[numAddressesIn] { "AIN0", "AIN1" };  //Scan list names to stream.
+                aTypes = new int[numAddressesIn];  //Dummy
+                int[] aScanList = new int[numAddressesIn + numAddressesOut];  //Scan list addresses to stream. eStreamStart uses Modbus addresses.
                 LJM.NamesToAddresses(numAddressesIn, aScanListNames, aScanList, aTypes);
 
                 //Add the scan list outputs to the end of the scan list.
                 //STREAM_OUT0 = 4800, STREAM_OUT1 = 4801, ...
-                aScanList[numAddressesIn] = 4800; //STREAM_OUT0
+                aScanList[numAddressesIn] = 4800;  //STREAM_OUT0
                 //If we had more STREAM_OUTs
                 //aScanList[numAddressesIn+1] = 4801;  //STREAM_OUT1
                 //etc.
@@ -107,27 +109,39 @@ namespace StreamBasicWithStreamOut
                     //Note when streaming, negative channels and ranges can be configured for
                     //individual analog inputs, but the stream has only one settling time and
                     //resolution.
-                    string[] aNames = new string[] { "AIN_ALL_NEGATIVE_CH", "AIN_ALL_RANGE", "STREAM_SETTLING_US", "STREAM_RESOLUTION_INDEX" };
-                    double[] aValues = new double[] { LJM.CONSTANTS.GND, 10.0, 0, 0 };  //single-ended, +/-10V, 0 (default), 0 (default)
+                    string[] aNames = new string[] {
+                        "AIN_ALL_NEGATIVE_CH",
+                        "AIN0_RANGE",
+                        "AIN1_RANGE",
+                        "STREAM_SETTLING_US",
+                        "STREAM_RESOLUTION_INDEX"
+                    };
+                    double[] aValues = new double[] {
+                        LJM.CONSTANTS.GND,
+                        10.0,
+                        10.0,
+                        0,
+                        0
+                    };  //single-ended, +/-10V, +/-10V,0 (default), 0 (default)
                     int errorAddress = 0;
                     LJM.eWriteNames(handle, aNames.Length, aNames, aValues, ref errorAddress);
 
                     Console.WriteLine("\nStarting stream. Press a key to stop streaming.");
-                    System.Threading.Thread.Sleep(1000); //Delay so user's can read message
+                    System.Threading.Thread.Sleep(1000);  //Delay so user's can read message
 
                     //Configure and start Stream
                     LJM.eStreamStart(handle, scansPerRead, aScanList.Length, aScanList, ref scanRate);
 
                     UInt64 loop = 0;
                     UInt64 totScans = 0;
-                    double[] aData = new double[scansPerRead * numAddressesIn]; //# of samples per eStreamRead is scansPerRead * numAddressesIn
+                    double[] aData = new double[scansPerRead * numAddressesIn];  //# of samples per eStreamRead is scansPerRead * numAddressesIn
                     UInt64 skippedTotal = 0;
                     int skippedCur = 0;
                     int deviceScanBacklog = 0;
                     int ljmScanBacklog = 0;
                     string str;
                     Stopwatch sw = new Stopwatch();
-                    
+
                     Console.WriteLine("Starting read loop.");
                     sw.Start();
                     for (int i = 0; i < MAX_REQUESTS; i++)
@@ -147,14 +161,15 @@ namespace StreamBasicWithStreamOut
                         skippedTotal += (UInt64)skippedCur;
                         loop++;
                         Console.WriteLine("\neStreamRead " + loop);
-    					for (int j = 0; j < scansPerRead; j++)
+                        for (int j = 0; j < scansPerRead; j++)
                         {
                             str = "";
-                        	for(int k = 0; k < numAddressesIn; k++)
-						    	str += "  " + aScanListNames[k] + " = " + aData[j*numAddressesIn + k].ToString("F4") + ",";
+                            for(int k = 0; k < numAddressesIn; k++)
+                                str += "  " + aScanListNames[k] + " = " + aData[j*numAddressesIn + k].ToString("F4") + ",";
                             Console.WriteLine(str);
-						}
-                        Console.WriteLine("  Skipped Scans = " + skippedCur / numAddressesIn + ", Scan Backlogs: Device = " + deviceScanBacklog + ", LJM = " + ljmScanBacklog);
+                        }
+                        Console.WriteLine("  Skipped Scans = " + skippedCur / numAddressesIn + 
+                            ", Scan Backlogs: Device = " + deviceScanBacklog + ", LJM = " + ljmScanBacklog);
                     }
                     sw.Stop();
 
@@ -178,10 +193,10 @@ namespace StreamBasicWithStreamOut
                 showErrorMessage(e);
             }
 
-            LJM.CloseAll(); //Close all handles
+            LJM.CloseAll();  //Close all handles
 
             Console.WriteLine("\nDone.\nPress the enter key to exit.");
-            Console.ReadLine(); // Pause for user
+            Console.ReadLine();  // Pause for user
         }
     }
 }

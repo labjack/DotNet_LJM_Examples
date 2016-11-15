@@ -64,7 +64,7 @@ Module EasyFunctions
 
             ' Setup and call eWriteName to write a value.
             name = "DAC0"
-            value = 2.5 ' 2.5 V
+            value = 2.5  ' 2.5 V
             LJM.eWriteName(handle, name, value)
 
             Console.WriteLine("")

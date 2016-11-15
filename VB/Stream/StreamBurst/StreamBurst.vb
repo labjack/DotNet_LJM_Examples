@@ -10,6 +10,7 @@ Option Explicit On
 Imports LabJack
 Imports System.Diagnostics
 
+
 Module StreamBurst
 
     Sub showErrorMessage(ByVal e As LJM.LJMException)
@@ -56,21 +57,23 @@ Module StreamBurst
 
         Try
             ' Open first found LabJack
-            LJM.OpenS("ANY", "ANY", "ANY", handle)
-            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)
+            LJM.OpenS("ANY", "ANY", "ANY", handle)  ' Any device, Any connection, Any identifier
+            'LJM.OpenS("T7", "ANY", "ANY", handle)  ' T7 device, Any connection, Any identifier
+            'LJM.OpenS("T4", "ANY", "ANY", handle)  ' T4 device, Any connection, Any identifier
+            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)  ' Any device, Any connection, Any identifier
 
             displayHandleInfo(handle)
 
             ' Stream Configuration
             numScans = 20000 ' Number of scans to perform
             numAddresses = 2
-            ReDim aScanListNames(numAddresses - 1) ' Scan list names to stream.
+            ReDim aScanListNames(numAddresses - 1)  ' Scan list names to stream.
             aScanListNames(0) = "AIN0"
             aScanListNames(1) = "AIN1"
-            ReDim aTypes(numAddresses - 1) ' Dummy
-            ReDim aScanList(numAddresses - 1) ' Scan list addresses to stream. StreamBurst uses Modbus addresses.
+            ReDim aTypes(numAddresses - 1)  ' Dummy
+            ReDim aScanList(numAddresses - 1)  ' Scan list addresses to stream. StreamBurst uses Modbus addresses.
             LJM.NamesToAddresses(numAddresses, aScanListNames, aScanList, aTypes)
-            scanRate = 10000 ' Scans per second
+            scanRate = 10000  ' Scans per second
             ReDim aData(numScans * numAddresses - 1)
 
             Try
@@ -79,16 +82,18 @@ Module StreamBurst
                 ' Note when streaming, negative channels and ranges can be configured for
                 ' individual analog inputs, but the stream has only one settling time and
                 ' resolution.
-                ReDim aNames(3)
+                ReDim aNames(4)
                 aNames(0) = "AIN_ALL_NEGATIVE_CH"
-                aNames(1) = "AIN_ALL_RANGE"
-                aNames(2) = "STREAM_SETTLING_US"
-                aNames(3) = "STREAM_RESOLUTION_INDEX"
-                ReDim aValues(3)
-                aValues(0) = LJM.CONSTANTS.GND ' single-ended
-                aValues(1) = 10.0 ' +/-10V
-                aValues(2) = 0 ' 0 = default
-                aValues(3) = 0 ' 0 = default
+                aNames(1) = "AIN0_RANGE"
+                aNames(2) = "AIN1_RANGE"
+                aNames(3) = "STREAM_SETTLING_US"
+                aNames(4) = "STREAM_RESOLUTION_INDEX"
+                ReDim aValues(4)
+                aValues(0) = LJM.CONSTANTS.GND  ' single-ended
+                aValues(1) = 10.0  ' +/-10V
+                aValues(2) = 10.0  ' +/-10V
+                aValues(3) = 0  ' 0 = default
+                aValues(4) = 0  ' 0 = default
                 LJM.eWriteNames(handle, 4, aNames, aValues, errAddr)
 
                 Console.WriteLine("")
@@ -136,13 +141,12 @@ Module StreamBurst
             showErrorMessage(ljme)
         End Try
 
-        LJM.CloseAll() ' Close all handles
+        LJM.CloseAll()  ' Close all handles
 
         Console.WriteLine("")
         Console.WriteLine("Done.")
         Console.WriteLine("Press the enter key to exit.")
-        Console.ReadLine() ' Pause for user
-
+        Console.ReadLine()  ' Pause for user
     End Sub
 
 End Module

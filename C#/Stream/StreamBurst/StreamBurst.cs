@@ -9,6 +9,7 @@ using System;
 using System.Diagnostics;
 using LabJack;
 
+
 namespace StreamBurst
 {
     class StreamBurst
@@ -40,9 +41,9 @@ namespace StreamBurst
             {
                 //Open first found LabJack
                 LJM.OpenS("ANY", "ANY", "ANY", ref handle);
-                //devType = LJM.CONSTANTS.dtANY; //Any device type
-                //conType = LJM.CONSTANTS.ctANY; //Any connection type
-                //LJM.Open(devType, conType, "ANY", ref handle);
+                //LJM.OpenS("T7", "ANY", "ANY", ref handle);  // T7 device, Any connection, Any identifier
+                //LJM.OpenS("T4", "ANY", "ANY", ref handle);  // T4 device, Any connection, Any identifier
+                //LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", ref handle);  // Any device, Any connection, Any identifier
 
                 LJM.GetHandleInfo(handle, ref devType, ref conType, ref serNum, ref ipAddr, ref port, ref maxBytesPerMB);
                 LJM.NumberToIP(ipAddr, ref ipAddrStr);
@@ -51,13 +52,13 @@ namespace StreamBurst
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
 
                 //Stream Configuration
-                uint numScans = 20000; //Number of scans to perform
-                string[] aScanListNames = new String[] { "AIN0", "AIN1" }; //Scan list names to stream.
+                uint numScans = 20000;  //Number of scans to perform
+                string[] aScanListNames = new String[] { "AIN0", "AIN1" };  //Scan list names to stream.
                 int numAddresses = aScanListNames.Length;
-                int[] aTypes = new int[numAddresses]; //Dummy
-                int[] aScanList = new int[numAddresses]; //Scan list addresses to stream. StreamBurst uses Modbus addresses.
+                int[] aTypes = new int[numAddresses];  //Dummy
+                int[] aScanList = new int[numAddresses];  //Scan list addresses to stream. StreamBurst uses Modbus addresses.
                 LJM.NamesToAddresses(numAddresses, aScanListNames, aScanList, aTypes);
-                double scanRate = 10000; //Scans per second
+                double scanRate = 10000;  //Scans per second
                 double[] aData = new double[numScans * numAddresses];
 
                 try
@@ -67,8 +68,20 @@ namespace StreamBurst
                     //Note when streaming, negative channels and ranges can be configured for
                     //individual analog inputs, but the stream has only one settling time and
                     //resolution.
-                    string[] aNames = new string[] { "AIN_ALL_NEGATIVE_CH", "AIN_ALL_RANGE", "STREAM_SETTLING_US", "STREAM_RESOLUTION_INDEX" };
-                    double[] aValues = new double[] { LJM.CONSTANTS.GND, 10.0, 0, 0 };  //single-ended, +/-10V, 0 (default), 0 (default)
+                    string[] aNames = new string[] {
+                        "AIN_ALL_NEGATIVE_CH",
+                        "AIN0_RANGE",
+                        "AIN1_RANGE",
+                        "STREAM_SETTLING_US",
+                        "STREAM_RESOLUTION_INDEX"
+                    };
+                    double[] aValues = new double[] {
+                        LJM.CONSTANTS.GND,
+                        10.0,
+                        10.0,
+                        0,
+                        0
+                    };  //single-ended, +/-10V, +/-10V, 0 (default), 0 (default)
                     int errorAddress = 0;
                     LJM.eWriteNames(handle, aNames.Length, aNames, aValues, ref errorAddress);
 
@@ -109,7 +122,7 @@ namespace StreamBurst
 
                     Console.WriteLine("\nLast scan:");
                     for (int i = 0; i < numAddresses; i++)
-                        Console.WriteLine("  " + aScanListNames[i] + " = " + aData[(numScans-1)*numAddresses + i]);
+                        Console.WriteLine("  " + aScanListNames[i] + " = " + aData[(numScans - 1) * numAddresses + i]);
                 }
                 catch (LJM.LJMException e)
                 {
@@ -121,10 +134,10 @@ namespace StreamBurst
                 showErrorMessage(e);
             }
 
-            LJM.CloseAll(); //Close all handles
+            LJM.CloseAll();  //Close all handles
 
             Console.WriteLine("\nDone.\nPress the enter key to exit.");
-            Console.ReadLine(); // Pause for user
+            Console.ReadLine();  //Pause for user
         }
     }
 }

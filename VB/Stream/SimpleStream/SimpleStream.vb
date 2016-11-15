@@ -10,6 +10,7 @@ Option Explicit On
 Imports LabJack
 Imports System.Threading
 
+
 Module SimpleStream
 
     Sub showErrorMessage(ByVal e As LJM.LJMException)
@@ -61,8 +62,10 @@ Module SimpleStream
 
         Try
             ' Open first found LabJack
-            LJM.OpenS("ANY", "ANY", "ANY", handle)
-            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)
+            LJM.OpenS("ANY", "ANY", "ANY", handle)  ' Any device, Any connection, Any identifier
+            'LJM.OpenS("T7", "ANY", "ANY", handle)  ' T7 device, Any connection, Any identifier
+            'LJM.OpenS("T4", "ANY", "ANY", handle)  ' T4 device, Any connection, Any identifier
+            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)  ' Any device, Any connection, Any identifier
 
             displayHandleInfo(handle)
 
@@ -83,29 +86,30 @@ Module SimpleStream
                 ' Note when streaming, negative channels and ranges can be configured for
                 ' individual analog inputs, but the stream has only one settling time and
                 ' resolution.
-                ReDim aNames(3)
+                ReDim aNames(4)
                 aNames(0) = "AIN_ALL_NEGATIVE_CH"
-                aNames(1) = "AIN_ALL_RANGE"
-                aNames(2) = "STREAM_SETTLING_US"
-                aNames(3) = "STREAM_RESOLUTION_INDEX"
-                ReDim aValues(3)
-                aValues(0) = LJM.CONSTANTS.GND ' single-ended
-                aValues(1) = 10.0 ' +/-10V
-                aValues(2) = 0 ' 0 = default
-                aValues(3) = 0 ' 0 = default
+                aNames(1) = "AIN0_RANGE"
+                aNames(2) = "AIN1_RANGE"
+                aNames(3) = "STREAM_SETTLING_US"
+                aNames(4) = "STREAM_RESOLUTION_INDEX"
+                ReDim aValues(4)
+                aValues(0) = LJM.CONSTANTS.GND  ' single-ended
+                aValues(1) = 10.0  ' +/-10V
+                aValues(2) = 10.0  ' +/-10V
+                aValues(3) = 0  ' 0 = default
+                aValues(4) = 0  ' 0 = default
                 LJM.eWriteNames(handle, 4, aNames, aValues, errAddr)
 
                 Console.WriteLine("")
-                Console.WriteLine("Starting stream. Press a key to stop " & _
-                                  "streaming.")
-                Thread.Sleep(1000) ' Delay so user's can read message
+                Console.WriteLine("Starting stream. Press a key to stop streaming.")
+                Thread.Sleep(1000)  ' Delay so user's can read message
 
                 ' Configure and start Stream
                 LJM.eStreamStart(handle, scansPerRead, numAddresses, aScanList, scanRate)
 
                 loopCnt = 0
                 totScans = 0
-                ReDim aData(scansPerRead * numAddresses - 1) ' # of samples per eStreamRead is scansPerRead * numAddresses
+                ReDim aData(scansPerRead * numAddresses - 1)  ' # of samples per eStreamRead is scansPerRead * numAddresses
                 skippedTotal = 0
                 skippedCur = 0
                 deviceScanBacklog = 0
@@ -171,12 +175,12 @@ Module SimpleStream
             showErrorMessage(ljme)
         End Try
 
-        LJM.CloseAll() ' Close all handles
+        LJM.CloseAll()  ' Close all handles
 
         Console.WriteLine("")
         Console.WriteLine("Done.")
         Console.WriteLine("Press the enter key to exit.")
-        Console.ReadLine() ' Pause for user
+        Console.ReadLine()  ' Pause for user
     End Sub
 
 End Module
