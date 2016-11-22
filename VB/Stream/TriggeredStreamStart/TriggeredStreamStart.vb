@@ -1,16 +1,18 @@
 ﻿'------------------------------------------------------------------------------
-' StreamTriggered.vb
+' TriggeredStreamStart.vb
 '
-' Demonstrates how to stream with the T7 using triggered stream on DIO0/FIO0.
+' Demonstrates how to stream with a LabJack using triggered start on DIO0/FIO0
+' for the T7 and DIO4/FIO4 for the T4.
 '
 ' support@labjack.com
 '------------------------------------------------------------------------------
 Option Explicit On
 
-Imports LabJack
 Imports System.Threading
+Imports LabJack
 
-Module StreamTriggered
+
+Module TriggeredStreamStart
 
     Sub showErrorMessage(ByVal e As LJM.LJMException)
         Console.WriteLine("LJMException: " & e.ToString)
@@ -36,6 +38,19 @@ Module StreamTriggered
         Console.WriteLine("Max bytes per MB: " & maxBytesPerMB)
     End Sub
 
+    Function getDeviceType(ByVal handle As Integer)
+        Dim devType As Integer
+        Dim conType As Integer
+        Dim serNum As Integer
+        Dim ipAddr As Integer
+        Dim port As Integer
+        Dim maxBytesPerMB As Integer
+
+        LJM.GetHandleInfo(handle, devType, conType, serNum, ipAddr, port, _
+                          maxBytesPerMB)
+        Return devType
+    End Function
+
     Sub variableStreamSleep(ByVal scansPerRead As Integer, ByVal scanRate As Integer, ByVal ljmScanBacklog As Integer)
         Const DECREASE_TOTAL As Double = 0.9
         Dim sleepFactor As Double
@@ -60,6 +75,7 @@ Module StreamTriggered
         Const SCAN_RATE As Integer = 1000  ' Scans per second
 
         Dim handle As Integer
+        Dim devType As Integer
 
         Dim scansPerRead As Integer
         Dim numAddresses As Integer
@@ -67,6 +83,7 @@ Module StreamTriggered
         Dim aTypes() As Integer
         Dim aScanList() As Integer
 
+        Dim triggerChannel As Integer = 0  ' Channel of the trigger start
         Dim loopCnt As UInt64
         Dim totScans As UInt64
         Dim aData() As Double
@@ -78,38 +95,48 @@ Module StreamTriggered
         Try
             ' Open first found LabJack
             LJM.OpenS("ANY", "ANY", "ANY", handle)
-            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)
+            'LJM.OpenS("T7", "ANY", "ANY", handle)  ' T7 device, Any connection, Any identifier
+            'LJM.OpenS("T4", "ANY", "ANY", handle)  ' T4 device, Any connection, Any identifier
+            'LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", handle)  ' Any device, Any connection, Any identifier
 
             displayHandleInfo(handle)
+            devType = getDeviceType(handle)
 
             ' Stream Configuration
-            scansPerRead = SCAN_RATE / 2 ' # scans returned by eStreamRead call
+            scansPerRead = SCAN_RATE / 2  ' # scans returned by eStreamRead call
             numAddresses = 4
-            ReDim aScanListNames(numAddresses - 1) ' Scan list names to stream.
+            ReDim aScanListNames(numAddresses - 1)  ' Scan list names to stream.
             aScanListNames(0) = "AIN0"
             aScanListNames(1) = "FIO_STATE"
             aScanListNames(2) = "SYSTEM_TIMER_20HZ"
             aScanListNames(3) = "STREAM_DATA_CAPTURE_16"
 
-            ReDim aTypes(numAddresses - 1) ' Dummy
-            ReDim aScanList(numAddresses - 1) ' Scan list addresses to stream. eStreamStart uses Modbus addresses.
+            ReDim aTypes(numAddresses - 1)  ' Dummy
+            ReDim aScanList(numAddresses - 1)  ' Scan list addresses to stream. eStreamStart uses Modbus addresses.
             LJM.NamesToAddresses(numAddresses, aScanListNames, aScanList, aTypes)
 
             ' Configure LJM for unpredictable stream timing
             LJM.WriteLibraryConfigS(LJM.CONSTANTS.STREAM_SCANS_RETURN, LJM.CONSTANTS.STREAM_SCANS_RETURN_ALL_OR_NONE)
             LJM.WriteLibraryConfigS(LJM.CONSTANTS.STREAM_RECEIVE_TIMEOUT_MS, 0)
 
-            ' 2000 sets DIO0 / FIO0 as the stream trigger
+            If devType = LJM.CONSTANTS.dtT4 Then
+                ' For the T4, the stream trigger channel is FIO0/DIO0
+                triggerChannel = 4
+            Else
+                ' For the T7 and other devices, the stream trigger channel is FIO0/DIO0
+                triggerChannel = 0
+            End If
+            ' 2000 sets the first stream trigger
             LJM.eWriteName(handle, "STREAM_TRIGGER_INDEX", 2000)
 
             ' Clear any previous DIO0_EF settings
-            LJM.eWriteName(handle, "DIO0_EF_ENABLE", 0)
+            LJM.eWriteName(handle, "DIO" & triggerChannel & "_EF_ENABLE", 0)
 
             ' 5 enables a rising or falling edge to trigger stream
-            LJM.eWriteName(handle, "DIO0_EF_INDEX", 5)
+            LJM.eWriteName(handle, "DIO" & triggerChannel & "_EF_INDEX", 5)
 
             ' Enable DIO0_EF
-            LJM.eWriteName(handle, "DIO0_EF_ENABLE", 1)
+            LJM.eWriteName(handle, "DIO" & triggerChannel & "_EF_ENABLE", 1)
 
             Try
                 ' Configure and start Stream
@@ -119,7 +146,7 @@ Module StreamTriggered
 
                 loopCnt = 0
                 totScans = 0
-                ReDim aData(scansPerRead * numAddresses - 1) ' # of samples per eStreamRead is scansPerRead * numAddresses
+                ReDim aData(scansPerRead * numAddresses - 1)  ' # of samples per eStreamRead is scansPerRead * numAddresses
                 skippedTotal = 0
                 skippedCur = 0
                 deviceScanBacklog = 0
@@ -177,12 +204,12 @@ Module StreamTriggered
             showErrorMessage(ljme)
         End Try
 
-        LJM.CloseAll() ' Close all handles
+        LJM.CloseAll()  ' Close all handles
 
         Console.WriteLine("")
         Console.WriteLine("Done.")
         Console.WriteLine("Press the enter key to exit.")
-        Console.ReadLine() ' Pause for user
+        Console.ReadLine()  ' Pause for user
     End Sub
 
 End Module

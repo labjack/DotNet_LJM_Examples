@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "StreamTriggered", "StreamTriggered.vbproj", "{2D3FE704-FADC-444F-9F38-C35CAB08EB70}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "TriggeredStreamStart", "TriggeredStreamStart.vbproj", "{2D3FE704-FADC-444F-9F38-C35CAB08EB70}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
