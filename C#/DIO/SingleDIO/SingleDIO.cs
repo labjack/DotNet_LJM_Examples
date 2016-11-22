@@ -63,7 +63,7 @@ namespace SingleDIO
                     //be changed to a digital I/O by reading from the line or
                     //setting it to digital I/O with the DIO_ANALOG_ENABLE
                     //register.
-                    //For exanple:
+                    //For example:
                     //LJM.eReadName(handle, name, ref state);
                 }
                 else
