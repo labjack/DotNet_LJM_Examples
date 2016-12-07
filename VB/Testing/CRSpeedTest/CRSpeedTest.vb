@@ -54,6 +54,8 @@ Module CRSpeedTest
         Dim handle As Integer
         Dim numFrames As Integer
         Dim aNames() As String
+        Dim aAddresses() As Integer
+        Dim aTypes() As Integer
         Dim aWrites() As Integer
         Dim aNumValues() As Integer
         Dim aValues() As Double
@@ -68,6 +70,7 @@ Module CRSpeedTest
 
         Const numIterations As Integer = 1000  ' Number of iterations to perform in the loop
 
+
         Const numAIN As Integer = 1  ' Number of analog inputs to read
         Const rangeAIN As Double = 10.0  ' T7 AIN range
         Const rangeAINHV As Double = 10.0  ' T4 HV channels range
@@ -80,6 +83,10 @@ Module CRSpeedTest
 
         ' Analog output settings
         Const writeDACs As Boolean = False
+
+        ' Use eAddresses (True) or eNames (False) in the operations loop.
+        ' eAddresses is faster than eNames.
+        Const useAddresses As Boolean = True
 
         ' Time variables
         Dim maxMS As Double = 0
@@ -195,6 +202,11 @@ Module CRSpeedTest
                 Next
             End If
 
+            ' Make arrays of addresses and data types for eAddresses.
+            ReDim aAddresses(numFrames - 1)
+            ReDim aTypes(numFrames - 1)
+            LJM.NamesToAddresses(numFrames, aNames, aAddresses, aTypes)
+
             Console.WriteLine("")
             Console.WriteLine("Test frames:")
 
@@ -205,7 +217,8 @@ Module CRSpeedTest
                 Else
                     wrStr = "WRITE"
                 End If
-                Console.WriteLine("    " & wrStr & " " & aNames(i))
+                Console.WriteLine("    " & wrStr & " " & aNames(i) & " (" & _
+                                  aAddresses(i) & ")")
             Next
             Console.WriteLine("")
             Console.WriteLine("Beginning " & numIterations & " iterations...")
@@ -214,12 +227,19 @@ Module CRSpeedTest
             ' eNames operations loop
             For i = 0 To numIterations - 1
                 sw = Stopwatch.StartNew()
-                LJM.eNames(handle, numFrames, aNames, aWrites, aNumValues, _
-                           aValues, errAddr)
+                If useAddresses Then
+                    LJM.eAddresses(handle, numFrames, aAddresses, aTypes, _
+                                   aWrites, aNumValues, aValues, errAddr)
+                Else
+                    LJM.eNames(handle, numFrames, aNames, aWrites, aNumValues, _
+                               aValues, errAddr)
+                End If
                 sw.Stop()
 
                 curMS = sw.ElapsedTicks / freq * 1000
-                If minMS = 0 Then minMS = curMS
+                If minMS = 0 Then
+                    minMS = curMS
+                End If
                 minMS = Math.Min(curMS, minMS)
                 maxMS = Math.Max(curMS, maxMS)
                 totalMS += curMS
@@ -236,15 +256,19 @@ Module CRSpeedTest
                 " ms")
 
             Console.WriteLine("")
-            Console.WriteLine("Last eNames results: ")
+            If useAddresses Then
+                Console.WriteLine("Last eAddresses results: ")
+            Else
+                Console.WriteLine("Last eNames results: ")
+            End If
             For i = 0 To numFrames - 1
                 If aWrites(i) = LJM.CONSTANTS.READ Then
                     wrStr = "READ"
                 Else
                     wrStr = "WRITE"
                 End If
-                Console.WriteLine("    " & aNames(i) & " " & wrStr & _
-                    " value : " & aValues(i).ToString("0.####"))
+                Console.WriteLine("    " & aNames(i) & " (" & aAddresses(i) & _
+                                  ") " & wrStr & " value : " & aValues(i))
             Next
         Catch ljme As LJM.LJMException
             showErrorMessage(ljme)

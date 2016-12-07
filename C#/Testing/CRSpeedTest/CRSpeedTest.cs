@@ -71,9 +71,15 @@ namespace CRSpeedTest
                 //Analog output settings
                 const bool writeDACs = false;
 
+                //Use eAddresses (true) or eNames (false) in the operations
+                //loop. eAddresses is faster than eNames.
+                const bool useAddresses = true;
+
                 //Variables for LJM library calls
                 int numFrames = 0;
                 string[] aNames;
+                int[] aAddresses;
+                int[] aTypes;
                 int[] aWrites;
                 int[] aNumValues;
                 double[] aValues;
@@ -180,6 +186,11 @@ namespace CRSpeedTest
                     }
                 }
 
+                //Make arrays of addresses and data types for eAddresses.
+                aAddresses = new int[numFrames];
+                aTypes = new int[numFrames];
+                LJM.NamesToAddresses(numFrames, aNames, aAddresses, aTypes);
+
                 Console.WriteLine("\nTest frames:");
 
                 string wrStr = "";
@@ -189,7 +200,8 @@ namespace CRSpeedTest
                         wrStr = "READ";
                     else
                         wrStr = "WRITE";
-                    Console.WriteLine("    " + wrStr + " " + aNames[i]);
+                    Console.WriteLine("    " + wrStr + " " + aNames[i] + " (" +
+                        aAddresses[i] + ")");
                 }
                 Console.WriteLine("\nBeginning " + numIterations + " iterations...");
 
@@ -206,9 +218,12 @@ namespace CRSpeedTest
                 for(i = 0; i < numIterations; i++)
                 {
                     sw = Stopwatch.StartNew();
-                    LJM.eNames(handle, numFrames, aNames, aWrites, aNumValues, aValues, ref errAddr);
+                    if(useAddresses)
+                        LJM.eAddresses(handle, numFrames, aAddresses, aTypes, aWrites, aNumValues, aValues, ref errAddr);
+                    else
+                        LJM.eNames(handle, numFrames, aNames, aWrites, aNumValues, aValues, ref errAddr);
                     sw.Stop();
-                    
+
                     curMS = sw.ElapsedTicks/(double)freq * 1000;
                     if(minMS == 0)
                         minMS = curMS;
@@ -227,14 +242,18 @@ namespace CRSpeedTest
                     Convert.ToDouble(minMS).ToString("F3") + " ms / " +
                     Convert.ToDouble(maxMS).ToString("F3") + " ms");
 
-                Console.WriteLine("\nLast eNames results: ");
+                if(useAddresses)
+                    Console.WriteLine("\nLast eAddresses results:");
+                else
+                    Console.WriteLine("\nLast eNames results:");
                 for(i = 0; i < numFrames; i++)
                 {
                     if(aWrites[i] == LJM.CONSTANTS.READ)
                         wrStr = "READ";
                     else
                         wrStr = "WRITE";
-                    Console.WriteLine("    " + aNames[i] +" " + wrStr + " value : " + aValues[i]);
+                    Console.WriteLine("    " + aNames[i] +" (" + aAddresses[i] +
+                        ") " + wrStr + " value : " + aValues[i]);
                 }
             }
             catch (LJM.LJMException e)
