@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// SimpleStream.cs
+// StreamBasic.cs
 //
 // Demonstrates how to stream using the eStream functions.
 //
@@ -10,14 +10,14 @@ using System.Diagnostics;
 using LabJack;
 
 
-namespace SimpleStream
+namespace StreamBasic
 {
-    class SimpleStream
+    class StreamBasic
     {
         static void Main(string[] args)
         {
-            SimpleStream es = new SimpleStream();
-            es.performActions();
+            StreamBasic sb = new StreamBasic();
+            sb.performActions();
         }
 
         public void showErrorMessage(LJM.LJMException e)

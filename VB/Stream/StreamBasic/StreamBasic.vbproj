@@ -7,9 +7,9 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{07C5F9A7-6C0C-4698-998D-96926C9B58D8}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <StartupObject>SimpleStream.SimpleStream</StartupObject>
-    <RootNamespace>SimpleStream</RootNamespace>
-    <AssemblyName>SimpleStream</AssemblyName>
+    <StartupObject>StreamBasic.StreamBasic</StartupObject>
+    <RootNamespace>StreamBasic</RootNamespace>
+    <AssemblyName>StreamBasic</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Console</MyType>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
@@ -24,7 +24,7 @@
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>bin\Debug\</OutputPath>
-    <DocumentationFile>SimpleStream.xml</DocumentationFile>
+    <DocumentationFile>StreamBasic.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -33,7 +33,7 @@
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DocumentationFile>SimpleStream.xml</DocumentationFile>
+    <DocumentationFile>StreamBasic.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <ItemGroup>
@@ -54,7 +54,7 @@
     <Import Include="System.Diagnostics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SimpleStream.vb" />
+    <Compile Include="StreamBasic.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>

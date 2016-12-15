@@ -8,8 +8,8 @@
     <ProjectGuid>{99AF3A1B-DC75-4C0F-9D6F-2979FFBD4704}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SimpleStream</RootNamespace>
-    <AssemblyName>SimpleStream</AssemblyName>
+    <RootNamespace>StreamBasic</RootNamespace>
+    <AssemblyName>StreamBasic</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <PublishUrl>publish\</PublishUrl>
@@ -53,7 +53,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SimpleStream.cs" />
+    <Compile Include="StreamBasic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

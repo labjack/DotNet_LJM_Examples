@@ -1,5 +1,5 @@
 ﻿'------------------------------------------------------------------------------
-' SimpleStream.vb
+' StreamBasic.vb
 '
 ' Demonstrates how to stream using the eStream functions.
 '
@@ -11,7 +11,7 @@ Imports LabJack
 Imports System.Threading
 
 
-Module SimpleStream
+Module StreamBasic
 
     Sub showErrorMessage(ByVal e As LJM.LJMException)
         Console.WriteLine("LJMException: " & e.ToString)
