@@ -123,6 +123,7 @@ Module StreamSequentialAIN
                     aNames(i) = "AIN" & (FIRST_AIN_CHANNEL + i) & "_RANGE"
                     aValues(i) = IIf((FIRST_AIN_CHANNEL + i) < 4, rangeAINHV, rangeAINLV)
                 Next
+                LJM.eWriteNames(handle, aNames.Length, aNames, aValues, errAddr)
 
                 ' Configure the analog input negative channels, stream settling
                 ' times and stream settling time.
@@ -132,7 +133,7 @@ Module StreamSequentialAIN
                 aNames(2) = "STREAM_RESOLUTION_INDEX"
                 ReDim aValues(2)
                 aValues(0) = LJM.CONSTANTS.GND  ' single-ended
-                aValues(0) = 10.0  ' 0 (default)
+                aValues(1) = 10.0  ' 0 (default)
                 aValues(2) = 0  ' 0 (default)
                 LJM.eWriteNames(handle, aNames.Length, aNames, aValues, errAddr)
             Else

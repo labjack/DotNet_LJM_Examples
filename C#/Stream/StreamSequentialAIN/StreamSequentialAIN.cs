@@ -88,7 +88,8 @@ namespace StreamSequentialAIN
                         aNames[i] = "AIN" + (FIRST_AIN_CHANNEL + i) + "_RANGE";
                         aValues[i] = ((FIRST_AIN_CHANNEL + i) < 4) ? rangeAINHV : rangeAINLV;
                     }
-                    
+                    LJM.eWriteNames(handle, aNames.Length, aNames, aValues, ref errorAddress);
+
                     //Configure the analog input negative channels, stream
                     //settling times and stream settling time.
                     aNames = new string[] {
@@ -140,7 +141,7 @@ namespace StreamSequentialAIN
                 try
                 {
                     Console.WriteLine("\nStarting stream. Press a key to stop streaming.");
-                    System.Threading.Thread.Sleep(1000);  //Delay so user's can read message
+                    System.Threading.Thread.Sleep(1000);  //Delay so users can read message
 
                     //Configure and start Stream
                     LJM.eStreamStart(handle, scansPerRead, numAddresses, aScanList, ref scanRate);
