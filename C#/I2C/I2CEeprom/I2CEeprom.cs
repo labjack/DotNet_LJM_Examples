@@ -38,6 +38,10 @@ namespace I2CEeprom
             int port = 0;
             int maxBytesPerMB = 0;
             string ipAddrStr = "";
+            int numBytes = 0;
+            byte[] aBytes = new byte[5];  //TX/RX bytes go here. Sending/receiving 5 bytes max.
+            int errorAddress = -1;
+            Random rand = new Random();
 
             try
             {
@@ -52,7 +56,6 @@ namespace I2CEeprom
                 Console.WriteLine("Opened a LabJack with Device type: " + devType + ", Connection type: " + conType + ",");
                 Console.WriteLine("Serial number: " + serNum + ", IP address: " + ipAddrStr + ", Port: " + port + ",");
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
-
 
                 //Configure the I2C communication.
                 if (devType == LJM.CONSTANTS.dtT4)
@@ -83,42 +86,30 @@ namespace I2CEeprom
 
                 LJM.eWriteName(handle, "I2C_SLAVE_ADDRESS", 80);  //Slave Address of the I2C chip = 80 (0x50)
 
-
                 //Initial read of EEPROM bytes 0-3 in the user memory area. We
                 //need a single I2C transmission that writes the chip's memory
                 //pointer and then reads the data.
                 LJM.eWriteName(handle, "I2C_NUM_BYTES_TX", 1);  //Set the number of bytes to transmit
                 LJM.eWriteName(handle, "I2C_NUM_BYTES_RX", 4);  //Set the number of bytes to receive
 
-                string[] aNames = new string[1];
-                int[] aWrites = new int[1];
-                int[] aNumValues = new int[1];
-                double[] aValues = new double[5];  //TX/RX bytes will go here
-                int errorAddress = -1;
-
                 //Set the TX bytes. We are sending 1 byte for the address.
-                aNames[0] = "I2C_DATA_TX";
-                aWrites[0] = LJM.CONSTANTS.WRITE;  //Indicates we are writing the values.
-                aNumValues[0] = 1;  //The number of bytes
-                aValues[0] = 0;  //Byte 0: Memory pointer = 0
-                LJM.eNames(handle, 1, aNames, aWrites, aNumValues, aValues, ref errorAddress);
+                numBytes = 1;
+                aBytes[0] = 0;  //Byte 0: Memory pointer = 0
+                LJM.eWriteNameByteArray(handle, "I2C_DATA_TX", numBytes, aBytes, ref errorAddress);
 
                 LJM.eWriteName(handle, "I2C_GO", 1);  //Do the I2C communications.
 
                 //Read the RX bytes.
-                aNames[0] = "I2C_DATA_RX";
-                aWrites[0] = LJM.CONSTANTS.READ;  //Indicates we are reading the values.
-                aNumValues[0] = 4;  //The number of bytes
-                //aValues[0] to aValues[3] will contain the data
-                for (int i = 0; i < 4; i++)
-                    aValues[i] = 0;
-                LJM.eNames(handle, 1, aNames, aWrites, aNumValues, aValues, ref errorAddress);
+                numBytes = 4;  //The number of bytes
+                //aBytes[0] to aBytes[3] will contain the data
+                for (int i = 0; i < numBytes; i++)
+                    aBytes[i] = 0;
+                LJM.eReadNameByteArray(handle, "I2C_DATA_RX", numBytes, aBytes, ref errorAddress);
 
                 Console.Write("\nRead User Memory [0-3] = ");
-                for (int i = 0; i < 4; i++)
-                    Console.Write(aValues[i] + " ");
+                for (int i = 0; i < numBytes; i++)
+                    Console.Write(aBytes[i] + " ");
                 Console.WriteLine("");
-
 
                 //Write EEPROM bytes 0-3 in the user memory area, using the
                 //page write technique.  Note that page writes are limited to
@@ -130,23 +121,19 @@ namespace I2CEeprom
                 LJM.eWriteName(handle, "I2C_NUM_BYTES_RX", 0);  //Set the number of bytes to receive
 
                 //Set the TX bytes.
-                aNames[0] = "I2C_DATA_TX";
-                aWrites[0] = LJM.CONSTANTS.WRITE;  //Indicates we are writing the values.
-                aNumValues[0] = 5;  //The number of bytes
-                aValues[0] = 0;  //Byte 0: Memory pointer = 0
-                //Create 4 new random numbers to write (aValues[1-4]).
-                Random rand = new Random();
-                for (int i = 1; i < 5; i++)
-                    aValues[i] = Convert.ToDouble(rand.Next(255));  //0 to 255
-                LJM.eNames(handle, 1, aNames, aWrites, aNumValues, aValues, ref errorAddress);
+                numBytes = 5;  //The number of bytes
+                aBytes[0] = 0;  //Byte 0: Memory pointer = 0
+                //Create 4 new random numbers to write (aBytes[1-4]).
+                for (int i = 1; i < numBytes; i++)
+                    aBytes[i] = Convert.ToByte(rand.Next(255));  //0 to 255
+                LJM.eWriteNameByteArray(handle, "I2C_DATA_TX", numBytes, aBytes, ref errorAddress);
 
                 LJM.eWriteName(handle, "I2C_GO", 1);  //Do the I2C communications.
 
                 Console.Write("Write User Memory [0-3] = ");
-                for (int i = 1; i < 5; i++)
-                    Console.Write(aValues[i] + " ");
+                for (int i = 1; i < numBytes; i++)
+                    Console.Write(aBytes[i] + " ");
                 Console.WriteLine("");
-
 
                 //Final read of EEPROM bytes 0-3 in the user memory area. We
                 //need a single I2C transmission that writes the address and
@@ -155,26 +142,22 @@ namespace I2CEeprom
                 LJM.eWriteName(handle, "I2C_NUM_BYTES_RX", 4);  //Set the number of bytes to receive
 
                 //Set the TX bytes. We are sending 1 byte for the address.
-                aNames[0] = "I2C_DATA_TX";
-                aWrites[0] = LJM.CONSTANTS.WRITE;  //Indicates we are writing the values.
-                aNumValues[0] = 1;  //The number of bytes
-                aValues[0] = 0;  //Byte 0: Memory pointer = 0
-                LJM.eNames(handle, 1, aNames, aWrites, aNumValues, aValues, ref errorAddress);
+                numBytes = 1;  //The number of bytes
+                aBytes[0] = 0;  //Byte 0: Memory pointer = 0
+                LJM.eWriteNameByteArray(handle, "I2C_DATA_TX", numBytes, aBytes, ref errorAddress);
 
                 LJM.eWriteName(handle, "I2C_GO", 1);  //Do the I2C communications.
 
                 //Read the RX bytes.
-                aNames[0] = "I2C_DATA_RX";
-                aWrites[0] = LJM.CONSTANTS.READ;  //Indicates we are reading the values.
-                aNumValues[0] = 4;  //The number of bytes
+                numBytes = 4;  //The number of bytes
                 //aValues[0] to aValues[3] will contain the data
-                for (int i = 0; i < 4; i++)
-                    aValues[i] = 0;
-                LJM.eNames(handle, 1, aNames, aWrites, aNumValues, aValues, ref errorAddress);
+                for (int i = 0; i < numBytes; i++)
+                    aBytes[i] = 0;
+                LJM.eReadNameByteArray(handle, "I2C_DATA_RX", numBytes, aBytes, ref errorAddress);
 
                 Console.Write("Read User Memory [0-3] = ");
-                for (int i = 0; i < 4; i++)
-                    Console.Write(aValues[i] + " ");
+                for (int i = 0; i < numBytes; i++)
+                    Console.Write(aBytes[i] + " ");
                 Console.WriteLine("");
             }
             catch (LJM.LJMException e)

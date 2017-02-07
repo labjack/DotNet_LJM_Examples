@@ -71,16 +71,12 @@ Module SPI
         Dim handle As Integer
         Dim numFrames As Integer
         Dim aNames(0) As String
-        Dim aWrites(0) As Integer
-        Dim aNumValues(0) As Integer
         Dim aValues() As Double
         Dim errAddr As Integer
         Dim numBytes As Integer
-        Dim dataWrite() As Double
-        Dim dataRead() As Double
+        Dim aBytes(3) As Byte
         Dim rand As Random
         Dim devType As Integer
-
 
         Try
             ' Open first found LabJack
@@ -91,7 +87,6 @@ Module SPI
 
             displayHandleInfo(handle)
             devType = getDeviceType(handle)
-
 
             If devType = LJM.CONSTANTS.dtT4 Then
                 ' Setting CS, CLK, MISO, and MOSI lines for the T4. FIO0 to
@@ -151,43 +146,36 @@ Module SPI
                 Console.WriteLine("  " & aNames(i) & " = " & aValues(i))
             Next
 
-
             ' Write(TX)/Read(RX) 4 bytes
             numBytes = 4
             LJM.eWriteName(handle, "SPI_NUM_BYTES", numBytes)
 
-
             ' Write the bytes
-            ReDim dataWrite(numBytes - 1)
             rand = New Random()
             For i = 0 To numBytes - 1
-                dataWrite(i) = Convert.ToDouble(rand.Next(255))
+                aBytes(i) = Convert.ToByte(rand.Next(255))
             Next
-            aNames(0) = "SPI_DATA_TX"
-            aWrites(0) = LJM.CONSTANTS.WRITE
-            aNumValues(0) = numBytes
-            LJM.eNames(handle, 1, aNames, aWrites, aNumValues, dataWrite, errAddr)
+            LJM.eWriteNameByteArray(handle, "SPI_DATA_TX", numBytes, aBytes, errAddr)
             LJM.eWriteName(handle, "SPI_GO", 1)  ' Do the SPI communications
 
             ' Display the bytes written
             Console.WriteLine("")
             For i = 0 To numBytes - 1
-                Console.Out.WriteLine("dataWrite[" & i & "] = " & dataWrite(i))
+                Console.Out.WriteLine("dataWrite[" & i & "] = " & aBytes(i))
             Next
 
-
             ' Read the bytes
-            ReDim dataRead(numBytes - 1)
-            aNames(0) = "SPI_DATA_RX"
-            aWrites(0) = LJM.CONSTANTS.READ
-            aNumValues(0) = numBytes
-            LJM.eNames(handle, 1, aNames, aWrites, aNumValues, dataRead, errAddr)
+            ' Initialize byte array values to zero
+            For i = 0 To numBytes - 1
+                aBytes(i) = Convert.ToByte(rand.Next(255))
+            Next
+            LJM.eReadNameByteArray(handle, "SPI_DATA_RX", numBytes, aBytes, errAddr)
             LJM.eWriteName(handle, "SPI_GO", 1)  ' Do the SPI communications
 
             ' Display the bytes read
             Console.Out.WriteLine("")
             For i = 0 To numBytes - 1
-                Console.Out.WriteLine("dataRead[" & i & "] = " & dataRead(i))
+                Console.Out.WriteLine("dataRead[" & i & "] = " & aBytes(i))
             Next
         Catch ljme As LJM.LJMException
             showErrorMessage(ljme)

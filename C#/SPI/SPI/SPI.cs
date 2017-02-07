@@ -54,6 +54,9 @@ namespace SPI
             int port = 0;
             int maxBytesPerMB = 0;
             string ipAddrStr = "";
+            int numBytes = 4;
+            byte []aBytes = new byte[4];
+            Random rand = new Random();
 
             try
             {
@@ -69,7 +72,6 @@ namespace SPI
                 Console.WriteLine("Serial number: " + serNum + ", IP address: " + ipAddrStr + ", Port: " + port + ",");
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
                 Console.Out.WriteLine("");
-
 
                 if (devType == LJM.CONSTANTS.dtT4)
                 {
@@ -127,49 +129,39 @@ namespace SPI
                     Console.WriteLine("  " + aNames[i] + " = " + aValues[i]);
                 }
 
-
                 //Write(TX)/Read(RX) 4 bytes
-                const int numBytes = 4;
+                numBytes = 4;  //Redundant but to reiterate 4 TX/RX bytes
                 LJM.eWriteName(handle, "SPI_NUM_BYTES", numBytes);
 
-
                 //Write the bytes
-                Random rand = new Random();
-                double[] dataWrite = new double[numBytes];
                 for (int i = 0; i < numBytes; i++)
                 {
-                    dataWrite[i] = Convert.ToDouble(rand.Next(255));
+                    aBytes[i] = Convert.ToByte(rand.Next(255));
                 }
-                int[] aWrites = new int[1];
-                int[] aNumValues = new int[1];
-                aNames = new string[1];
-                aNames[0] = "SPI_DATA_TX";
-                aWrites[0] = LJM.CONSTANTS.WRITE;
-                aNumValues[0] = numBytes;
-                LJM.eNames(handle, 1, aNames, aWrites, aNumValues, dataWrite, ref errAddr);
+                LJM.eWriteNameByteArray(handle, "SPI_DATA_TX", numBytes, aBytes, ref errAddr);
                 LJM.eWriteName(handle, "SPI_GO", 1);  //Do the SPI communications
 
                 //Display the bytes written
                 Console.WriteLine("");
                 for (int i = 0; i < numBytes; i++)
                 {
-                    Console.Out.WriteLine("dataWrite[" + i + "] = " + dataWrite[i]);
+                    Console.Out.WriteLine("dataWrite[" + i + "] = " + aBytes[i]);
                 }
 
-
                 //Read the bytes
-                double[] dataRead = new double[numBytes];
-                aNames[0] = "SPI_DATA_RX";
-                aWrites[0] = LJM.CONSTANTS.READ;
-                aNumValues[0] = numBytes;
-                LJM.eNames(handle, 1, aNames, aWrites, aNumValues, dataRead, ref errAddr);
+                //Initialize byte array values to zero
+                for (int i = 0; i < numBytes; i++)
+                {
+                    aBytes[i] = 0;
+                }
+                LJM.eReadNameByteArray(handle, "SPI_DATA_RX", numBytes, aBytes, ref errAddr);
                 LJM.eWriteName(handle, "SPI_GO", 1);  //Do the SPI communications
 
                 //Display the bytes read
                 Console.Out.WriteLine("");
                 for (int i = 0; i < numBytes; i++)
                 {
-                    Console.Out.WriteLine("dataRead[" + i + "] = " + dataRead[i]);
+                    Console.Out.WriteLine("dataRead[" + i + "] = " + aBytes[i]);
                 }
             }
             catch (LJM.LJMException ljme)
