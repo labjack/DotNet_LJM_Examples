@@ -129,6 +129,9 @@ Module TriggeredStreamStart
             ' 2000 sets the first stream trigger
             LJM.eWriteName(handle, "STREAM_TRIGGER_INDEX", 2000)
 
+            ' Enabling internally-clocked stream.
+            LJM.eWriteName(handle, "STREAM_CLOCK_SOURCE", 0)
+
             ' Clear any previous DIO0_EF settings
             LJM.eWriteName(handle, "DIO" & triggerChannel & "_EF_ENABLE", 0)
 

@@ -129,7 +129,14 @@ namespace StreamBasicWithStreamOut
                     Console.WriteLine("\nStarting stream. Press a key to stop streaming.");
                     System.Threading.Thread.Sleep(1000);  //Delay so user's can read message
 
-                    //Configure and start Stream
+                    //Configure and start stream
+
+                    //Ensure triggered stream is disabled.
+                    LJM.eWriteName(handle, "STREAM_TRIGGER_INDEX", 0);
+
+                    //Enabling internally-clocked stream.
+                    LJM.eWriteName(handle, "STREAM_CLOCK_SOURCE", 0);
+
                     LJM.eStreamStart(handle, scansPerRead, aScanList.Length, aScanList, ref scanRate);
 
                     UInt64 loop = 0;
