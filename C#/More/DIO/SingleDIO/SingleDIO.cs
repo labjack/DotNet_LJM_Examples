@@ -63,15 +63,17 @@ namespace SingleDIO
                     //be changed to a digital I/O by reading from the line or
                     //setting it to digital I/O with the DIO_ANALOG_ENABLE
                     //register.
-                    //For example:
-                    //LJM.eReadName(handle, name, ref state);
+
+                    //Reading from the digital line in case it was previously
+                    //an analog input.
+                    LJM.eReadName(handle, name, ref state);
                 }
                 else
                 {
                     //Setting FIO0 on the LabJack T7 and other devices.
                     name = "FIO0";
                 }
-                state = 1;  //Output-low = 0, Output-high = 1
+                state = 0;  //Output-low = 0, Output-high = 1
                 LJM.eWriteName(handle, name, state);
 
                 Console.WriteLine("\nSet " + name + " state : " + state);
