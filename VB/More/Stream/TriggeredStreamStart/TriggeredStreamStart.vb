@@ -1,8 +1,8 @@
 ﻿'------------------------------------------------------------------------------
 ' TriggeredStreamStart.vb
 '
-' Demonstrates how to stream with a LabJack using triggered start on DIO0/FIO0
-' for the T7 and DIO4/FIO4 for the T4.
+' Demonstrates how to stream with a LabJack T7 using triggered start on
+' DIO0/FIO0.
 '
 ' support@labjack.com
 '------------------------------------------------------------------------------
@@ -83,7 +83,6 @@ Module TriggeredStreamStart
         Dim aTypes() As Integer
         Dim aScanList() As Integer
 
-        Dim triggerChannel As Integer = 0  ' Channel of the trigger start
         Dim loopCnt As UInt64
         Dim totScans As UInt64
         Dim aData() As Double
@@ -102,6 +101,12 @@ Module TriggeredStreamStart
             displayHandleInfo(handle)
             devType = getDeviceType(handle)
 
+            If devType = LJM.CONSTANTS.dtT4 Then
+                Console.WriteLine("")
+                Console.WriteLine("The LabJack T4 does not support triggered start streaming.")
+                GoTo Done
+            End If
+
             ' Stream Configuration
             scansPerRead = SCAN_RATE / 2  ' # scans returned by eStreamRead call
             numAddresses = 4
@@ -119,13 +124,6 @@ Module TriggeredStreamStart
             LJM.WriteLibraryConfigS(LJM.CONSTANTS.STREAM_SCANS_RETURN, LJM.CONSTANTS.STREAM_SCANS_RETURN_ALL_OR_NONE)
             LJM.WriteLibraryConfigS(LJM.CONSTANTS.STREAM_RECEIVE_TIMEOUT_MS, 0)
 
-            If devType = LJM.CONSTANTS.dtT4 Then
-                ' For the T4, the stream trigger channel is FIO0/DIO0
-                triggerChannel = 4
-            Else
-                ' For the T7 and other devices, the stream trigger channel is FIO0/DIO0
-                triggerChannel = 0
-            End If
             ' 2000 sets the first stream trigger
             LJM.eWriteName(handle, "STREAM_TRIGGER_INDEX", 2000)
 
@@ -133,13 +131,13 @@ Module TriggeredStreamStart
             LJM.eWriteName(handle, "STREAM_CLOCK_SOURCE", 0)
 
             ' Clear any previous DIO0_EF settings
-            LJM.eWriteName(handle, "DIO" & triggerChannel & "_EF_ENABLE", 0)
+            LJM.eWriteName(handle, "DIO0_EF_ENABLE", 0)
 
             ' 5 enables a rising or falling edge to trigger stream
-            LJM.eWriteName(handle, "DIO" & triggerChannel & "_EF_INDEX", 5)
+            LJM.eWriteName(handle, "DIO0_EF_INDEX", 5)
 
             ' Enable DIO0_EF
-            LJM.eWriteName(handle, "DIO" & triggerChannel & "_EF_ENABLE", 1)
+            LJM.eWriteName(handle, "DIO0_EF_ENABLE", 1)
 
             Try
                 ' Configure and start Stream
@@ -207,6 +205,7 @@ Module TriggeredStreamStart
             showErrorMessage(ljme)
         End Try
 
+Done:
         LJM.CloseAll()  ' Close all handles
 
         Console.WriteLine("")
