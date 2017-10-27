@@ -74,7 +74,7 @@ Module CRSpeedTest
         Const numAIN As Integer = 1  ' Number of analog inputs to read
         Const rangeAIN As Double = 10.0  ' T7 AIN range
         Const rangeAINHV As Double = 10.0  ' T4 HV channels range
-        Const rangeAINLV As Double = 2.4  ' T4 LV channels range
+        Const rangeAINLV As Double = 2.5  ' T4 LV channels range
         Const resolutionAIN As Double = 1.0
 
         ' Digital settings

@@ -61,7 +61,7 @@ namespace CRSpeedTest
                 const int numAIN = 1;  //Number of analog inputs to read
                 const double rangeAIN = 10.0;  // T7 AIN range
                 const double rangeAINHV = 10.0;  //T4 HV channels range
-                const double rangeAINLV = 2.4;  //T4 LV channels range
+                const double rangeAINLV = 2.5;  //T4 LV channels range
                 const double resolutionAIN = 1.0;
                 
                 //Digital settings

@@ -36,6 +36,10 @@ namespace DualAINLoop
             int port = 0;
             int maxBytesPerMB = 0;
             string ipAddrStr = "";
+            int numFrames = 0;
+            string[] aNames;
+            double[] aValues;
+            int errorAddress = -1;
 
             try
             {
@@ -52,37 +56,52 @@ namespace DualAINLoop
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
 
                 //Setup and call eWriteNames to configure AINs.
-                //AIN0 and AIN1:
-                //    Negative Channel = 199 (Single-ended)
-                //    Range = +/-10 V
-                //        T4 note: Only AIN0-AIN3 can support +/-10 V range.
-                //    Resolution index = 0 (default)
-                //        T7 note: 0 (default) is index 8, or 9 for Pro.
-                //    Settling = 0 (auto)
-                int numFrames = 8;
-                string[] names = new string[8] { "AIN0_NEGATIVE_CH", "AIN0_RANGE", "AIN0_RESOLUTION_INDEX",
-                    "AIN0_SETTLING_US", "AIN1_NEGATIVE_CH", "AIN1_RANGE", "AIN1_RESOLUTION_INDEX",
-                    "AIN1_SETTLING_US" };
-                double[] aValues = new double[8] {199, 10, 0, 0, 199, 10, 0, 0};
-                int errorAddress = 0;
-                LJM.eWriteNames(handle, numFrames, names, aValues, ref errorAddress);
+                if (devType == LJM.CONSTANTS.dtT4)
+                {
+                    //LabJack T4 configuration
+
+                    //AIN0 and AIN1:
+                    //    Range = +/-10 V. Only AIN0-AIN3 support the +/-10 V range.
+                    //    Resolution index = 0 (default).
+                    //    Settling = 0 (auto)
+                    aNames = new string[] { "AIN0_RANGE", "AIN0_RESOLUTION_INDEX", "AIN0_SETTLING_US",
+                        "AIN1_RANGE", "AIN1_RESOLUTION_INDEX", "AIN1_SETTLING_US" };
+                    aValues = new double[] { 10, 0, 0, 10, 0, 0 };
+                }
+                else
+                {
+                    //LabJack T7 and other devices configuration
+
+                    //AIN0 and AIN1:
+                    //    Negative Channel = 199 (Single-ended)
+                    //    Range = +/-10 V
+                    //    Resolution index = 0 (default)
+                    //    Settling = 0 (auto)
+                    aNames = new string[] { "AIN0_NEGATIVE_CH", "AIN0_RANGE", "AIN0_RESOLUTION_INDEX",
+                        "AIN0_SETTLING_US", "AIN1_NEGATIVE_CH", "AIN1_RANGE", "AIN1_RESOLUTION_INDEX",
+                        "AIN1_SETTLING_US" };
+                    aValues = new double[] { 199, 10, 0, 0, 199, 10, 0, 0 };
+                }
+                numFrames = aNames.Length;
+                LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errorAddress);
 
                 Console.WriteLine("\nSet configuration:");
                 for(int i = 0; i < numFrames; i++)
                 {
-                    Console.WriteLine("  " + names[i] + " : " + aValues[i]);
+                    Console.WriteLine("  " + aNames[i] + " : " + aValues[i]);
                 }
 
                 //Setup and call eReadNames to read AINs.
-                numFrames = 2;
-                names = new string[2] {"AIN0", "AIN1"};
-                aValues = new double[2] {0, 0};
-                
+                aNames = new string[] {"AIN0", "AIN1"};
+                aValues = new double[] {0, 0};
+                numFrames = aNames.Length;
+
                 Console.WriteLine("\nStarting read loop.  Press a key to stop.");
                 while(!Console.KeyAvailable)
                 {
-                    LJM.eReadNames(handle, numFrames, names, aValues, ref errorAddress);
-                    Console.WriteLine("\n" + names[0] + " : " + aValues[0].ToString("F4") + " V, " + names[1] + " : " + aValues[1].ToString("F4") + " V");
+                    LJM.eReadNames(handle, numFrames, aNames, aValues, ref errorAddress);
+                    Console.WriteLine("\n" + aNames[0] + " : " + aValues[0].ToString("F4") + " V, " +
+                        aNames[1] + " : " + aValues[1].ToString("F4") + " V");
                     Thread.Sleep(1000); //Wait 1 second
                 }
             }

@@ -36,6 +36,12 @@ namespace SingleAINWithConfig
             int port = 0;
             int maxBytesPerMB = 0;
             string ipAddrStr = "";
+            int numFrames = 0;
+            string[] aNames;
+            double[] aValues;
+            int errAddr = -1;
+            string name = "";
+            double value = 0;
 
             try
             {
@@ -52,17 +58,31 @@ namespace SingleAINWithConfig
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
 
                 //Setup and call eWriteNames to configure the AIN on the LabJack.
-                //AIN0:
-                //    Negative Channel = 199 (Single-ended)
-                //    Range = +/-10 V
-                //        T4 note: Only AIN0-AIN3 can support +/-10 V range.
-                //    Resolution index = 0 (default)
-                //        T7 note: 0 (default) is index 8, or 9 for Pro.
-                //    Settling = 0 (auto)
-                string[] aNames = { "AIN0_NEGATIVE_CH", "AIN0_RANGE", "AIN0_RESOLUTION_INDEX", "AIN0_SETTLING_US" };
-                double[] aValues = { 199, 10, 0, 0 };
-                int numFrames = aNames.Length;
-                int errAddr = 0;
+                if (devType == LJM.CONSTANTS.dtT4)
+                {
+                    //LabJack T4 configuration
+
+                    //AIN0:
+                    //    Range = +/-10 V. Only AIN0-AIN3 support the +/-10 V range.
+                    //    Resolution index = 0 (default).
+                    //    Settling = 0 (auto)
+                    aNames = new string[] { "AIN0_RANGE", "AIN0_RESOLUTION_INDEX", "AIN0_SETTLING_US" };
+                    aValues = new double[] { 10, 0, 0 };
+                }
+                else
+                {
+                    //LabJack T7 and other devices configuration
+
+                    //AIN0:
+                    //    Negative Channel = 199 (Single-ended)
+                    //    Range = +/-10 V
+                    //    Resolution index = 0 (default).
+                    //    Settling = 0 (auto)
+                    aNames = new string[] { "AIN0_NEGATIVE_CH", "AIN0_RANGE", "AIN0_RESOLUTION_INDEX",
+                        "AIN0_SETTLING_US" };
+                    aValues = new double[] { 199, 10, 0, 0 };
+                }
+                numFrames = aNames.Length;
                 LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errAddr);
 
                 Console.WriteLine("\nSet configuration:");
@@ -72,8 +92,8 @@ namespace SingleAINWithConfig
                 }
 
                 //Setup and call eReadName to read an AIN from the LabJack.
-                string name = "AIN0";
-                double value = 0;
+                name = "AIN0";
+                value = 0;
                 LJM.eReadName(handle, name, ref value);
 
                 Console.WriteLine("\n" + name + " reading : " + value.ToString("F4") + " V");

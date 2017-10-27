@@ -59,9 +59,10 @@ namespace StreamSequentialAIN
                 Console.WriteLine("Serial number: " + serNum + ", IP address: " + ipAddrStr + ", Port: " + port + ",");
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
 
-                //Note when streaming, negative channels and ranges can be
+                //When streaming, negative channels and ranges can be
                 //configured for individual analog inputs, but the stream has
                 //only one settling time and resolution.
+
                 if (devType == LJM.CONSTANTS.dtT4)
                 {
                     //T4 configuration
@@ -80,7 +81,7 @@ namespace StreamSequentialAIN
 
                     //Configure the analog input ranges.
                     double rangeAINHV = 10.0;  //HV channels range (AIN0-AIN3)
-                    double rangeAINLV = 2.4;  //LV channels range (AIN4+)
+                    double rangeAINLV = 2.5;  //LV channels range (AIN4+)
                     aNames = new string[NUMBER_OF_AINS];
                     aValues = new double[NUMBER_OF_AINS];
                     for(int i = 0; i < NUMBER_OF_AINS; i++)
@@ -90,23 +91,26 @@ namespace StreamSequentialAIN
                     }
                     LJM.eWriteNames(handle, aNames.Length, aNames, aValues, ref errorAddress);
 
-                    //Configure the analog input negative channels, stream
-                    //settling times and stream settling time.
+                    //Configure the stream settling times and stream resolution index.
                     aNames = new string[] {
-                        "AIN_ALL_NEGATIVE_CH",
                         "STREAM_SETTLING_US",
                         "STREAM_RESOLUTION_INDEX"
                     };
                     aValues = new double[] {
-                        LJM.CONSTANTS.GND,
                         10.0,
                         0
-                    };  //single-ended, 0 (default), 0 (default)
+                    };  //0 (default), 0 (default)
                     LJM.eWriteNames(handle, aNames.Length, aNames, aValues, ref errorAddress);
                 }
                 else
                 {
                     //T7 and other devices configuration
+
+                    //Ensure triggered stream is disabled.
+                    LJM.eWriteName(handle, "STREAM_TRIGGER_INDEX", 0);
+
+                    //Enabling internally-clocked stream.
+                    LJM.eWriteName(handle, "STREAM_CLOCK_SOURCE", 0);
 
                     //Configure the analog input negative channels, ranges,
                     //stream settling times and stream resolution index.
@@ -144,13 +148,6 @@ namespace StreamSequentialAIN
                     System.Threading.Thread.Sleep(1000);  //Delay so users can read message
 
                     //Configure and start stream
-
-                    //Ensure triggered stream is disabled.
-                    LJM.eWriteName(handle, "STREAM_TRIGGER_INDEX", 0);
-
-                    //Enabling internally-clocked stream.
-                    LJM.eWriteName(handle, "STREAM_CLOCK_SOURCE", 0);
-
                     LJM.eStreamStart(handle, scansPerRead, numAddresses, aScanList, ref scanRate);
 
                     UInt64 loop = 0;
