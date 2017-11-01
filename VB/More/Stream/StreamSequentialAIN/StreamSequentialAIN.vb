@@ -15,43 +15,6 @@ Imports LabJack
 
 Module StreamSequentialAIN
 
-    Sub showErrorMessage(ByVal e As LJM.LJMException)
-        Console.WriteLine("LJMException: " & e.ToString)
-        Console.WriteLine(e.StackTrace)
-    End Sub
-
-    Sub displayHandleInfo(ByVal handle As Integer)
-        Dim devType As Integer
-        Dim conType As Integer
-        Dim serNum As Integer
-        Dim ipAddr As Integer
-        Dim port As Integer
-        Dim maxBytesPerMB As Integer
-        Dim ipAddrStr As String = ""
-
-        LJM.GetHandleInfo(handle, devType, conType, serNum, ipAddr, port, _
-                          maxBytesPerMB)
-        LJM.NumberToIP(ipAddr, ipAddrStr)
-        Console.WriteLine("Opened a LabJack with Device type: " & devType & _
-                          ", Connection type: " & conType & ",")
-        Console.WriteLine("Serial number: " & serNum & ", IP address: " & _
-                          ipAddrStr & ", Port: " & port & ",")
-        Console.WriteLine("Max bytes per MB: " & maxBytesPerMB)
-    End Sub
-
-    Function getDeviceType(ByVal handle As Integer)
-        Dim devType As Integer
-        Dim conType As Integer
-        Dim serNum As Integer
-        Dim ipAddr As Integer
-        Dim port As Integer
-        Dim maxBytesPerMB As Integer
-
-        LJM.GetHandleInfo(handle, devType, conType, serNum, ipAddr, port, _
-                          maxBytesPerMB)
-        Return devType
-    End Function
-
     Sub Main()
         Const FIRST_AIN_CHANNEL As Integer = 0 ' 0 = AIN0
         Const NUMBER_OF_AINS As Integer = 8
@@ -95,14 +58,14 @@ Module StreamSequentialAIN
             displayHandleInfo(handle)
             devType = getDeviceType(handle)
 
-            ' Note when streaming, negative channels and ranges can be
+            ' When streaming, negative channels and ranges can be
             ' configured for individual analog inputs, but the stream has only
             ' one settling time and resolution.
             If devType = LJM.CONSTANTS.dtT4 Then
-                'T4 configuration
+                ' T4 configuration
 
-                'Configure the channels to analog input or digital I/O
-                'Update all digital I/O channels. b1 = Ignored. b0 = Affected.
+                ' Configure the channels to analog input or digital I/O
+                ' Update all digital I/O channels. b1 = Ignored. b0 = Affected.
                 dioInhibit = &H0 ' b00000000000000000000
                 ' Set AIN0-AIN3 and AIN FIRST_AIN_CHANNEL to
                 ' FIRST_AIN_CHANNEL+NUMBER_OF_AINS-1 as analog inputs (b1), the
@@ -125,22 +88,26 @@ Module StreamSequentialAIN
                 Next
                 LJM.eWriteNames(handle, aNames.Length, aNames, aValues, errAddr)
 
-                ' Configure the analog input negative channels, stream settling
-                ' times and stream settling time.
-                ReDim aNames(2)
-                aNames(0) = "AIN_ALL_NEGATIVE_CH"
-                aNames(1) = "STREAM_SETTLING_US"
-                aNames(2) = "STREAM_RESOLUTION_INDEX"
+                ' Configure the stream settling time and stream resolution
+                ' index.
+                ReDim aNames(1)
+                aNames(0) = "STREAM_SETTLING_US"
+                aNames(1) = "STREAM_RESOLUTION_INDEX"
                 ReDim aValues(2)
-                aValues(0) = LJM.CONSTANTS.GND  ' single-ended
-                aValues(1) = 10.0  ' 0 (default)
-                aValues(2) = 0  ' 0 (default)
+                aValues(0) = 10.0  ' 0 (default)
+                aValues(1) = 0  ' 0 (default)
                 LJM.eWriteNames(handle, aNames.Length, aNames, aValues, errAddr)
             Else
                 ' T7 and other devices configuration
 
+                ' Ensure triggered stream is disabled.
+                LJM.eWriteName(handle, "STREAM_TRIGGER_INDEX", 0)
+
+                ' Enabling internally-clocked stream.
+                LJM.eWriteName(handle, "STREAM_CLOCK_SOURCE", 0)
+
                 ' Configure the analog input negative channels, ranges, stream
-                ' settling times and stream resolution index.
+                ' settling time and stream resolution index.
                 ReDim aNames(3)
                 aNames(0) = "AIN_ALL_NEGATIVE_CH"
                 aNames(1) = "AIN_ALL_RANGE"
@@ -175,13 +142,6 @@ Module StreamSequentialAIN
                 Thread.Sleep(1000)  ' Delay so user's can read message
 
                 ' Configure and start stream
-
-                ' Ensure triggered stream is disabled.
-                LJM.eWriteName(handle, "STREAM_TRIGGER_INDEX", 0)
-
-                ' Enabling internally-clocked stream.
-                LJM.eWriteName(handle, "STREAM_CLOCK_SOURCE", 0)
-
                 LJM.eStreamStart(handle, scansPerRead, numAddresses, aScanList, scanRate)
 
                 loopCnt = 0
@@ -225,7 +185,8 @@ Module StreamSequentialAIN
 
                 sw.Stop()
 
-                Console.ReadKey(True)  ' Doing this to prevent Enter key from closing the program right away.
+                ' Doing this to prevent Enter key from closing the program right away.
+                Console.ReadKey(True)
 
                 Console.WriteLine("")
                 Console.WriteLine("Total scans: " & totScans)

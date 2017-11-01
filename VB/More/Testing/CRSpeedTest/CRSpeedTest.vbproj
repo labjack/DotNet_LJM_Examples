@@ -54,6 +54,9 @@
     <Import Include="System.Diagnostics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\LJMUtilities.vb">
+      <Link>LJMUtilities.vb</Link>
+    </Compile>
     <Compile Include="CRSpeedTest.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">

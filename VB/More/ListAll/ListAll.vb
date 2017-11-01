@@ -14,11 +14,6 @@ Imports LabJack
 
 Module ListAll
 
-    Sub showErrorMessage(ByVal e As LJM.LJMException)
-        Console.WriteLine("LJMException: " & e.ToString)
-        Console.WriteLine(e.StackTrace)
-    End Sub
-
     Sub Main()
         Dim DEVICE_NAMES As New Dictionary(Of Integer, String)
         Dim CONN_NAMES As New Dictionary(Of Integer, String)
@@ -37,7 +32,7 @@ Module ListAll
         DEVICE_NAMES.Add(LJM.CONSTANTS.dtT7, "T7")
         DEVICE_NAMES.Add(LJM.CONSTANTS.dtT4, "T4")
         DEVICE_NAMES.Add(LJM.CONSTANTS.dtDIGIT, "Digit")
-        
+
         CONN_NAMES.Add(LJM.CONSTANTS.ctUSB, "USB")
         CONN_NAMES.Add(LJM.CONSTANTS.ctTCP, "TCP")
         CONN_NAMES.Add(LJM.CONSTANTS.ctETHERNET, "Ethernet")
