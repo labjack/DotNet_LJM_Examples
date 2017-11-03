@@ -75,6 +75,10 @@ namespace SPI
 
                 if (devType == LJM.CONSTANTS.dtT4)
                 {
+                    //Configure FIO4 to FIO7 as digital I/O.
+                    LJM.eWriteName(handle, "DIO_INHIBIT", 0xFFF0F);
+                    LJM.eWriteName(handle, "DIO_ANALOG_ENABLE", 0x00000);
+
                     //Setting CS, CLK, MISO, and MOSI lines for the T4. FIO0
                     //to FIO3 are reserved for analog inputs, and SPI requires
                     //digital lines.

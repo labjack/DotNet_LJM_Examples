@@ -35,6 +35,10 @@ Module I2CEeprom
 
             ' Configure the I2C communication.
             If devType = LJM.CONSTANTS.dtT4 Then
+                ' Configure FIO4 and FIO5 as digital I/O.
+                LJM.eWriteName(handle, "DIO_INHIBIT", &HFFFCF)
+                LJM.eWriteName(handle, "DIO_ANALOG_ENABLE", &H0)
+
                 ' For the T4, using FIO4 and FIO5 for SCL and SDA pins. FIO0 to
                 ' FIO3 are reserved for analog inputs, and digital lines are
                 ' required.

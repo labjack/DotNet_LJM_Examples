@@ -52,6 +52,10 @@ Module SPI
             devType = getDeviceType(handle)
 
             If devType = LJM.CONSTANTS.dtT4 Then
+                ' Configure FIO4 to FIO7 as digital I/O.
+                LJM.eWriteName(handle, "DIO_INHIBIT", &HFFF0F)
+                LJM.eWriteName(handle, "DIO_ANALOG_ENABLE", &H0)
+
                 ' Setting CS, CLK, MISO, and MOSI lines for the T4. FIO0 to
                 ' FIO3 are reserved for analog inputs, and SPI requires
                 ' digital lines.

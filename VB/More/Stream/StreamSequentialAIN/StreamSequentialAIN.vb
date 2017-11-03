@@ -58,84 +58,85 @@ Module StreamSequentialAIN
             displayHandleInfo(handle)
             devType = getDeviceType(handle)
 
-            ' When streaming, negative channels and ranges can be
-            ' configured for individual analog inputs, but the stream has only
-            ' one settling time and resolution.
-            If devType = LJM.CONSTANTS.dtT4 Then
-                ' T4 configuration
-
-                ' Configure the channels to analog input or digital I/O
-                ' Update all digital I/O channels. b1 = Ignored. b0 = Affected.
-                dioInhibit = &H0 ' b00000000000000000000
-                ' Set AIN0-AIN3 and AIN FIRST_AIN_CHANNEL to
-                ' FIRST_AIN_CHANNEL+NUMBER_OF_AINS-1 as analog inputs (b1), the
-                ' rest as digital I/O (b0).
-                dioAnalogEnable = (((Math.Pow(2, NUMBER_OF_AINS) - 1) << FIRST_AIN_CHANNEL) Or &HF)
-                ReDim aNames(1)
-                aNames(0) = "DIO_INHIBIT"
-                aNames(1) = "DIO_ANALOG_ENABLE"
-                ReDim aValues(1)
-                aValues(0) = dioInhibit
-                aValues(1) = dioAnalogEnable
-                LJM.eWriteNames(handle, aNames.Length, aNames, aValues, errAddr)
-
-                ' Configure the analog input ranges.
-                ReDim aNames(NUMBER_OF_AINS - 1)
-                ReDim aValues(NUMBER_OF_AINS - 1)
-                For i = 0 To NUMBER_OF_AINS - 1
-                    aNames(i) = "AIN" & (FIRST_AIN_CHANNEL + i) & "_RANGE"
-                    aValues(i) = IIf((FIRST_AIN_CHANNEL + i) < 4, rangeAINHV, rangeAINLV)
-                Next
-                LJM.eWriteNames(handle, aNames.Length, aNames, aValues, errAddr)
-
-                ' Configure the stream settling time and stream resolution
-                ' index.
-                ReDim aNames(1)
-                aNames(0) = "STREAM_SETTLING_US"
-                aNames(1) = "STREAM_RESOLUTION_INDEX"
-                ReDim aValues(2)
-                aValues(0) = 10.0  ' 0 (default)
-                aValues(1) = 0  ' 0 (default)
-                LJM.eWriteNames(handle, aNames.Length, aNames, aValues, errAddr)
-            Else
-                ' T7 and other devices configuration
-
-                ' Ensure triggered stream is disabled.
-                LJM.eWriteName(handle, "STREAM_TRIGGER_INDEX", 0)
-
-                ' Enabling internally-clocked stream.
-                LJM.eWriteName(handle, "STREAM_CLOCK_SOURCE", 0)
-
-                ' Configure the analog input negative channels, ranges, stream
-                ' settling time and stream resolution index.
-                ReDim aNames(3)
-                aNames(0) = "AIN_ALL_NEGATIVE_CH"
-                aNames(1) = "AIN_ALL_RANGE"
-                aNames(2) = "STREAM_SETTLING_US"
-                aNames(3) = "STREAM_RESOLUTION_INDEX"
-                ReDim aValues(3)
-                aValues(0) = LJM.CONSTANTS.GND  ' single-ended
-                aValues(1) = 10.0  ' +/-10V,
-                aValues(2) = 0  ' 0 (default)
-                aValues(3) = 0  ' 0 (default)
-                LJM.eWriteNames(handle, aNames.Length, aNames, aValues, errAddr)
-            End If
-
-            ' Stream Configuration
-            scansPerRead = 1000  ' # scans returned by eStreamRead call
-            scanRate = 1000  ' Scans per second
-            ' Scan list names to stream. AIN(FIRST_AIN_CHANNEL) to
-            ' AIN(NUMBER_OF_AINS-1).
-            numAddresses = NUMBER_OF_AINS
-            ReDim aScanListNames(numAddresses - 1)  ' Scan list names to stream.
-            For i As Integer = 0 To numAddresses - 1
-                aScanListNames(i) = "AIN" + (FIRST_AIN_CHANNEL + i).ToString()
-            Next
-            ReDim aTypes(numAddresses - 1)  ' Dummy
-            ReDim aScanList(numAddresses - 1)  ' Scan list addresses to stream.
-            LJM.NamesToAddresses(numAddresses, aScanListNames, aScanList, aTypes)
-
             Try
+                ' When streaming, negative channels and ranges can be
+                ' configured for individual analog inputs, but the stream has only
+                ' one settling time and resolution.
+                If devType = LJM.CONSTANTS.dtT4 Then
+                    ' T4 configuration
+
+                    ' Configure the channels to analog input or digital I/O
+                    ' Update all digital I/O channels. b1 = Ignored. b0 = Affected.
+                    dioInhibit = &H0 ' b00000000000000000000
+                    ' Set AIN0-AIN3 and AIN FIRST_AIN_CHANNEL to
+                    ' FIRST_AIN_CHANNEL+NUMBER_OF_AINS-1 as analog inputs (b1), the
+                    ' rest as digital I/O (b0).
+                    dioAnalogEnable = (((Math.Pow(2, NUMBER_OF_AINS) - 1) << FIRST_AIN_CHANNEL) Or &HF)
+                    ReDim aNames(1)
+                    aNames(0) = "DIO_INHIBIT"
+                    aNames(1) = "DIO_ANALOG_ENABLE"
+                    ReDim aValues(1)
+                    aValues(0) = dioInhibit
+                    aValues(1) = dioAnalogEnable
+                    LJM.eWriteNames(handle, aNames.Length, aNames, aValues, errAddr)
+
+                    ' Configure the analog input ranges.
+                    ReDim aNames(NUMBER_OF_AINS - 1)
+                    ReDim aValues(NUMBER_OF_AINS - 1)
+                    For i = 0 To NUMBER_OF_AINS - 1
+                        aNames(i) = "AIN" & (FIRST_AIN_CHANNEL + i) & "_RANGE"
+                        aValues(i) = IIf((FIRST_AIN_CHANNEL + i) < 4, rangeAINHV, rangeAINLV)
+                    Next
+                    LJM.eWriteNames(handle, aNames.Length, aNames, aValues, errAddr)
+
+                    ' Configure the stream settling time and stream resolution
+                    ' index.
+                    ReDim aNames(1)
+                    aNames(0) = "STREAM_SETTLING_US"
+                    aNames(1) = "STREAM_RESOLUTION_INDEX"
+                    ReDim aValues(2)
+                    aValues(0) = 10.0  ' 0 (default)
+                    aValues(1) = 0  ' 0 (default)
+                    LJM.eWriteNames(handle, aNames.Length, aNames, aValues, errAddr)
+                Else
+                    ' T7 and other devices configuration
+
+                    ' Ensure triggered stream is disabled.
+                    LJM.eWriteName(handle, "STREAM_TRIGGER_INDEX", 0)
+
+                    ' Enabling internally-clocked stream.
+                    LJM.eWriteName(handle, "STREAM_CLOCK_SOURCE", 0)
+
+                    ' Configure the analog input negative channels, ranges, stream
+                    ' settling time and stream resolution index.
+                    ReDim aNames(3)
+                    aNames(0) = "AIN_ALL_NEGATIVE_CH"
+                    aNames(1) = "AIN_ALL_RANGE"
+                    aNames(2) = "STREAM_SETTLING_US"
+                    aNames(3) = "STREAM_RESOLUTION_INDEX"
+                    ReDim aValues(3)
+                    aValues(0) = LJM.CONSTANTS.GND  ' single-ended
+                    aValues(1) = 10.0  ' +/-10V,
+                    aValues(2) = 0  ' 0 (default)
+                    aValues(3) = 0  ' 0 (default)
+                    LJM.eWriteNames(handle, aNames.Length, aNames, aValues, errAddr)
+                End If
+
+                ' Stream Configuration
+                scansPerRead = 1000  ' # scans returned by eStreamRead call
+                scanRate = 1000  ' Scans per second
+                ' Scan list names to stream. AIN(FIRST_AIN_CHANNEL) to
+                ' AIN(NUMBER_OF_AINS-1).
+                numAddresses = NUMBER_OF_AINS
+                ReDim aScanListNames(numAddresses - 1)  ' Scan list names to stream.
+                For i As Integer = 0 To numAddresses - 1
+                    aScanListNames(i) = "AIN" + (FIRST_AIN_CHANNEL + i).ToString()
+                Next
+                ReDim aTypes(numAddresses - 1)  ' Dummy
+                ReDim aScanList(numAddresses - 1)  ' Scan list addresses to stream.
+                LJM.NamesToAddresses(numAddresses, aScanListNames, aScanList, aTypes)
+
+
                 Console.WriteLine("")
                 Console.WriteLine("Starting stream. Press a key to stop " & _
                                   "streaming.")
