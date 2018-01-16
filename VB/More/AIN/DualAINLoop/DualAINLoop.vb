@@ -20,6 +20,8 @@ Module DualAINLoop
         Dim aNames() As String
         Dim aValues() As Double
         Dim errAddr As Integer = -1
+        Dim intervalHandle As Integer
+        Dim skippedIntervals As Integer = 0
 
         Try
             ' Open first found LabJack
@@ -101,6 +103,8 @@ Module DualAINLoop
 
             Console.WriteLine("")
             Console.WriteLine("Starting read loop.  Press a key to stop.")
+            intervalHandle = 1
+            LJM.StartInterval(intervalHandle, 1000000)
             While Console.KeyAvailable = False
                 LJM.eReadNames(handle, numFrames, aNames, aValues, errAddr)
                 Console.WriteLine("")
@@ -108,13 +112,18 @@ Module DualAINLoop
                                   aValues(0).ToString("F4") & " V, " & _
                                   aNames(1) & " : " & _
                                   aValues(1).ToString("F4") & " V")
-                Thread.Sleep(1000)  ' Wait 1 second
+                LJM.WaitForNextInterval(intervalHandle, skippedIntervals)  ' Wait 1 second
+                If skippedIntervals > 0 Then
+                    Console.WriteLine("SkippedIntervals: " & skippedIntervals)
+                End If
             End While
         Catch ljme As LJM.LJMException
             showErrorMessage(ljme)
         End Try
 
-        LJM.CloseAll()  ' Close all handles
+        ' Close interval and all device handles
+        LJM.CleanInterval(intervalHandle)
+        LJM.CloseAll()
 
         Console.WriteLine("")
         Console.WriteLine("Done.")

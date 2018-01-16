@@ -7,7 +7,6 @@
 //-----------------------------------------------------------------------------
 
 using System;
-using System.Threading;
 using LabJack;
 
 namespace DualAINLoop
@@ -40,6 +39,8 @@ namespace DualAINLoop
             string[] aNames;
             double[] aValues;
             int errorAddress = -1;
+            int intervalHandle = 1;
+            int skippedIntervals = 0;
 
             try
             {
@@ -97,12 +98,17 @@ namespace DualAINLoop
                 numFrames = aNames.Length;
 
                 Console.WriteLine("\nStarting read loop.  Press a key to stop.");
+                LJM.StartInterval(intervalHandle, 1000000);
                 while(!Console.KeyAvailable)
                 {
                     LJM.eReadNames(handle, numFrames, aNames, aValues, ref errorAddress);
                     Console.WriteLine("\n" + aNames[0] + " : " + aValues[0].ToString("F4") + " V, " +
                         aNames[1] + " : " + aValues[1].ToString("F4") + " V");
-                    Thread.Sleep(1000); //Wait 1 second
+                    LJM.WaitForNextInterval(intervalHandle, ref skippedIntervals);  //Wait 1 second
+                    if(skippedIntervals > 0)
+                    {
+                        Console.WriteLine("SkippedIntervals: " + skippedIntervals);
+                    }
                 }
             }
             catch (LJM.LJMException e)
@@ -110,7 +116,9 @@ namespace DualAINLoop
                 showErrorMessage(e);
             }
 
-            LJM.CloseAll();  //Close all handles
+            //Close interval and all device handles
+            LJM.CleanInterval(intervalHandle);
+            LJM.CloseAll();
 
             Console.WriteLine("\nDone.\nPress the enter key to exit.");
             Console.ReadLine();  // Pause for user
