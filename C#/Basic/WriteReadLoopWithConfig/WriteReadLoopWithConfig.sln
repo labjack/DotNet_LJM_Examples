@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WriteReadLoopWithConfig", "WriteReadLoopWithConfig.csproj", "{6CB49473-F99D-4DB2-9CF4-A4814509C040}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6CB49473-F99D-4DB2-9CF4-A4814509C040}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CB49473-F99D-4DB2-9CF4-A4814509C040}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CB49473-F99D-4DB2-9CF4-A4814509C040}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CB49473-F99D-4DB2-9CF4-A4814509C040}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
