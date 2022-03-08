@@ -32,7 +32,7 @@ namespace StreamBasicWithStreamOut
 
         public void performActions()
         {
-            const int MAX_REQUESTS = 50;  //The number of eStreamRead calls that will be performed.
+            const int MAX_REQUESTS = 10;  //The number of eStreamRead calls that will be performed.
 
             int handle = 0;
             int devType = 0;
@@ -50,6 +50,7 @@ namespace StreamBasicWithStreamOut
             {
                 //Open first found LabJack
                 LJM.OpenS("ANY", "ANY", "ANY", ref handle);  // Any device, Any connection, Any identifier
+                //LJM.OpenS("T8", "ANY", "ANY", ref handle);  // T8 device, Any connection, Any identifier
                 //LJM.OpenS("T7", "ANY", "ANY", ref handle);  // T7 device, Any connection, Any identifier
                 //LJM.OpenS("T4", "ANY", "ANY", ref handle);  // T4 device, Any connection, Any identifier
                 //LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", ref handle);  // Any device, Any connection, Any identifier
@@ -89,8 +90,8 @@ namespace StreamBasicWithStreamOut
                 Console.WriteLine("\nSTREAM_OUT0_BUFFER_STATUS = " + value);
 
                 //Stream Configuration
-                double scanRate = 2000;  //Scans per second
-                int scansPerRead = 60;  //# scans returned by eStreamRead call
+                double scanRate = 500;  //Scans per second
+                int scansPerRead = (int)scanRate/2;  //# scans returned by eStreamRead call
 
                 const int numAddressesIn = 2;
                 string[] aScanListNames = new String[numAddressesIn] { "AIN0", "AIN1" };  //Scan list names to stream.
@@ -114,52 +115,57 @@ namespace StreamBasicWithStreamOut
                     {
                         //LabJack T4 configuration
 
-                        //AIN0 and AIN1 ranges are +/-10 V, stream settling is 0 (default)
-                        //and stream resolution index is 0 (default).
+                        //Stream settling is 0 (default) and stream resolution index is 0 (default).
                         aNames = new string[] {
-                            "AIN0_RANGE",
-                            "AIN1_RANGE",
                             "STREAM_SETTLING_US",
                             "STREAM_RESOLUTION_INDEX"
                         };
                         aValues = new double[] {
-                            10.0,
-                            10.0,
                             0,
                             0
                         };
+                        LJM.eWriteNames(handle, aNames.Length, aNames, aValues, ref errorAddress);
                     }
                     else
                     {
-                        //LabJack T7 and other devices configuration
+                        //LabJack T7 and T8 configuration
+
+                        // Settling and negative channel do not apply to the T8
+                        if (devType == LJM.CONSTANTS.dtT7)
+                        {
+                            //All negative channels are single-ended
+                            //Stream settling is 0 (default).
+                            aNames = new string[] {
+                                "AIN_ALL_NEGATIVE_CH",
+                                "STREAM_SETTLING_US"
+                            };
+                            aValues = new double[] {
+                                LJM.CONSTANTS.GND,
+                                0
+                            };
+                            LJM.eWriteNames(handle, aNames.Length, aNames, aValues, ref errorAddress);
+                        }
 
                         //Ensure triggered stream is disabled.
-                        LJM.eWriteName(handle, "STREAM_TRIGGER_INDEX", 0);
-
-                        //Enabling internally-clocked stream.
-                        LJM.eWriteName(handle, "STREAM_CLOCK_SOURCE", 0);
-
-                        //All negative channels are single-ended, AIN0 and AIN1 ranges
-                        //are +/-10 V, stream settling is 0 (default) and stream
-                        //resolution index is 0 (default).
+                        //Ensure internally-clocked stream.
+                        //AIN0 and AIN1 ranges are set to ±10V (T7) or ±11V (T8).
+                        //Stream resolution index is 0 (default).
                         aNames = new string[] {
-                            "AIN_ALL_NEGATIVE_CH",
+                            "STREAM_TRIGGER_INDEX",
+                            "STREAM_CLOCK_SOURCE",
                             "AIN0_RANGE",
                             "AIN1_RANGE",
-                            "STREAM_SETTLING_US",
                             "STREAM_RESOLUTION_INDEX"
                         };
                         aValues = new double[] {
-                            LJM.CONSTANTS.GND,
-                            10.0,
-                            10.0,
                             0,
+                            0,
+                            10.0,
+                            10.0,
                             0
                         };
+                        LJM.eWriteNames(handle, aNames.Length, aNames, aValues, ref errorAddress);
                     }
-                    //Write the analog inputs' negative channels (when applicable), ranges
-                    //stream settling time and stream resolution configuration.
-                    LJM.eWriteNames(handle, aNames.Length, aNames, aValues, ref errorAddress);
 
                     Console.WriteLine("\nStarting stream. Press a key to stop streaming.");
                     System.Threading.Thread.Sleep(1000);  //Delay so user's can read message

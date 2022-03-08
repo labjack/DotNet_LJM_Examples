@@ -39,7 +39,7 @@ namespace SingleAINWithConfig
             int numFrames = 0;
             string[] aNames;
             double[] aValues;
-            int errAddr = -1;
+            int errorAddress = -1;
             string name = "";
             double value = 0;
 
@@ -47,6 +47,7 @@ namespace SingleAINWithConfig
             {
                 //Open first found LabJack
                 LJM.OpenS("ANY", "ANY", "ANY", ref handle);  // Any device, Any connection, Any identifier
+                //LJM.OpenS("T8", "ANY", "ANY", ref handle);  // T8 device, Any connection, Any identifier
                 //LJM.OpenS("T7", "ANY", "ANY", ref handle);  // T7 device, Any connection, Any identifier
                 //LJM.OpenS("T4", "ANY", "ANY", ref handle);  // T4 device, Any connection, Any identifier
                 //LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", ref handle);  // Any device, Any connection, Any identifier
@@ -63,32 +64,36 @@ namespace SingleAINWithConfig
                     //LabJack T4 configuration
 
                     //AIN0:
-                    //    Range = +/-10 V. Only AIN0-AIN3 support the +/-10 V range.
                     //    Resolution index = 0 (default).
                     //    Settling = 0 (auto)
-                    aNames = new string[] { "AIN0_RANGE", "AIN0_RESOLUTION_INDEX", "AIN0_SETTLING_US" };
-                    aValues = new double[] { 10, 0, 0 };
+                    aNames = new string[] { "AIN0_RESOLUTION_INDEX", "AIN0_SETTLING_US" };
+                    aValues = new double[] { 0, 0 };
+                    numFrames = aNames.Length;
+                    LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errorAddress);
                 }
                 else
                 {
-                    //LabJack T7 and other devices configuration
+                    //LabJack T7 and T8 configuration
 
-                    //AIN0:
-                    //    Negative Channel = 199 (Single-ended)
-                    //    Range = +/-10 V
+                    // Settling and negative channel do not apply to the T8
+                    if (devType == LJM.CONSTANTS.dtT7)
+                    {
+                        // Negative Channel = 199 (Single-ended)
+                        // Settling = 0 (auto)
+                        aNames = new string[] {  "AIN0_NEGATIVE_CH",
+                        "AIN0_SETTLING_US"};
+                        aValues = new double[] { 199, 0 };
+                        numFrames = aNames.Length;
+                        LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errorAddress);
+                    }
+                    //    Range = ±10V (T7) or ±11V (T8).
                     //    Resolution index = 0 (default).
-                    //    Settling = 0 (auto)
-                    aNames = new string[] { "AIN0_NEGATIVE_CH", "AIN0_RANGE", "AIN0_RESOLUTION_INDEX",
-                        "AIN0_SETTLING_US" };
-                    aValues = new double[] { 199, 10, 0, 0 };
-                }
-                numFrames = aNames.Length;
-                LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errAddr);
+                    aNames = new string[] {  "AIN0_RANGE",
+                        "AIN0_RESOLUTION_INDEX"};
+                    aValues = new double[] { 10, 0 };
+                    numFrames = aNames.Length;
+                    LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errorAddress);
 
-                Console.WriteLine("\nSet configuration:");
-                for(int i = 0; i < numFrames; i++)
-                {
-                    Console.WriteLine("    " + aNames[i] +  " : " + aValues[i] + " ");
                 }
 
                 //Setup and call eReadName to read an AIN from the LabJack.

@@ -44,6 +44,7 @@ namespace CRSpeedTest
             {
                 //Open first found LabJack
                 LJM.OpenS("ANY", "ANY", "ANY", ref handle);  // Any device, Any connection, Any identifier
+                //LJM.OpenS("T8", "ANY", "ANY", ref handle);  // T8 device, Any connection, Any identifier
                 //LJM.OpenS("T7", "ANY", "ANY", ref handle);  // T7 device, Any connection, Any identifier
                 //LJM.OpenS("T4", "ANY", "ANY", ref handle);  // T4 device, Any connection, Any identifier
                 //LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", ref handle);  // Any device, Any connection, Any identifier
@@ -59,9 +60,7 @@ namespace CRSpeedTest
 
                 //Analog input settings
                 const int numAIN = 1;  //Number of analog inputs to read
-                const double rangeAIN = 10.0;  // T7 AIN range
-                const double rangeAINHV = 10.0;  //T4 HV channels range
-                const double rangeAINLV = 2.5;  //T4 LV channels range
+                const double rangeAIN = 10.0;  // T7/T8 AIN range
                 const double resolutionAIN = 1.0;
                 
                 //Digital settings
@@ -117,17 +116,9 @@ namespace CRSpeedTest
                     for(i = 0; i < numAIN; i++)
                     {
                         aNames[i*2] = "AIN" + i + "_RANGE";
-                        if (devType == LJM.CONSTANTS.dtT4)
+                        if (devType != LJM.CONSTANTS.dtT4)
                         {
-                            //T4 range
-                            if (i < 4)
-                                aValues[i * 2] = rangeAINHV;  //HV line
-                            else
-                                aValues[i * 2] = rangeAINLV;  //LV line
-                        }
-                        else
-                        {
-                            //T7 range
+                            //T7/T8 range
                             aValues[i * 2] = rangeAIN;
                         }
                         aNames[i*2+1] = "AIN" + i + "_RESOLUTION_INDEX";

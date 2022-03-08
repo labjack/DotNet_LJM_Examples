@@ -49,6 +49,7 @@ namespace StreamSequentialAIN
             {
                 //Open first found LabJack
                 LJM.OpenS("ANY", "ANY", "ANY", ref handle);
+                //LJM.OpenS("T8", "ANY", "ANY", ref handle);  // T8 device, Any connection, Any identifier
                 //LJM.OpenS("T7", "ANY", "ANY", ref handle);  // T7 device, Any connection, Any identifier
                 //LJM.OpenS("T4", "ANY", "ANY", ref handle);  // T4 device, Any connection, Any identifier
                 //LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", ref handle);  // Any device, Any connection, Any identifier
@@ -82,18 +83,6 @@ namespace StreamSequentialAIN
                         aValues = new double[] { dioInhibit, dioAnalogEnable };
                         LJM.eWriteNames(handle, aNames.Length, aNames, aValues, ref errorAddress);
 
-                        //Configure the analog input ranges.
-                        double rangeAINHV = 10.0;  //HV channels range (AIN0-AIN3)
-                        double rangeAINLV = 2.5;  //LV channels range (AIN4+)
-                        aNames = new string[NUMBER_OF_AINS];
-                        aValues = new double[NUMBER_OF_AINS];
-                        for(int i = 0; i < NUMBER_OF_AINS; i++)
-                        {
-                            aNames[i] = "AIN" + (FIRST_AIN_CHANNEL + i) + "_RANGE";
-                            aValues[i] = ((FIRST_AIN_CHANNEL + i) < 4) ? rangeAINHV : rangeAINLV;
-                        }
-                        LJM.eWriteNames(handle, aNames.Length, aNames, aValues, ref errorAddress);
-
                         //Configure the stream settling times and stream resolution index.
                         aNames = new string[] {
                             "STREAM_SETTLING_US",
@@ -107,33 +96,46 @@ namespace StreamSequentialAIN
                     }
                     else
                     {
-                        //T7 and other devices configuration
+                        //LabJack T7 and T8 configuration
+
+                        // Settling and negative channel do not apply to the T8
+                        if (devType == LJM.CONSTANTS.dtT7)
+                        {
+                            //All negative channels are single-ended
+                            //Stream settling is 0 (default).
+                            aNames = new string[] {
+                                "AIN_ALL_NEGATIVE_CH",
+                                "STREAM_SETTLING_US"
+                            };
+                            aValues = new double[] {
+                                LJM.CONSTANTS.GND,
+                                0
+                            };
+                            LJM.eWriteNames(handle, aNames.Length, aNames, aValues, ref errorAddress);
+                        }
 
                         //Ensure triggered stream is disabled.
-                        LJM.eWriteName(handle, "STREAM_TRIGGER_INDEX", 0);
-
-                        //Enabling internally-clocked stream.
-                        LJM.eWriteName(handle, "STREAM_CLOCK_SOURCE", 0);
-
-                        //Configure the analog input negative channels, ranges,
-                        //stream settling times and stream resolution index.
+                        //Ensure internally-clocked stream.
+                        //All AIN ranges are set to ±10V (T7) or ±11V (T8).
+                        //Stream resolution index is 0 (default).
                         aNames = new string[] {
-                            "AIN_ALL_NEGATIVE_CH",
+                            "STREAM_TRIGGER_INDEX",
+                            "STREAM_CLOCK_SOURCE",
                             "AIN_ALL_RANGE",
-                            "STREAM_SETTLING_US",
                             "STREAM_RESOLUTION_INDEX"
                         };
                         aValues = new double[] {
-                            LJM.CONSTANTS.GND,
-                            10.0,
                             0,
+                            0,
+                            10.0,
                             0
-                        };  //single-ended, +/-10V, 0 (default), 0 (default)
+                        };
                         LJM.eWriteNames(handle, aNames.Length, aNames, aValues, ref errorAddress);
                     }
 
                     //Stream Configuration
-                    int scansPerRead = 1000;  //# scans returned by eStreamRead call
+                    double scanRate = 1000;  //Scans per second
+                    int scansPerRead = (int)scanRate/2;  //# scans returned by eStreamRead call
                     //Scan list names to stream. AIN(FIRST_AIN_CHANNEL) to
                     //AIN(NUMBER_OF_AINS-1).
                     string[] aScanListNames = new string[NUMBER_OF_AINS];
@@ -143,7 +145,6 @@ namespace StreamSequentialAIN
                     int[] aTypes = new int[numAddresses];  //Dummy
                     int[] aScanList = new int[numAddresses];  //Scan list addresses to stream.
                     LJM.NamesToAddresses(numAddresses, aScanListNames, aScanList, aTypes);
-                    double scanRate = 1000;  //Scans per second
 
                     Console.WriteLine("\nStarting stream. Press a key to stop streaming.");
                     System.Threading.Thread.Sleep(1000);  //Delay so users can read message

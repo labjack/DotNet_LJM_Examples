@@ -5,7 +5,7 @@
 //
 // You can short MOSI to MISO for testing.
 //
-// T7:
+// T7 and T8:
 //     MOSI    FIO2
 //     MISO    FIO3
 //     CLK     FIO0
@@ -62,6 +62,7 @@ namespace SPI
             {
                 //Open first found LabJack
                 LJM.OpenS("ANY", "ANY", "ANY", ref handle);  // Any device, Any connection, Any identifier
+                //LJM.OpenS("T8", "ANY", "ANY", ref handle);  // T8 device, Any connection, Any identifier
                 //LJM.OpenS("T7", "ANY", "ANY", ref handle);  // T7 device, Any connection, Any identifier
                 //LJM.OpenS("T4", "ANY", "ANY", ref handle);  // T4 device, Any connection, Any identifier
                 //LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", ref handle);  // Any device, Any connection, Any identifier

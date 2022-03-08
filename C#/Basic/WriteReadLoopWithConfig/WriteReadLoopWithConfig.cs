@@ -53,6 +53,7 @@ namespace WriteReadLoopWithConfig
             {
                 //Open first found LabJack
                 LJM.OpenS("ANY", "ANY", "ANY", ref handle);  // Any device, Any connection, Any identifier
+                //LJM.OpenS("T8", "ANY", "ANY", ref handle);  // T8 device, Any connection, Any identifier
                 //LJM.OpenS("T7", "ANY", "ANY", ref handle);  // T7 device, Any connection, Any identifier
                 //LJM.OpenS("T4", "ANY", "ANY", ref handle);  // T4 device, Any connection, Any identifier
                 //LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", ref handle);  // Any device, Any connection, Any identifier
@@ -74,41 +75,39 @@ namespace WriteReadLoopWithConfig
                     //                  Update only DIO5 and DIO6.
                     //    DIO_ANALOG_ENABLE = 0x000, b000000000000.
                     //                        Set DIO5 and DIO6 to digital I/O (b0).
-                    aNames = new string[] { "DIO_INHIBIT", "DIO_ANALOG_ENABLE" };
-                    aValues = new double[] { 0xF9F, 0x000 };
-                    numFrames = aNames.Length;
-                    LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errorAddress);
-
-                    //AIN0:
-                    //    The T4 only has single-ended analog inputs.
-                    //    The range of AIN0-AIN3 is +/-10 V.
-                    //    The range of AIN4-AIN11 is 0-2.5 V.
                     //    Resolution index = 0 (default)
                     //    Settling = 0 (auto)
-                    aNames = new string[] { "AIN0_RESOLUTION_INDEX",
-                        "AIN0_SETTLING_US" };
-                    aValues = new double[] { 0, 0 };
+                    aNames = new string[] { "DIO_INHIBIT", "DIO_ANALOG_ENABLE",
+                                            "AIN0_RESOLUTION_INDEX", "AIN0_SETTLING_US" };
+                    aValues = new double[] { 0xF9F, 0x000, 0, 0 };
+                    numFrames = aNames.Length;
+                    LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errorAddress);
                 }
                 else
                 {
-                    //LabJack T7 and other devices configuration
+                    //LabJack T7 and T8 configuration
+
+                    // Settling and negative channel do not apply to the T8
+                    if (devType == LJM.CONSTANTS.dtT7)
+                    {
+                        // Negative Channel = 199 (Single-ended)
+                        // Settling = 0 (auto)
+                        aNames = new string[] { "AIN0_NEGATIVE_CH",
+                                                "AIN0_SETTLING_US"};
+                        aValues = new double[] { 199, 0 };
+                        numFrames = aNames.Length;
+                        LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errorAddress);
+                    }
 
                     //AIN0:
-                    //    Negative Channel = 199 (Single-ended)
-                    //    Range = +/-10 V
+                    //    Range = ±10V (T7) or ±11V (T8).
                     //    Resolution index = 0 (default).
-                    //    Settling = 0 (auto)
-                    aNames = new string[] { "AIN0_NEGATIVE_CH", "AIN0_RANGE",
-                        "AIN0_RESOLUTION_INDEX", "AIN0_SETTLING_US" };
-                    aValues = new double[] { 199, 10, 0, 0 };
-                }
-                numFrames = aNames.Length;
-                LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errorAddress);
+                    aNames = new string[] { "AIN0_RANGE",
+                                            "AIN0_RESOLUTION_INDEX"};
+                    aValues = new double[] { 10, 0 };
+                    numFrames = aNames.Length;
+                    LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errorAddress);
 
-                Console.WriteLine("\nSet configuration:");
-                for (int i = 0; i < numFrames; i++)
-                {
-                    Console.WriteLine("  " + aNames[i] + " : " + aValues[i]);
                 }
 
                 int it = 0;

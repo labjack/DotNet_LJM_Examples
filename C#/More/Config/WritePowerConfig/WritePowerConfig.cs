@@ -2,6 +2,7 @@
 // WritePowerConfig.cs
 //
 // Demonstrates how to configure default power settings on a LabJack.
+// Note: The T8 is not supported for this example
 //
 // support@labjack.com
 //-----------------------------------------------------------------------------
