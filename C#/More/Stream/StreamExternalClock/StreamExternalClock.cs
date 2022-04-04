@@ -1,7 +1,8 @@
 ﻿//-----------------------------------------------------------------------------
-// StreamTriggered.cs
+// StreamExternalClock.cs
 //
-// Demonstrates triggered stream on DIO0 / FIO0.
+// Shows how to stream with the T7 or T8 in external clock stream mode.
+// Connecting CIO3 to FIO0 will use a PWM on FIO0 for the stream clock.
 // Note: The T4 is not supported for this example
 //
 // support@labjack.com
@@ -11,14 +12,14 @@ using System.Diagnostics;
 using LabJack;
 
 
-namespace StreamTriggered
+namespace StreamExternalClock
 {
-    class StreamTriggered
+    class StreamExternalClock
     {
         static void Main(string[] args)
         {
-            StreamTriggered st = new StreamTriggered();
-            st.performActions();
+            StreamExternalClock sec = new StreamExternalClock();
+            sec.performActions();
         }
 
         public void showErrorMessage(LJM.LJMException e)
@@ -57,7 +58,7 @@ namespace StreamTriggered
 
                 if (devType == LJM.CONSTANTS.dtT4)
                 {
-                    throw new Exception("The T4 does not support triggered stream.");
+                    throw new Exception("The T4 does not support externally clocked stream.");
                 }
 
                 try
@@ -77,11 +78,12 @@ namespace StreamTriggered
                         };
                         LJM.eWriteNames(handle, aNames.Length, aNames, aValues, ref errorAddress);
                     }
-                    //Ensure internally-clocked stream.
+
+                    //Ensure triggered stream is disabled.
                     //AIN ranges are set to ±10V (T7) or ±11V (T8).
                     //Stream resolution index is 0 (default).
                     aNames = new string[] {
-                        "STREAM_CLOCK_SOURCE",
+                        "STREAM_TRIGGER_INDEX",
                         "AIN_ALL_RANGE",
                         "STREAM_RESOLUTION_INDEX"
                     };
@@ -92,7 +94,7 @@ namespace StreamTriggered
                     };
                     LJM.eWriteNames(handle, aNames.Length, aNames, aValues, ref errorAddress);
 
-                    TriggerStream(handle);
+                    ExternalClockedStream(handle);
                 }
                 catch (LJM.LJMException e)
                 {
@@ -115,9 +117,10 @@ namespace StreamTriggered
             Console.WriteLine("\nDone.\nPress the enter key to exit.");
             Console.ReadLine();  //Pause for user
         }
-        public void TriggerStream(int handle)
+        public void ExternalClockedStream(int handle)
         {
             //Stream Configuration
+            const bool FIO0_CLOCK = true; //Use PWM on FIO0 for the stream clock
             const int NUM_LOOP_ITERATIONS = 10;
             double scanRate = 1000;  //Scans per second
             int scansPerRead = (int)scanRate/2;  //# scans returned by eStreamRead call
@@ -129,19 +132,19 @@ namespace StreamTriggered
 
             //Configure LJM for unpredictable stream timing
             LJM.WriteLibraryConfigS("LJM_STREAM_SCANS_RETURN", LJM.CONSTANTS.STREAM_SCANS_RETURN_ALL_OR_NONE);
-            LJM.WriteLibraryConfigS("LJM_STREAM_RECEIVE_TIMEOUT_MS", 0);
+            LJM.WriteLibraryConfigS("LJM_STREAM_RECEIVE_TIMEOUT_MODE", LJM.CONSTANTS.STREAM_RECEIVE_TIMEOUT_MODE_MANUAL);
+            LJM.WriteLibraryConfigS("LJM_STREAM_RECEIVE_TIMEOUT_MS", 100);
 
-            //2000 sets DIO0 / FIO0 as the stream trigger
-            LJM.eWriteName(handle, "STREAM_TRIGGER_INDEX", 2000);
+            Console.WriteLine("Setting up externally clocked stream");
+            LJM.eWriteName(handle, "STREAM_CLOCK_SOURCE", 2);
+            LJM.eWriteName(handle, "STREAM_EXTERNAL_CLOCK_DIVISOR", 1);
 
-            //Clear any previous DIO0_EF settings
-            LJM.eWriteName(handle, "DIO0_EF_ENABLE", 0);
-
-            //5 enables a rising or falling edge to trigger stream
-            LJM.eWriteName(handle, "DIO0_EF_INDEX", 5);
-
-            //Enable DIO0_EF
-            LJM.eWriteName(handle, "DIO0_EF_ENABLE", 1);
+            if (FIO0_CLOCK)
+            {
+                // Enables PWM output on FIO0 (can be used as the stream clock)
+                EnableFIO0PulseOut(handle, (int)scanRate,
+                    (int)(scanRate * NUM_LOOP_ITERATIONS + 5000));
+            }
 
             //Configure and start stream
             LJM.eStreamStart(handle, scansPerRead, numAddresses, aScanList, ref scanRate);
@@ -155,7 +158,6 @@ namespace StreamTriggered
             int ljmScanBacklog = 0;
             Stopwatch sw = new Stopwatch();
 
-            Console.WriteLine("You can trigger stream now via a rising or falling edge on DIO0 / FIO0.");
             sw.Start();
             while(loop < NUM_LOOP_ITERATIONS)
             {
@@ -199,8 +201,30 @@ namespace StreamTriggered
             double time = sw.ElapsedMilliseconds / 1000.0;
             Console.WriteLine("Time taken: " + time + " seconds");
             Console.WriteLine("LJM Scan Rate: " + scanRate + " scans/second");
+            Console.WriteLine("Timed Scan Rate: " + (totScans / time).ToString("F2") + " scans/second");
+            Console.WriteLine("Sample Rate: " + (totScans * numAddresses / time).ToString("F2") + " samples/second");
         }
+        public void EnableFIO0PulseOut(int handle, int pulseRate, int numPulses)
+        {
+            //Set FIO0 to do a 50% duty cycle
+            //https://labjack.com/support/datasheets/t-series/digital-io/extended-features/pulse-out
 
+            int rollValue = 10000000 /* 10 MHz */ / pulseRate;
+
+            Console.WriteLine("Enabling {0} pulses on FIO0 at a {1} Hz pulse rate", numPulses, pulseRate);
+
+            LJM.eWriteName(handle, "DIO0_EF_ENABLE", 0);
+            LJM.eWriteName(handle, "DIO_EF_CLOCK0_DIVISOR", 8);
+            LJM.eWriteName(handle, "DIO_EF_CLOCK0_ROLL_VALUE", rollValue);
+            LJM.eWriteName(handle, "DIO_EF_CLOCK0_ENABLE", 1);
+            LJM.eWriteName(handle, "DIO0_EF_INDEX", 2);
+            LJM.eWriteName(handle, "DIO0_EF_OPTIONS", 0);
+            LJM.eWriteName(handle, "DIO0", 0);
+            LJM.eWriteName(handle, "DIO0_EF_CONFIG_A", (int)rollValue/2);
+            LJM.eWriteName(handle, "DIO0_EF_CONFIG_B", 0);
+            LJM.eWriteName(handle, "DIO0_EF_CONFIG_C", numPulses);
+            LJM.eWriteName(handle, "DIO0_EF_ENABLE", 1);
+        }
         private void VariableStreamSleep(int scansPerRead, double scanRate, int LJMScanBacklog)
         {
             const double DECREASE_TOTAL = 0.9;
