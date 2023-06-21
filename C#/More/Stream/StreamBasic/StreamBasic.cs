@@ -63,7 +63,6 @@ namespace StreamBasic
                 int[] aTypes = new int[numAddresses];  //Dummy
                 int[] aScanList = new int[numAddresses];  //Scan list addresses to stream. eStreamStart uses Modbus addresses.
                 LJM.NamesToAddresses(numAddresses, aScanListNames, aScanList, aTypes);
-                double scanRate = 1000;  //Scans per second
 
                 try
                 {
