@@ -2,8 +2,8 @@
 // I2CEeprom.cs
 //
 // Demonstrates I2C communication using a LabJack. The demonstration uses a
-// LJTick-DAC connected to FIO0/FIO1 for the T7 or FIO4/FIO5 for the T4, and
-// configures the I2C settings. Then a read, write and again a read are
+// LJTick-DAC connected to FIO0/FIO1 for the T8 and T7, or FIO4/FIO5 for the
+// T4, and configures the I2C settings. Then a read, write and again a read are
 // performed on the LJTick-DAC EEPROM.
 //
 // support@labjack.com
@@ -73,8 +73,8 @@ namespace I2CEeprom
                 }
                 else
                 {
-                    //For the T7 and other devices, using FIO0 and FIO1 for the
-                    //SCL and SDA pins.
+                    //For the T8, T7 and other devices, using FIO0 and FIO1
+                    //for the SCL and SDA pins.
                     LJM.eWriteName(handle, "I2C_SDA_DIONUM", 1);  //SDA pin number = 1 (FIO1)
                     LJM.eWriteName(handle, "I2C_SCL_DIONUM", 0);  //SCL pin number = 0 (FIO0)
                 }
