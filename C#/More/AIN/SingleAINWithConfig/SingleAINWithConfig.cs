@@ -7,8 +7,8 @@
 // support@labjack.com
 //-----------------------------------------------------------------------------
 using System;
+using System.Threading;
 using LabJack;
-
 
 namespace SingleAINWithConfig
 {
@@ -59,41 +59,58 @@ namespace SingleAINWithConfig
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
 
                 //Setup and call eWriteNames to configure the AIN on the LabJack.
-                if (devType == LJM.CONSTANTS.dtT4)
+                if (devType == LJM.CONSTANTS.dtT8)
+                {
+                    //LabJack T8 configuration
+                    
+                    //AIN0:
+                    //    Range = ±11V (T8).
+                    //    Resolution index = 0 (default)
+                    //    Sampling rate Hz = 0 (auto)
+                    aNames = new string[] { "AIN0_RANGE",
+                        "AIN0_RESOLUTION_INDEX",
+                        "AIN_SAMPLING_RATE_HZ" };
+                    aValues = new double[] { 11,
+                        0,
+                        0 };
+                }
+                else if (devType == LJM.CONSTANTS.dtT4)
                 {
                     //LabJack T4 configuration
 
                     //AIN0:
-                    //    Resolution index = 0 (default).
+                    //    Resolution index = 0 (default)
                     //    Settling = 0 (auto)
-                    aNames = new string[] { "AIN0_RESOLUTION_INDEX", "AIN0_SETTLING_US" };
-                    aValues = new double[] { 0, 0 };
-                    numFrames = aNames.Length;
-                    LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errorAddress);
+                    aNames = new string[] { "AIN0_RESOLUTION_INDEX",
+                        "AIN0_SETTLING_US" };
+                    aValues = new double[] { 0,
+                        0 };
                 }
                 else
                 {
-                    //LabJack T7 and T8 configuration
+                    //LabJack T7 configuration
 
-                    // Settling and negative channel do not apply to the T8
-                    if (devType == LJM.CONSTANTS.dtT7)
-                    {
-                        // Negative Channel = 199 (Single-ended)
-                        // Settling = 0 (auto)
-                        aNames = new string[] {  "AIN0_NEGATIVE_CH",
-                        "AIN0_SETTLING_US"};
-                        aValues = new double[] { 199, 0 };
-                        numFrames = aNames.Length;
-                        LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errorAddress);
-                    }
-                    //    Range = ±10V (T7) or ±11V (T8).
-                    //    Resolution index = 0 (default).
-                    aNames = new string[] {  "AIN0_RANGE",
-                        "AIN0_RESOLUTION_INDEX"};
-                    aValues = new double[] { 10, 0 };
-                    numFrames = aNames.Length;
-                    LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errorAddress);
+                    //AIN0:
+                    //    Negative Channel = 199 (Single-ended)
+                    //    Settling = 0 (auto)
+                    //    Range = ±10V (T7)
+                    //    Resolution index = 0 (default)
+                    aNames = new string[] { "AIN0_NEGATIVE_CH",
+                        "AIN0_SETTLING_US",
+                        "AIN0_RANGE",
+                        "AIN0_RESOLUTION_INDEX" };
+                    aValues = new double[] { 199,
+                        0,
+                        10,
+                        0};
+                }
+                numFrames = aNames.Length;
+                LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errorAddress);
 
+                if (devType == LJM.CONSTANTS.dtT8)
+                {
+                    //Delay for updated settings to take effect on the T8.
+                    Thread.Sleep(50);
                 }
 
                 //Setup and call eReadName to read an AIN from the LabJack.
