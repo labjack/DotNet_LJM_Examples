@@ -74,15 +74,20 @@ namespace StreamBasicWithStreamOut
                 LJM.eWriteName(handle, "STREAM_OUT0_BUFFER_SIZE", 512);
                 LJM.eWriteName(handle, "STREAM_OUT0_ENABLE", 1);
 
-                //Write values to the stream-out buffer
-                LJM.eWriteName(handle, "STREAM_OUT0_LOOP_SIZE", 6);
-                LJM.eWriteName(handle, "STREAM_OUT0_BUFFER_F32", 0.0);  //0.0 V
-                LJM.eWriteName(handle, "STREAM_OUT0_BUFFER_F32", 1.0);  //1.0 V
-                LJM.eWriteName(handle, "STREAM_OUT0_BUFFER_F32", 2.0);  //2.0 V
-                LJM.eWriteName(handle, "STREAM_OUT0_BUFFER_F32", 3.0);  //3.0 V
-                LJM.eWriteName(handle, "STREAM_OUT0_BUFFER_F32", 4.0);  //4.0 V
-                LJM.eWriteName(handle, "STREAM_OUT0_BUFFER_F32", 5.0);  //5.0 V
+                //Write values to the stream-out buffer.
 
+                //0.0 to 5.0 V with 1.0 V increments. Repeating each voltage 8
+                //times to slow the output frequency, so buffering 48 values.
+                double []outVolts = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0};
+                double numVoltRepeats = 8;
+                LJM.eWriteName(handle, "STREAM_OUT0_LOOP_SIZE", outVolts.Length*numVoltRepeats);
+                foreach (double volt in outVolts)
+                {
+                    for (int i = 0; i < numVoltRepeats; i++)
+                    {
+                        LJM.eWriteName(handle, "STREAM_OUT0_BUFFER_F32", volt);
+                    }
+                }
                 LJM.eWriteName(handle, "STREAM_OUT0_SET_LOOP", 1);
 
                 double value = 0.0;
@@ -148,7 +153,8 @@ namespace StreamBasicWithStreamOut
 
                         //Ensure triggered stream is disabled.
                         //Ensure internally-clocked stream.
-                        //AIN0 and AIN1 ranges are set to ±10V (T7) or ±11V (T8).
+                        //AIN0 and AIN1 ranges are set to ±10V for the T7,
+                        //or ±11V for the T8 (10.0 will set ±11V on the T8).
                         //Stream resolution index is 0 (default).
                         aNames = new string[] {
                             "STREAM_TRIGGER_INDEX",
@@ -167,8 +173,7 @@ namespace StreamBasicWithStreamOut
                         LJM.eWriteNames(handle, aNames.Length, aNames, aValues, ref errorAddress);
                     }
 
-                    Console.WriteLine("\nStarting stream. Press a key to stop streaming.");
-                    System.Threading.Thread.Sleep(1000);  //Delay so user's can read message
+                    Console.WriteLine("\nStarting stream.");
 
                     //Configure and start stream
                     LJM.eStreamStart(handle, scansPerRead, aScanList.Length, aScanList, ref scanRate);
