@@ -153,8 +153,7 @@ namespace StreamBasicWithStreamOut
 
                         //Ensure triggered stream is disabled.
                         //Ensure internally-clocked stream.
-                        //AIN0 and AIN1 ranges are set to ±10V for the T7,
-                        //or ±11V for the T8 (10.0 will set ±11V on the T8).
+                        //AIN0 and AIN1 ranges are set to ±10V (T7) or ±11V (T8).
                         //Stream resolution index is 0 (default).
                         aNames = new string[] {
                             "STREAM_TRIGGER_INDEX",
