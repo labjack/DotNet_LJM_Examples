@@ -115,6 +115,7 @@ namespace StreamTriggered
             Console.WriteLine("\nDone.\nPress the enter key to exit.");
             Console.ReadLine();  //Pause for user
         }
+
         public void TriggerStream(int handle)
         {
             //Stream Configuration
