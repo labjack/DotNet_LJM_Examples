@@ -276,7 +276,6 @@ namespace ThermocoupleExample
                     cjcAddr = 600 + 2*posChannel;
                 }
 
-
                 InitTCData(
                     LJM.CONSTANTS.ttK,  //Type K thermocouple
                     posChannel,         //Measured at AIN# where #=posChannel
@@ -336,7 +335,14 @@ namespace ThermocoupleExample
             }
 
             //Close interval and all device handles
-            LJM.CleanInterval(intervalHandle);
+            try
+            {
+                LJM.CleanInterval(intervalHandle);
+            }
+            catch (LJM.LJMException)
+            {
+                //Ignore invalid handle error
+            }
             LJM.CloseAll();
 
             Console.WriteLine("\nDone.\nPress the enter key to exit.");
