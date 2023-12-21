@@ -195,7 +195,7 @@ namespace ThermocoupleExample
                         //Assume DEGK. Nothing to do.
                         break;
                 }
-                Console.WriteLine("TCTemp: {0:N4} {1},\t TCVolts: {2:N4},\tCJTemp: {3:N4} {4}",
+                Console.WriteLine("TCTemp: {0:N4} {1},\t TCVolts: {2:N6},\tCJTemp: {3:N4} {4}",
                     TCTemp, (char)this.tempUnits, TCVolts, CJTemp, (char)this.tempUnits);
             }
             catch (Exception e)
@@ -211,13 +211,13 @@ namespace ThermocoupleExample
             {
                 double TCTemp = 0, TCVolts = 0, CJTemp = 0;
 
-                LJM.eReadAddress(handle, 7300+2*this.channel, LJM.CONSTANTS.FLOAT32, ref TCVolts);
+                LJM.eReadAddress(handle, 7000 + 2*this.channel, LJM.CONSTANTS.FLOAT32, ref TCTemp);
 
-                LJM.eReadAddress(handle, 7600+2*this.channel, LJM.CONSTANTS.FLOAT32, ref CJTemp);
+                LJM.eReadAddress(handle, 7300 + 2*this.channel, LJM.CONSTANTS.FLOAT32, ref TCVolts);
 
-                LJM.eReadAddress(handle, 7000+2*this.channel, LJM.CONSTANTS.FLOAT32, ref TCTemp);
+                LJM.eReadAddress(handle, 7600 + 2*this.channel, LJM.CONSTANTS.FLOAT32, ref CJTemp);
 
-                Console.WriteLine("TCTemp: {0:N4} {1},\t TCVolts: {2:N4},\tCJTemp: {3:N4} {4}",
+                Console.WriteLine("TCTemp: {0:N4} {1},\t TCVolts: {2:N6},\tCJTemp: {3:N4} {4}",
                     TCTemp, (char)this.tempUnits, TCVolts, CJTemp, (char)this.tempUnits);
             }
             catch (Exception e)
@@ -271,8 +271,8 @@ namespace ThermocoupleExample
 
                 if (devType == LJM.CONSTANTS.dtT8)
                 {
-                    //Using the TEMPERATURE# address (based on AIN#) for CJC
-                    //if using the T8.
+                    //Using the TEMPERATURE# address, where #=posChannel, for
+                    //CJC if using the T8.
                     cjcAddr = 600 + 2*posChannel;
                 }
 
@@ -341,7 +341,7 @@ namespace ThermocoupleExample
             }
             catch (LJM.LJMException)
             {
-                //Ignore invalid handle error
+                //Ignore invalid interval handle error
             }
             LJM.CloseAll();
 
