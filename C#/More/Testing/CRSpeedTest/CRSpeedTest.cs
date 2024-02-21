@@ -60,9 +60,10 @@ namespace CRSpeedTest
 
                 //Analog input settings
                 const int numAIN = 1;  //Number of analog inputs to read
-                const double rangeAIN = 10.0;  // T7/T8 AIN range
+                const double rangeAIN = 10.0;  // T7/T8 AIN range. 10 = 10.0 V (T7) or 11.0 V (T8).
                 const double resolutionAIN = 1.0;
-                
+                const double samplingRateAIN = 40000;  // Analog input sampling rate in Hz. T8 only.
+
                 //Digital settings
                 const bool readDigital = false;
                 const bool writeDigital = false;
@@ -124,7 +125,7 @@ namespace CRSpeedTest
                         //When setting a resolution index other than 0 (auto),
                         //set a valid sample rate for the resolution.
                         aNames[1] = "AIN_SAMPLING_RATE_HZ";
-                        aValues[1] = 40000;
+                        aValues[1] = samplingRateAIN;
                         for(i = 0; i < numAIN; i++)
                         {
                             aNames[i + 2] = "AIN" + i + "_RANGE";
