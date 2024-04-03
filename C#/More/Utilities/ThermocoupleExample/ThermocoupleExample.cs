@@ -1,9 +1,9 @@
 ﻿//-----------------------------------------------------------------------------
 // ThermocoupleExample.cs
 //
-// Demonstrates thermocouple configuration and  measurement
+// Demonstrates thermocouple configuration and measurement.
 // This example demonstrates usage of the thermocouple AIN_EF (T7/T8 only)
-// and a solution using our LJTick-InAmp (commonly used with the T4)
+// and a solution using our LJTick-InAmp (commonly used with the T4).
 //
 // Thermocouple App-Note:
 //      https://labjack.com/support/app-notes/thermocouples
@@ -38,40 +38,40 @@ namespace ThermocoupleExample
 {
     class ThermocoupleExample
     {
-        // Supported TC types are:
-        //     LJM_ttB (val=6001)
-        //     LJM_ttE (val=6002)
-        //     LJM_ttJ (val=6003)
-        //     LJM_ttK (val=6004)
-        //     LJM_ttN (val=6005)
-        //     LJM_ttR (val=6006)
-        //     LJM_ttS (val=6007)
-        //     LJM_ttT (val=6008)
-        //     LJM_ttC (val=6009)
-        // Note that the values above do not align with the AIN_EF index values
-        // or order. In this example, we demonstrate a lookup table to convert
-        // our thermocouple constant to the correct index when using the AIN_EF
+        //Supported TC types are:
+        //    LJM_ttB (val=6001)
+        //    LJM_ttE (val=6002)
+        //    LJM_ttJ (val=6003)
+        //    LJM_ttK (val=6004)
+        //    LJM_ttN (val=6005)
+        //    LJM_ttR (val=6006)
+        //    LJM_ttS (val=6007)
+        //    LJM_ttT (val=6008)
+        //    LJM_ttC (val=6009)
+        //Note that the values above do not align with the AIN_EF index values
+        //or order. In this example, we demonstrate a lookup table to convert
+        //our thermocouple constant to the correct index when using the AIN_EF.
         private int tcType = LJM.CONSTANTS.ttK;
 
-        // If taking a differential reading on a T7, posChannel should be an even
-        // numbered AIN connecting signal+, and signal- should be connected to
-        // the positive AIN channel plus one.
-        // Example: signal+=channel=0 (AIN0), signal-=negChannel=1 (AIN1)
+        //If taking a differential reading on a T7, posChannel should be an even
+        //numbered AIN connecting signal+, and signal- should be connected to
+        //the positive AIN channel plus one.
+        //Example: signal+=channel=0 (AIN0), signal-=negChannel=1 (AIN1)
         private int channel = 0;
 
-        // Modbus address to read the CJC sensor at.
+        //Modbus address to read the CJC sensor at.
         private int CJCAddress = 60052;
 
-        // Slope of CJC voltage to Kelvin conversion (K/volt). TEMPERATURE_DEVICE_K
-        // returns temp in K, so this would be set to 1 if using it for CJC. If
-        // using an LM34 on some AIN for CJC, this config should be 55.56
+        //Slope of CJC voltage to Kelvin conversion (K/volt). TEMPERATURE_DEVICE_K
+        //returns temp in K, so this would be set to 1 if using it for CJC. If
+        //using an LM34 on some AIN for CJC, this config should be 55.56.
         private float CJCSlope = 1;
 
-        // Offset for CJC temp (in Kelvin).This would normally be 0 if reading the
-        // register TEMPERATURE_DEVICE_K for CJC. If using an InAmp or expansion
-        // board, the CJ might be a bit cooler than the internal temp sensor, so
-        // you might adjust the offset down a few degrees. If using an LM34 on some
-        // AIN for CJC, this config should be 255.37
+        //Offset for CJC temp (in Kelvin).This would normally be 0 if reading the
+        //register TEMPERATURE_DEVICE_K for CJC. If using an InAmp or expansion
+        //board, the CJ might be a bit cooler than the internal temp sensor, so
+        //you might adjust the offset down a few degrees. If using an LM34 on some
+        //AIN for CJC, this config should be 255.37.
         private float CJCOffset = 0;
 
         public enum TempUnits {
@@ -101,24 +101,24 @@ namespace ThermocoupleExample
         {
             try
             {
-                // For converting LJM TC type constant to TC AIN_EF index
-                // Thermocouple type:        B  E  J  K  N  R  S  T  C
-                int[] TC_INDEX_LUT = {28,20,21,22,27,23,25,24,30};
+                //For converting LJM TC type constant to TC AIN_EF index.
+                //Thermocouple type:    B  E  J  K  N  R  S  T  C
+                int[] TC_INDEX_LUT = {28, 20, 21, 22, 27, 23, 25, 24, 30};
                 const int NUM_FRAMES = 5;
                 int[] aAddresses = new int[NUM_FRAMES];
                 int[] aTypes = new int[NUM_FRAMES];
                 double[] aValues = new double[NUM_FRAMES];
                 int errorAddress = -1;
 
-                // For setting up the AIN#_EF_INDEX (thermocouple type)
+                //For setting up the AIN#_EF_INDEX (thermocouple type)
                 aAddresses[0] = 9000+2*this.channel;
                 aTypes[0] = LJM.CONSTANTS.UINT32;
                 aValues[0] = TC_INDEX_LUT[this.tcType - 6001];
 
-                // For setting up the AIN#_EF_CONFIG_A (temperature units)
+                //For setting up the AIN#_EF_CONFIG_A (temperature units)
                 aAddresses[1] = 9300+2*this.channel;
                 aTypes[1] = LJM.CONSTANTS.UINT32;
-                switch(this.tempUnits) {
+                switch (this.tempUnits) {
                     case TempUnits.DEGK:
                         aValues[1] = 0;
                         break;
@@ -133,17 +133,17 @@ namespace ThermocoupleExample
                         break;
                 }
 
-                // For setting up the AIN#_EF_CONFIG_B (CJC address)
+                //For setting up the AIN#_EF_CONFIG_B (CJC address)
                 aAddresses[2] = 9600+2*this.channel;
                 aTypes[2] = LJM.CONSTANTS.UINT32;
                 aValues[2] = this.CJCAddress;
 
-                // For setting up the AIN#_EF_CONFIG_D (CJC slope)
+                //For setting up the AIN#_EF_CONFIG_D (CJC slope)
                 aAddresses[3] = 10200+2*this.channel;
                 aTypes[3] = LJM.CONSTANTS.FLOAT32;
                 aValues[3] = this.CJCSlope;
 
-                // For setting up the AIN#_EF_CONFIG_E (CJC offset)
+                //For setting up the AIN#_EF_CONFIG_E (CJC offset)
                 aAddresses[4] = 10500+2*this.channel;
                 aTypes[4] = LJM.CONSTANTS.FLOAT32;
                 aValues[4] = this.CJCOffset;
@@ -151,7 +151,7 @@ namespace ThermocoupleExample
                 LJM.eWriteAddresses(handle, NUM_FRAMES, aAddresses, aTypes,
                     aValues, ref errorAddress);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.Out.WriteLine("Exception in ThermocoupleExample.SetupAIN_EF");
                 throw e;
@@ -165,22 +165,22 @@ namespace ThermocoupleExample
                 double TCTemp = 0, TCVolts = 0, CJTemp = 0;
                 LJM.eReadAddress(handle, 2*this.channel, LJM.CONSTANTS.FLOAT32, ref TCVolts);
 
-                // Account for LJTick-InAmp scaling
+                //Account for LJTick-InAmp scaling
                 TCVolts = (TCVolts - inAmpOffset) / inAmpGain;
 
                 LJM.eReadAddress(handle, this.CJCAddress, LJM.CONSTANTS.FLOAT32, ref CJTemp);
 
-                // Apply scaling to CJC reading if necessary
-                // At this point, the reading must be in units Kelvin
+                //Apply scaling to CJC reading if necessary.
+                //At this point, the reading must be in units Kelvin.
                 CJTemp = CJTemp * this.CJCSlope + this.CJCOffset;
 
-                // Convert voltage reading to the thermocouple temperature.
+                //Convert voltage reading to the thermocouple temperature.
                 LJM.TCVoltsToTemp(this.tcType, TCVolts, CJTemp, ref TCTemp);;
 
-                // Convert to temp units for display
-                switch(this.tempUnits){
+                //Convert to temp units for display
+                switch (this.tempUnits){
                     case TempUnits.DEGK:
-                        // Nothing to do
+                        //Nothing to do
                         break;
                     case TempUnits.DEGC:
                         TCTemp = TCTemp-273.15;
@@ -192,13 +192,13 @@ namespace ThermocoupleExample
                         CJTemp = (1.8*CJTemp)-459.67;
                         break;
                     default:
-                        // Assume DEGK. Nothing to do
+                        //Assume DEGK. Nothing to do.
                         break;
                 }
-                Console.WriteLine("TCTemp: {0:N4} {1},\t TCVolts: {2:N4},\tCJTemp: {3:N4} {4}",
+                Console.WriteLine("TCTemp: {0:N4} {1},\t TCVolts: {2:N6},\tCJTemp: {3:N4} {4}",
                     TCTemp, (char)this.tempUnits, TCVolts, CJTemp, (char)this.tempUnits);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.Out.WriteLine("Exception in ThermocoupleExample.GetReadingsInAmp");
                 throw e;
@@ -211,16 +211,16 @@ namespace ThermocoupleExample
             {
                 double TCTemp = 0, TCVolts = 0, CJTemp = 0;
 
-                LJM.eReadAddress(handle, 7300+2*this.channel, LJM.CONSTANTS.FLOAT32, ref TCVolts);
+                LJM.eReadAddress(handle, 7000 + 2*this.channel, LJM.CONSTANTS.FLOAT32, ref TCTemp);
 
-                LJM.eReadAddress(handle, 7600+2*this.channel, LJM.CONSTANTS.FLOAT32, ref CJTemp);
+                LJM.eReadAddress(handle, 7300 + 2*this.channel, LJM.CONSTANTS.FLOAT32, ref TCVolts);
 
-                LJM.eReadAddress(handle, 7000+2*this.channel, LJM.CONSTANTS.FLOAT32, ref TCTemp);
+                LJM.eReadAddress(handle, 7600 + 2*this.channel, LJM.CONSTANTS.FLOAT32, ref CJTemp);
 
-                Console.WriteLine("TCTemp: {0:N4} {1},\t TCVolts: {2:N4},\tCJTemp: {3:N4} {4}",
+                Console.WriteLine("TCTemp: {0:N4} {1},\t TCVolts: {2:N6},\tCJTemp: {3:N4} {4}",
                     TCTemp, (char)this.tempUnits, TCVolts, CJTemp, (char)this.tempUnits);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.Out.WriteLine("Exception in ThermocoupleExample.GetReadingsAIN_EF");
                 throw e;
@@ -251,6 +251,7 @@ namespace ThermocoupleExample
             string ipAddrStr = "";
             int intervalHandle = 1;
             int skippedIntervals = 0;
+            int cjcAddr = 60052;  //Default CJC address (TEMPERATURE_DEVICE_K)
 
             try
             {
@@ -268,31 +269,37 @@ namespace ThermocoupleExample
                 Console.WriteLine("Serial number: " + serNum + ", IP address: " + ipAddrStr + ", Port: " + port + ",");
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
 
+                if (devType == LJM.CONSTANTS.dtT8)
+                {
+                    //Using the TEMPERATURE# address, where #=posChannel, for
+                    //CJC if using the T8.
+                    cjcAddr = 600 + 2*posChannel;
+                }
 
                 InitTCData(
                     LJM.CONSTANTS.ttK,  //Type K thermocouple
-                    posChannel,         // Measured at AIN# where #=posChannel
-                    60052,              // Using TEMPERATURE_DEVICE_K for CJC
-                    1,                  // CJCSlope=1 using internal temp sensor
-                    0,                  // CJCOffset=0 using internal temp sensor
-                    TempUnits.DEGC);    // Display measurements in units Celcius
+                    posChannel,         //Measured at AIN# where #=posChannel
+                    cjcAddr,            //Using TEMPERATURE_DEVICE_K for CJC
+                    1,                  //CJCSlope=1 using internal temp sensor
+                    0,                  //CJCOffset=0 using internal temp sensor
+                    TempUnits.DEGC);    //Display measurements in units Celcius
 
-                // Set the resolution index to the default setting (value=0)
-                // Default setting has different meanings depending on the device.
-                // See our AIN documentation (link above) for more information
+                //Set the resolution index to the default setting (value=0)
+                //Default setting has different meanings depending on the device.
+                //See our AIN documentation (link above) for more information.
                 LJM.eWriteAddress(handle, 41500+posChannel, LJM.CONSTANTS.UINT16, 0);
 
                 if (devType != LJM.CONSTANTS.dtT4)
                 {
-                    //LabJack T7 and T8 configuration. Setup the AIN_EF
+                    //T7 and T8 configuration. Setup the AIN_EF.
                     SetupAIN_EF(handle);
 
-                    // Only set up the negative channel config if using a T7
-                    // Set up a single ended measurement (AIN#_NEGATIVE_CH = GND)
-                    // If taking a differential reading on a T7, channel should be an even
-                    // numbered AIN connecting signal+, and signal- should be connected to
-                    // the positive AIN channel plus one.
-                    // Example: signal+=channel=0 (AIN0), signal-=negChannel=1 (AIN1)
+                    //Only set up the negative channel config if using a T7.
+                    //Set up a single ended measurement (AIN#_NEGATIVE_CH = GND).
+                    //If taking a differential reading on a T7, channel should be an even
+                    //numbered AIN connecting signal+, and signal- should be connected to
+                    //the positive AIN channel plus one.
+                    //Example: signal+=channel=0 (AIN0), signal-=negChannel=1 (AIN1)
                     if (devType == LJM.CONSTANTS.dtT7)
                     {
                         double negChannel = LJM.CONSTANTS.GND;
@@ -303,20 +310,20 @@ namespace ThermocoupleExample
 
                 Console.WriteLine("\nStarting read loop.  Press a key to stop.");
                 LJM.StartInterval(intervalHandle, 1000000);
-                while(!Console.KeyAvailable)
+                while (!Console.KeyAvailable)
                 {
                     if (devType != LJM.CONSTANTS.dtT4)
                     {
-                        // Read with AIN_EF if T7/T8
+                        //Read with AIN_EF if T7/T8
                         GetReadingsAIN_EF(handle);
                     }
                     else
                     {
-                        // Assume usage of an InAmp if using a T4
+                        //Assume usage of an InAmp if using a T4
                         GetReadingsInAmp(handle, 0.4, 51);
                     }
                     LJM.WaitForNextInterval(intervalHandle, ref skippedIntervals);  //Wait 1 second
-                    if(skippedIntervals > 0)
+                    if (skippedIntervals > 0)
                     {
                         Console.WriteLine("SkippedIntervals: " + skippedIntervals);
                     }
@@ -328,11 +335,18 @@ namespace ThermocoupleExample
             }
 
             //Close interval and all device handles
-            LJM.CleanInterval(intervalHandle);
+            try
+            {
+                LJM.CleanInterval(intervalHandle);
+            }
+            catch (LJM.LJMException)
+            {
+                //Ignore invalid interval handle error
+            }
             LJM.CloseAll();
 
             Console.WriteLine("\nDone.\nPress the enter key to exit.");
-            Console.ReadLine();  // Pause for user
+            Console.ReadLine();  //Pause for user
         }
     }
 }

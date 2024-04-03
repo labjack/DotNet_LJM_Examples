@@ -60,9 +60,10 @@ namespace CRSpeedTest
 
                 //Analog input settings
                 const int numAIN = 1;  //Number of analog inputs to read
-                const double rangeAIN = 10.0;  // T7/T8 AIN range
+                const double rangeAIN = 10.0;  // T7/T8 AIN range. 10 = 10.0 V (T7) or 11.0 V (T8).
                 const double resolutionAIN = 1.0;
-                
+                const double samplingRateAIN = 40000;  // Analog input sampling rate in Hz. T8 only.
+
                 //Digital settings
                 const bool readDigital = false;
                 const bool writeDigital = false;
@@ -84,7 +85,7 @@ namespace CRSpeedTest
                 double[] aValues;
                 int errAddr = 0;
 
-                if (devType == LJM.CONSTANTS.dtT4)
+                if(devType == LJM.CONSTANTS.dtT4)
                 {
                     //For the T4, configure the channels to analog input or
                     //digital I/O.
@@ -109,20 +110,55 @@ namespace CRSpeedTest
 
                 if(numAIN > 0)
                 {
-                    //Configure analog input settings
-                    numFrames = Math.Max(0, numAIN*2);
-                    aNames = new string[numFrames];
-                    aValues = new double[numFrames];
-                    for(i = 0; i < numAIN; i++)
+                    if(devType == LJM.CONSTANTS.dtT8)
                     {
-                        aNames[i*2] = "AIN" + i + "_RANGE";
-                        if (devType != LJM.CONSTANTS.dtT4)
+                        //Configure the T8 analog input resolution index,
+                        //sampling rate and range settings.
+                        numFrames = Math.Max(0, 2 + numAIN);
+                        aNames = new string[numFrames];
+                        aValues = new double[numFrames];
+
+                        //The T8 can only set the global resolution index.
+                        aNames[0] = "AIN_ALL_RESOLUTION_INDEX";
+                        aValues[0] = resolutionAIN;
+
+                        //When setting a resolution index other than 0 (auto),
+                        //set a valid sample rate for the resolution.
+                        aNames[1] = "AIN_SAMPLING_RATE_HZ";
+                        aValues[1] = samplingRateAIN;
+                        for(i = 0; i < numAIN; i++)
                         {
-                            //T7/T8 range
-                            aValues[i * 2] = rangeAIN;
+                            aNames[i + 2] = "AIN" + i + "_RANGE";
+                            aValues[i + 2] = rangeAIN;
                         }
-                        aNames[i*2+1] = "AIN" + i + "_RESOLUTION_INDEX";
-                        aValues[i*2+1] = resolutionAIN;
+                    }
+                    else if(devType == LJM.CONSTANTS.dtT4)
+                    {
+                        //Configure T4 analog input input resolution index.
+                        //Range is not applicable.
+                        numFrames = Math.Max(0, numAIN);
+                        aNames = new string[numFrames];
+                        aValues = new double[numFrames];
+                        for(i = 0; i < numAIN; i++)
+                        {
+                            aNames[i] = "AIN" + i + "_RESOLUTION_INDEX";
+                            aValues[i] = resolutionAIN;
+                        }
+                    }
+                    else
+                    {
+                        //Configure T7 analog input resolution index and
+                        //range settings.
+                        numFrames = Math.Max(0, numAIN * 2);
+                        aNames = new string[numFrames];
+                        aValues = new double[numFrames];
+                        for(i = 0; i < numAIN; i++)
+                        {
+                            aNames[i * 2] = "AIN" + i + "_RESOLUTION_INDEX";
+                            aValues[i * 2] = resolutionAIN;
+                            aNames[i * 2 + 1] = "AIN" + i + "_RANGE";
+                            aValues[i * 2 + 1] = rangeAIN;
+                        }
                     }
                     LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errAddr);
                 }
@@ -139,7 +175,19 @@ namespace CRSpeedTest
                 //Add analog input reads (AIN 0 to numAIN-1)
                 for(i = 0; i < numAIN; i++)
                 {
-                    aNames[i] = "AIN" + i;
+                    if(devType != LJM.CONSTANTS.dtT8 || i == 0)
+                    {
+                        //For the T7 and T4 analog inputs, and the first T8
+                        //analog input, use the the AIN# registers.
+                        aNames[i] = "AIN" + i;
+                    }
+                    else
+                    {
+                        //For the T8 and its remaining analog inputs, use the
+                        //AIN#_CAPTURE registers for simultaneous readings.
+                        aNames[i] = "AIN" + i + "_CAPTURE";
+                    }
+
                     aWrites[i] = LJM.CONSTANTS.READ;
                     aNumValues[i] = 1;
                     aValues[i] = 0;
