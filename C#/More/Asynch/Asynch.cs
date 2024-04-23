@@ -7,6 +7,28 @@
 // that you write.
 //
 // support@labjack.com
+//
+// Relevant Documentation:
+//
+// LJM Library:
+//     LJM Library Installer:
+//         https://labjack.com/support/software/installers/ljm
+//     LJM Users Guide:
+//         https://labjack.com/support/software/api/ljm
+//     Opening and Closing:
+//         https://labjack.com/support/software/api/ljm/function-reference/opening-and-closing
+//     eWriteName:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmewritename
+//     Multiple Value Functions(such as eWriteNameArray and eReadNameArray):
+//         https://labjack.com/support/software/api/ljm/function-reference/multiple-value-functions
+//
+// T-Series and I/O:
+//     Modbus Map:
+//         https://labjack.com/support/software/api/modbus/modbus-map
+//     Digital I/O:
+//         https://labjack.com/support/datasheets/t-series/digital-io
+//     Asynchronous Serial:
+//         https://labjack.com/support/datasheets/t-series/digital-io/asynchronous-serial
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;

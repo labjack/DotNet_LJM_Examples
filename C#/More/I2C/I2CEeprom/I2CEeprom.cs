@@ -7,6 +7,31 @@
 // performed on the LJTick-DAC EEPROM.
 //
 // support@labjack.com
+//
+// Relevant Documentation:
+//
+// LJM Library:
+//     LJM Library Installer:
+//         https://labjack.com/support/software/installers/ljm
+//     LJM Users Guide:
+//         https://labjack.com/support/software/api/ljm
+//     Opening and Closing:
+//         https://labjack.com/support/software/api/ljm/function-reference/opening-and-closing
+//     eWriteName:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmewritename
+//     Multiple Value Functions (such as eWriteNameByteArray and
+//     eReadNameByteArray):
+//         https://labjack.com/support/software/api/ljm/function-reference/multiple-value-functions
+//
+// T-Series and I/O:
+//     Modbus Map:
+//         https://labjack.com/support/software/api/modbus/modbus-map
+//     Digital I/O:
+//         https://labjack.com/support/datasheets/t-series/digital-io
+//     I2C:
+//         https://labjack.com/support/datasheets/t-series/digital-io/i2c
+//     LJTick-DAC:
+//         https://labjack.com/support/datasheets/accessories/ljtick-dac
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;

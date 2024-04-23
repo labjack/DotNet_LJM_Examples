@@ -1,10 +1,31 @@
 ﻿//-----------------------------------------------------------------------------
 // LuaExecutionControl.cs
 //
-// Example showing how to control lua script execution with an LJM
-// host application
+// Example showing how to control lua script execution with an LJM host
+// application.
 //
 // support@labjack.com
+//
+// Relevant Documentation:
+//
+// LJM Library:
+//     LJM Library Installer:
+//         https://labjack.com/support/software/installers/ljm
+//     LJM Users Guide:
+//         https://labjack.com/support/software/api/ljm
+//     Opening and Closing:
+//         https://labjack.com/support/software/api/ljm/function-reference/opening-and-closing
+//     Single Value Functions (such as eWriteName and eReadName):
+//         https://labjack.com/support/software/api/ljm/function-reference/single-value-functions
+//     Multiple Value Functions (such as eWriteNameByteArray and
+//     eReadNameByteArray):
+//         https://labjack.com/support/software/api/ljm/function-reference/multiple-value-functions
+//
+// T-Series and I/O:
+//     Modbus Map:
+//         https://labjack.com/support/software/api/modbus/modbus-map
+//     User-RAM:
+//         https://labjack.com/support/datasheets/t-series/lua-scripting
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;

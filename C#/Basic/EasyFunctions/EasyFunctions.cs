@@ -2,9 +2,43 @@
 // EasyFunctions.cs
 //
 // Demonstrates easy functions usage. For eStream usage look at the stream
-// example.
+// examples.
 //
 // support@labjack.com
+//
+// Relevant Documentation:
+//
+// LJM Library:
+//     LJM Library Installer:
+//         https://labjack.com/support/software/installers/ljm
+//     LJM Users Guide:
+//         https://labjack.com/support/software/api/ljm
+//     Opening and Closing:
+//         https://labjack.com/support/software/api/ljm/function-reference/opening-and-closing
+//     eWriteName:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmewritename
+//     eReadName:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmereadname
+//     eWriteNames:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmewritenames
+//     eReadNames:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmereadnames
+//     eNames:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmenames
+//     eWriteAddress:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmewriteaddress
+//     eReadAddress:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmereadaddress
+//     eWriteAddresses:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmewriteaddresses
+//     eReadAddresses:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmereadaddresses
+//     eAddresses:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmeaddresses
+//
+// T-Series and I/O:
+//     Modbus Map:
+//         https://labjack.com/support/software/api/modbus/modbus-map
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;

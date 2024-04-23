@@ -4,6 +4,27 @@
 // Demonstrates reading 2 analog inputs (AINs) in a loop from a LabJack.
 //
 // support@labjack.com
+//
+// Relevant Documentation:
+//
+// LJM Library:
+//     LJM Library Installer:
+//         https://labjack.com/support/software/installers/ljm
+//     LJM Users Guide:
+//         https://labjack.com/support/software/api/ljm
+//     Opening and Closing:
+//         https://labjack.com/support/software/api/ljm/function-reference/opening-and-closing
+//     Multiple Value Functions (such as eWriteNames and eReadNames):
+//         https://labjack.com/support/software/api/ljm/function-reference/multiple-value-functions
+//     Timing Functions (such as StartInterval, WaitForNextInterval and
+//     CleanInterval):
+//         https://labjack.com/support/software/api/ljm/function-reference/timing-functions
+//
+// T-Series and I/O:
+//     Modbus Map:
+//         https://labjack.com/support/software/api/modbus/modbus-map
+//     Analog Inputs:
+//         https://labjack.com/support/datasheets/t-series/ain
 //-----------------------------------------------------------------------------
 
 using System;

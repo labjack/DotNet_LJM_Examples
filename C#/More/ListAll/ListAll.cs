@@ -6,6 +6,22 @@
 // will only find LabJack devices supported by the LJM library.
 //
 // support@labjack.com
+//
+// Relevant Documentation:
+//
+// LJM Library:
+//     LJM Library Installer:
+//         https://labjack.com/support/software/installers/ljm
+//     LJM Users Guide:
+//         https://labjack.com/support/software/api/ljm
+//     ListAll:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmlistall
+//     ListAllS:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmlistalls
+//     NumberToIP:
+//         https://labjack.com/support/software/api/ljm/function-reference/utility/ljmnumbertoip
+//     Constants:
+//         https://labjack.com/support/software/api/ljm/constants
 //-----------------------------------------------------------------------------
 using System;
 using System.Collections.Generic;

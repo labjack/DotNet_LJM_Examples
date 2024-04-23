@@ -1,13 +1,42 @@
 ﻿//-----------------------------------------------------------------------------
 // PeriodicStreamOut.cs
 //
-// Demonstrates usage of the periodic stream-out function
-// Streams out arbitrary values. These arbitrary stream-out values act on DAC0
-// to cyclically increase the voltage from 0 to 2.5.
+// Demonstrates usage of the periodic stream-out function.
 //
-// Note: This example requires LJM 1.21 or higher
+// Streams out arbitrary values. These arbitrary stream-out values act on DAC0
+// to cyclically increase the voltage from 0 to 2.5 V.
+//
+// Note: This example requires LJM 1.21 or higher.
 //
 // support@labjack.com
+//
+// Relevant Documentation:
+//
+// LJM Library:
+//     LJM Library Installer:
+//         https://labjack.com/support/software/installers/ljm
+//     LJM Users Guide:
+//         https://labjack.com/support/software/api/ljm
+//     Opening and Closing:
+//         https://labjack.com/support/software/api/ljm/function-reference/opening-and-closing
+//     NamesToAddresses:
+//         https://labjack.com/support/software/api/ljm/function-reference/utility/ljmnamestoaddresses
+//     LJM Single Value Functions (such as eReadName, eReadAddress):
+//         https://labjack.com/support/software/api/ljm/function-reference/single-value-functions
+//     Stream Functions (such as eStreamStart, eStreamStop and PeriodicStreamOut):
+//         https://labjack.com/support/software/api/ljm/function-reference/stream-functions
+//
+// T-Series and I/O:
+//     Modbus Map:
+//         https://labjack.com/support/software/api/modbus/modbus-map
+//     Stream Mode:
+//         https://labjack.com/support/datasheets/t-series/communication/stream-mode
+//     Stream-Out:
+//         https://labjack.com/support/datasheets/t-series/communication/stream-mode/stream-out
+//     Digital I/O:
+//         https://labjack.com/support/datasheets/t-series/digital-io
+//     DAC:
+//         https://labjack.com/support/datasheets/t-series/dac
 //-----------------------------------------------------------------------------
 using System;
 using System.Diagnostics;
@@ -96,7 +125,7 @@ namespace PeriodicStreamOut
 
                     Console.WriteLine("\nBeginning stream out...");
                     LJM.eStreamStart(handle, scansPerRead, numAddresses, aScanList, ref scanRate);
-                    System.Threading.Thread.Sleep(runTimeMS); // Delay for the desired runtime
+                    System.Threading.Thread.Sleep(runTimeMS);  // Delay for the desired runtime
                 }
                 catch (LJM.LJMException e)
                 {
