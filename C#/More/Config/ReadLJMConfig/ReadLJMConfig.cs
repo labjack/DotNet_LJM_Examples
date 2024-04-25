@@ -1,9 +1,22 @@
 ﻿//-----------------------------------------------------------------------------
 // ReadLJMConfig.cs
 //
-// Demonstrates ReadLibraryConfigS and ReadLibraryConfigStringS
+// Demonstrates ReadLibraryConfigS, ReadLibraryConfigStringS and
+// WriteLibraryConfigS usage.
 //
 // support@labjack.com
+//
+// Relevant Documentation:
+//
+// LJM Library:
+//     LJM Library Installer:
+//         https://labjack.com/support/software/installers/ljm
+//     LJM Users Guide:
+//         https://labjack.com/support/software/api/ljm
+//     Constants:
+//         https://labjack.com/support/software/api/ljm/constants
+//     Library Configuration Functions:
+//         https://labjack.com/support/software/api/ljm/function-reference/library-configuration-functions
 //-----------------------------------------------------------------------------
 
 using System;
