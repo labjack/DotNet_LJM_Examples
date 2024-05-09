@@ -47,6 +47,7 @@ namespace ListAll
         public void performActions()
         {
             Dictionary<int, string> DEVICE_NAMES = new Dictionary<int, string> {
+                {LJM.CONSTANTS.dtT8, "T8"},
                 {LJM.CONSTANTS.dtT7, "T7"},
                 {LJM.CONSTANTS.dtT4, "T4"},
                 {LJM.CONSTANTS.dtDIGIT, "Digit"}
