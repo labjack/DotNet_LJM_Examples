@@ -8,6 +8,38 @@
 // channel 0.
 //
 // support@labjack.com
+//
+// Relevant Documentation:
+//
+// LJM Library:
+//     LJM Library Installer:
+//         https://labjack.com/support/software/installers/ljm
+//     LJM Users Guide:
+//         https://labjack.com/support/software/api/ljm
+//     Opening and Closing:
+//         https://labjack.com/support/software/api/ljm/function-reference/opening-and-closing
+//     NamesToAddresses:
+//         https://labjack.com/support/software/api/ljm/function-reference/utility/ljmnamestoaddresses
+//     eWriteName:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmewritename
+//     eReadName:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmereadname
+//     eWriteNames:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmewritenames
+//     Stream Functions (such as eStreamRead, eStreamStart and eStreamStop):
+//         https://labjack.com/support/software/api/ljm/function-reference/stream-functions
+//
+// T-Series and I/O:
+//     Modbus Map:
+//         https://labjack.com/support/software/api/modbus/modbus-map
+//     Stream Mode:
+//         https://labjack.com/support/datasheets/t-series/communication/stream-mode
+//     Stream-Out:
+//         https://labjack.com/support/datasheets/t-series/communication/stream-mode/stream-out
+//     Analog Inputs:
+//         https://labjack.com/support/datasheets/t-series/ain
+//     DAC:
+//         https://labjack.com/support/datasheets/t-series/dac
 //-----------------------------------------------------------------------------
 using System;
 using System.Diagnostics;

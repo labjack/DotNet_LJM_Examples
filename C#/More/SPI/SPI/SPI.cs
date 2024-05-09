@@ -22,6 +22,29 @@
 // short MISO to VS or leave it unconnected, you will read back 255s.
 //
 // support@labjack.com
+//
+// Relevant Documentation:
+//
+// LJM Library:
+//     LJM Library Installer:
+//         https://labjack.com/support/software/installers/ljm
+//     LJM Users Guide:
+//         https://labjack.com/support/software/api/ljm
+//     Opening and Closing:
+//         https://labjack.com/support/software/api/ljm/function-reference/opening-and-closing
+//     eWriteName:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmewritename
+//     Multiple Value Functions (such as eReadNames, eWriteNameByteArray and
+//     eReadNameByteArray):
+//         https://labjack.com/support/software/api/ljm/function-reference/multiple-value-functions
+//
+// T-Series and I/O:
+//     Modbus Map:
+//         https://labjack.com/support/software/api/modbus/modbus-map
+//     Digital I/O:
+//         https://labjack.com/support/datasheets/t-series/digital-io
+//     SPI:
+//         https://labjack.com/support/datasheets/t-series/digital-io/spi
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;

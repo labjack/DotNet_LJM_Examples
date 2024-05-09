@@ -6,6 +6,34 @@
 // scan list is FIRST_AIN_CHANNEL to FIRST_AIN_CHANNEL + NUMBER_OF_AINS - 1.
 //
 // support@labjack.com
+//
+// Relevant Documentation:
+//
+// LJM Library:
+//     LJM Library Installer:
+//         https://labjack.com/support/software/installers/ljm
+//     LJM Users Guide:
+//         https://labjack.com/support/software/api/ljm
+//     Opening and Closing:
+//         https://labjack.com/support/software/api/ljm/function-reference/opening-and-closing
+//     NamesToAddresses:
+//         https://labjack.com/support/software/api/ljm/function-reference/utility/ljmnamestoaddresses
+//     eWriteName:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmewritename
+//     eWriteNames:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmewritenames
+//     Stream Functions (such as eStreamRead, eStreamStart and eStreamStop):
+//         https://labjack.com/support/software/api/ljm/function-reference/stream-functions
+//
+// T-Series and I/O:
+//     Modbus Map:
+//         https://labjack.com/support/software/api/modbus/modbus-map
+//     Stream Mode:
+//         https://labjack.com/support/datasheets/t-series/communication/stream-mode
+//     Analog Inputs:
+//         https://labjack.com/support/datasheets/t-series/ain
+//     Digital I/O:
+//         https://labjack.com/support/datasheets/t-series/digital-io
 //-----------------------------------------------------------------------------
 using System;
 using System.Diagnostics;
