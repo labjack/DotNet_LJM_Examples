@@ -1,34 +1,41 @@
 ﻿//-----------------------------------------------------------------------------
 // ThermocoupleExample.cs
 //
-// Demonstrates thermocouple configuration and measurement.
-// This example demonstrates usage of the thermocouple AIN_EF (T7/T8 only) and
-// a solution using our LJTick-InAmp (commonly used with the T4).
+// Demonstrates thermocouple configuration and measurement using the
+// thermocouple AIN_EF (T7/T8 only) or our LJTick-InAmp (commonly used with the
+// T4).
+//
+// support@labjack.com
+//
+// Relevant Documentation:
 //
 // Thermocouple App-Note:
 //      https://labjack.com/support/app-notes/thermocouples
 //
 // LJM Library:
-//  LJM Library Installer:
-//      https://labjack.com/support/software/installers/ljm
-//  LJM Users Guide:
-//      https://labjack.com/support/software/api/ljm
-//  Opening and Closing:
-//      https://labjack.com/support/software/api/ljm/function-reference/opening-and-closing
-//  Single Value Functions(such as eReadName):
-//      https://labjack.com/support/software/api/ljm/function-reference/single-value-functions
-//  TCVoltsToTemp:
-//      https://labjack.com/support/software/api/ud/function-reference/tcvoltstotemp
+//     LJM Library Installer:
+//         https://labjack.com/support/software/installers/ljm
+//     LJM Users Guide:
+//         https://labjack.com/support/software/api/ljm
+//     Opening and Closing:
+//         https://labjack.com/support/software/api/ljm/function-reference/opening-and-closing
+//     Single Value Functions (such as eWriteName):
+//         https://labjack.com/support/software/api/ljm/function-reference/single-value-functions
+//     Multiple Value Functions (such as eWriteNames and eReadNames):
+//         https://labjack.com/support/software/api/ljm/function-reference/multiple-value-functions
+//     TCVoltsToTemp:
+//         https://labjack.com/support/software/api/ud/function-reference/tcvoltstotemp
+//     Timing Functions (such as StartInterval, WaitForNextInterval and
+//     CleanInterval):
+//        https://labjack.com/support/software/api/ljm/function-reference/timing-functions
 //
 // T-Series and I/O:
-//  Modbus Map:
-//      https://labjack.com/support/software/api/modbus/modbus-map
-//  Analog Inputs:
-//      https://labjack.com/support/datasheets/t-series/ain
-//  Thermocouple AIN_EF:
-//      https://labjack.com/support/datasheets/t-series/ain/extended-features/thermocouple
-//
-// support@labjack.com
+//     Modbus Map:
+//         https://labjack.com/support/software/api/modbus/modbus-map
+//     Analog Inputs:
+//         https://labjack.com/support/datasheets/t-series/ain
+//     Thermocouple AIN_EF:
+//         https://labjack.com/support/datasheets/t-series/ain/extended-features/thermocouple
 //-----------------------------------------------------------------------------
 
 using System;

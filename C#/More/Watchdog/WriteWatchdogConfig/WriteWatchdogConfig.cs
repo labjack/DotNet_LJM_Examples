@@ -4,6 +4,24 @@
 // Demonstrates how to configure the Watchdog on a LabJack.
 //
 // support@labjack.com
+//
+// Relevant Documentation:
+//
+// LJM Library:
+//     LJM Library Installer:
+//         https://labjack.com/support/software/installers/ljm
+//     LJM Users Guide:
+//         https://labjack.com/support/software/api/ljm
+//     Opening and Closing:
+//         https://labjack.com/support/software/api/ljm/function-reference/opening-and-closing
+//     eWriteNames:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmewritenames
+//
+// T-Series and I/O:
+//     Modbus Map:
+//         https://labjack.com/support/software/api/modbus/modbus-map
+//     Watchdog:
+//         https://labjack.com/support/datasheets/t-series/watchdog
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;
@@ -65,13 +83,13 @@ namespace WriteWatchdogConfig
                     "WATCHDOG_DAC1_DEFAULT", "WATCHDOG_ENABLE_DEFAULT"};
                 double[] aValues = new double[] {
                     0, 0,
-                    20, 0,
+                    20, 0,  //Timeout set to 20 seconds
                     0, 0,
-                    1, 0,
+                    1, 0,  //Reset the device on timeout
                     0, 0,
                     0, 0,
                     0, 0,
-                    0, 0};  //Set WATCHDOG_ENABLE_DEFAULT to 1 to enable
+                    0, 0};  //Change the last WATCHDOG_ENABLE_DEFAULT to 1 to enable
                 int numFrames = aNames.Length;
                 int errAddr = -1;
                 LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errAddr);

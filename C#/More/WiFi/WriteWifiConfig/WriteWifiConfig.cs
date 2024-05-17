@@ -4,6 +4,30 @@
 // Demonstrates how to configure the WiFi settings on a LabJack.
 //
 // support@labjack.com
+//
+// Relevant Documentation:
+//
+// LJM Library:
+//     LJM Library Installer:
+//         https://labjack.com/support/software/installers/ljm
+//     LJM Users Guide:
+//         https://labjack.com/support/software/api/ljm
+//     Opening and Closing:
+//         https://labjack.com/support/software/api/ljm/function-reference/opening-and-closing
+//     eWriteName:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmewritename
+//     eWriteNames:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmewritenames
+//     IPToNumber:
+//         https://labjack.com/support/software/api/ljm/function-reference/utility/ljmiptonumber
+//     NumberToIP:
+//         https://labjack.com/support/software/api/ljm/function-reference/utility/ljmnumbertoip
+//
+// T-Series and I/O:
+//     Modbus Map:
+//         https://labjack.com/support/software/api/modbus/modbus-map
+//     WiFi:
+//         https://labjack.com/support/datasheets/t-series/wifi
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;
@@ -40,6 +64,7 @@ namespace WriteWifiConfig
             {
                 //Open first found LabJack
                 LJM.OpenS("ANY", "ANY", "ANY", ref handle);  // Any device, Any connection, Any identifier
+                //LJM.OpenS("T8", "ANY", "ANY", ref handle);  // T8 device, Any connection, Any identifier
                 //LJM.OpenS("T7", "ANY", "ANY", ref handle);  // T7 device, Any connection, Any identifier
                 //LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", ref handle);  // Any device, Any connection, Any identifier
 

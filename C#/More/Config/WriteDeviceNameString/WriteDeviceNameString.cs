@@ -4,6 +4,24 @@
 // Demonstrates how to write the device name string to a LabJack.
 //
 // support@labjack.com
+//
+// Relevant Documentation:
+//
+// LJM Library:
+//     LJM Library Installer:
+//         https://labjack.com/support/software/installers/ljm
+//     LJM Users Guide:
+//         https://labjack.com/support/software/api/ljm
+//     Opening and Closing:
+//         https://labjack.com/support/software/api/ljm/function-reference/opening-and-closing
+//     eWriteNameString:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmewritenamestring
+//
+// T-Series and I/O:
+//     Modbus Map:
+//         https://labjack.com/support/software/api/modbus/modbus-map
+//     Hardware Overview (Device Information Registers):
+//         https://labjack.com/support/datasheets/t-series/hardware-overview
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;

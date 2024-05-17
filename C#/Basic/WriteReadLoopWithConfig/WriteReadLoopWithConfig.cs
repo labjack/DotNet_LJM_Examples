@@ -4,13 +4,32 @@
 // Performs an initial call to eWriteNames to write configuration values, and
 // then calls eWriteNames and eReadNames repeatedly in a loop.
 //
-// For documentation on register names to use, see the T-series Datasheet or
-// the Modbus Map:
-//
-// https://labjack.com/support/datasheets/t-series
-// https://labjack.com/support/software/examples/modbus/modbus-map
-//
 // support@labjack.com
+//
+// Relevant Documentation:
+//
+// LJM Library:
+//     LJM Library Installer:
+//         https://labjack.com/support/software/installers/ljm
+//     LJM Users Guide:
+//         https://labjack.com/support/software/api/ljm
+//     Opening and Closing:
+//         https://labjack.com/support/software/api/ljm/function-reference/opening-and-closing
+//     Multiple Value Functions (such as eWriteNames and eReadNames):
+//         https://labjack.com/support/software/api/ljm/function-reference/multiple-value-functions
+//     Timing Functions (such as StartInterval, WaitForNextInterval and
+//     CleanInterval):
+//         https://labjack.com/support/software/api/ljm/function-reference/timing-functions
+//
+// T-Series and I/O:
+//     Modbus Map:
+//         https://labjack.com/support/software/api/modbus/modbus-map
+//     Analog Inputs:
+//         https://labjack.com/support/datasheets/t-series/ain
+//     Digital I/O:
+//         https://labjack.com/support/datasheets/t-series/digital-io
+//     DAC:
+//         https://labjack.com/support/datasheets/t-series/dac
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;
@@ -87,7 +106,7 @@ namespace WriteReadLoopWithConfig
                 {
                     //LabJack T7 and T8 configuration
 
-                    // Settling and negative channel do not apply to the T8
+                    //Settling and negative channel do not apply to the T8
                     if (devType == LJM.CONSTANTS.dtT7)
                     {
                         // Negative Channel = 199 (Single-ended)

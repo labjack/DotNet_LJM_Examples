@@ -4,6 +4,26 @@
 // Demonstrates how to set ethernet configuration settings on a LabJack.
 //
 // support@labjack.com
+//
+// Relevant Documentation:
+//
+// LJM Library:
+//     LJM Library Installer:
+//         https://labjack.com/support/software/installers/ljm
+//     LJM Users Guide:
+//         https://labjack.com/support/software/api/ljm
+//     Opening and Closing:
+//         https://labjack.com/support/software/api/ljm/function-reference/opening-and-closing
+//     eWriteNames:
+//         https://labjack.com/support/software/api/ljm/function-reference/ljmewritenames
+//     IPToNumber:
+//         https://labjack.com/support/software/api/ljm/function-reference/utility/ljmiptonumber
+//
+// T-Series and I/O:
+//     Modbus Map:
+//         https://labjack.com/support/software/api/modbus/modbus-map
+//     Ethernet:
+//         https://labjack.com/support/datasheets/t-series/ethernet
 //-----------------------------------------------------------------------------
 using System;
 using LabJack;
