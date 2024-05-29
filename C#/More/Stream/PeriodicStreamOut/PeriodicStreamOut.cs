@@ -88,27 +88,31 @@ namespace PeriodicStreamOut
                 Console.WriteLine("Serial number: " + serNum + ", IP address: " + ipAddrStr + ", Port: " + port + ",");
                 Console.WriteLine("Max bytes per MB: " + maxBytesPerMB);
 
-                //Scans per second
-                double scanRate = 1000;
+                double scanRate = 1000;  //Scans per second
                 int scansPerRead = (int)(scanRate / 2);
-                // Desired duration to run the stream out
-                int runTimeMS = 5000;
+                int runTimeMS = 5000;  //Number of seconds to stream out waveforms
+
+                //The desired stream channels. Up to 4 out-streams can be ran at once.
                 const int numAddresses = 1;
                 string[] aScanListNames = new String[] { "STREAM_OUT0" };  //Scan list names to stream.
-                int[] aScanList = new int[numAddresses];  //Scan list addresses to stream. eStreamStart uses Modbus addresses.
+                int[] aScanList = new int[numAddresses];
                 int[] aTypes = new int[numAddresses];  //Dummy
                 LJM.NamesToAddresses(numAddresses, aScanListNames, aScanList, aTypes);
-                int targetAddr = 1000; // DAC0
-                // With current T-series devices, 4 stream-outs can be ran concurrently.
-                // Stream-out index should therefore be a value 0-3.
+
+                int targetAddr = 1000;  //Stream out to DAC0.
+
+                //Stream out index can be a value of 0 to 3.
                 int streamOutIndex = 0;
+
+                //Make an arbitrary waveform that increases voltage linearly
+                //from 0 to 2.5 V.
                 const int samplesToWrite = 512;
-                // Make an arbitrary waveform that increases voltage linearly from 0-2.5V
-                double[] values = new double[samplesToWrite];
+                double[] writeData = new double[samplesToWrite];
                 double increment = 1.0 / samplesToWrite;
+                double sample = 0;
                 for (int i = 0; i < samplesToWrite; i++) {
-                    double sample = 2.5*increment*i;
-                    values[i] = sample;
+                    sample = 2.5*increment*i;
+                    writeData[i] = sample;
                 }
 
                 try
@@ -120,11 +124,13 @@ namespace PeriodicStreamOut
                         targetAddr,
                         scanRate,
                         samplesToWrite,
-                        values
+                        writeData
                     );
 
                     Console.WriteLine("\nBeginning stream out...");
                     LJM.eStreamStart(handle, scansPerRead, numAddresses, aScanList, ref scanRate);
+                    Console.WriteLine("Stream started with scan rate of " + scanRate + " Hz.");
+                    Console.WriteLine("  Running for " + (runTimeMS/1000.0) + " seconds.\n");
                     System.Threading.Thread.Sleep(runTimeMS);  // Delay for the desired runtime
                 }
                 catch (LJM.LJMException e)
