@@ -154,7 +154,7 @@ namespace DioEFConfigFreq
                 LJM.eWriteName(handle, "DIO_EF_CLOCK0_DIVISOR", clockDivisor);      // Set Clock Divisor.
                 LJM.eWriteName(handle, "DIO_EF_CLOCK0_ROLL_VALUE", clockRollValue); // Set Clock Roll Value
 
-                // Configure PWM Registers
+                // Configure DIO_EF Frequency Registers
                 LJM.eWriteName(handle, $"DIO{freqDIO}_EF_INDEX", freqIndex);        // Set DIO#_EF_INDEX to 3 for rising-to-rising, 4 for falling-to-falling
                 LJM.eWriteName(handle, $"DIO{freqDIO}_EF_CLOCK_SOURCE", 0);         // Set DIO#_EF to use clock 0. Formerly DIO#_EF_OPTIONS, you may need to switch to this name on older LJM versions.
                 LJM.eWriteName(handle, $"DIO{freqDIO}_EF_CONFIG_A", freqConfigA);   // Set DIO#_EF_CONFIG_A to set measurement mode.
@@ -164,7 +164,7 @@ namespace DioEFConfigFreq
 
                 LJM.eWriteName(handle, "DAC1_FREQUENCY_OUT_ENABLE", 1);             // Enable 10 Hz square wave on DAC1.
 
-                Console.WriteLine($"Outputting a 10 Hz signal on DAC1, measuring signal on FIO{freqDIO}.");
+                Console.WriteLine($"\n--- Outputting a 10 Hz signal on DAC1, measuring signal on FIO{freqDIO} ---\n");
 
                 /*
                  * --- How to read the measured frequency ---
@@ -173,10 +173,21 @@ namespace DioEFConfigFreq
                  * DIO#_EF_READ_B: Returns the same value as READ_A.
                  * DIO#_EF_READ_A_F: Returns the period in seconds. If a full period has not yet been observed this value will be zero.
                  * DIO#_EF_READ_B_F: Returns the frequency in Hz. If a full period has not yet been observed this value will be zero.
-                 * 
+                 *
                  * Note that all "READ_B" registers are capture registers.
                  * All "READ_B" registers are only updated when any "READ_A" register is read.
                  * Thus it would be unusual to read any B registers without first reading at least one A register.
+                 *
+                 * To Reset the READ registers: 
+                 * DIO#_EF_READ_A_AND_RESET: Returns the same data as DIO#_EF_READ_A and then clears the result
+                 * so that zero is returned by subsequent reads until another full period is measured (2 new edges).
+                 *
+                 * DIO#_EF_READ_A_AND_RESET_F: Returns the same data as DIO#_EF_READ_A_F and then clears the result
+                 * so that zero is returned by subsequent reads until another full period is measured (2 new edges).
+                 *
+                 * Note that when One-Shot mode is enabled, there is conflicting behavior 
+                 * between one-shot and READ_A_AND_RESET registers which can lead to unexpected results.
+                 * For more info see: https://support.labjack.com/docs/13-2-12-interrupt-frequency-in-t-series-datasheet#id-13.2.12InterruptFrequencyIn[T-SeriesDatasheet]-One-shot,Continuous,Read,ReadandReset
                  */
 
                 double periodTicks = 0;
@@ -203,6 +214,7 @@ namespace DioEFConfigFreq
 
                 aValues = new double[] { 0, 0, 0 };
                 numFrames = aNames.Length;
+                Console.WriteLine($"\n--- Disabling Clock0, Frequency In, and DAC1_FREQUENCY_OUT ---");
                 LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errorAddress);
 
 
