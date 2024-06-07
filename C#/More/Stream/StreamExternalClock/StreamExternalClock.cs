@@ -1,10 +1,10 @@
 ﻿//-----------------------------------------------------------------------------
 // StreamExternalClock.cs
 //
-// Shows how to stream with the T7 or T8 in external clock stream mode.
+// Demonstrates how to stream with the T7 or T8 in external clock stream mode.
 // Connect CIO3 (T7) or FIO2 (T8) to FIO3 to use a PWM for the stream clock.
 //
-// Note: The T4 is not supported for this example.
+// Note: The T4 is not supported in this example.
 //
 // support@labjack.com
 //
@@ -25,6 +25,8 @@
 //         https://labjack.com/support/software/api/ljm/function-reference/ljmewritenames
 //     Stream Functions (such as eStreamStart, eStreamRead and eStreamStop):
 //         https://labjack.com/support/software/api/ljm/function-reference/stream-functions
+//     eStreamStart (for eStreamStart and externally clock stream in LJM)
+//         https://labjack.com/support/ljm/users-guide/function-reference/ljmestreamstart
 //     Library Configuration Functions (such as WriteLibraryConfigS and stream parameters):
 //         https://labjack.com/support/software/api/ljm/function-reference/library-configuration-functions
 //
@@ -39,13 +41,14 @@
 //         https://labjack.com/support/datasheets/t-series/ain
 //     Digital I/O:
 //         https://labjack.com/support/datasheets/t-series/digital-io
-//     Hardware Overview (such as register SYSTEM_TIMER_20HZ):
+//     Hardware Overview (such as register CORE_TIMER):
 //         https://labjack.com/support/datasheets/t-series/hardware-overview
 //     Pulse Out:
 //         https://labjack.com/support/datasheets/t-series/digital-io/extended-features/pulse-out
 //-----------------------------------------------------------------------------
 using System;
 using System.Diagnostics;
+using System.Text;
 using LabJack;
 
 
@@ -100,7 +103,8 @@ namespace StreamExternalClock
 
                 try
                 {
-                    //Settling and negative channel do not apply to the T8.
+                    //Configure negative channels and stream settling.
+                    //Not applicable to the T8.
                     if (devType == LJM.CONSTANTS.dtT7)
                     {
                         //All negative channels are single-ended.
@@ -132,12 +136,12 @@ namespace StreamExternalClock
                     LJM.eWriteNames(handle, aNames.Length, aNames, aValues, ref errorAddress);
 
                     //Stream Configuration
-                    const bool FIO3_CLOCK = true;  //Use PWM on FIO3 for the stream clock
+                    const bool FIO3_CLOCK = true;  //Use Pulse Out on FIO3 for the stream clock
                     const int NUM_LOOP_ITERATIONS = 10;
                     double scanRate = 1000;  //Scans per second
-                    int scansPerRead = (int)scanRate / 2;  //# scans returned by eStreamRead call
+                    int scansPerRead = (int)scanRate / 2;  //Number of scans returned by eStreamRead call
                     const int numAddresses = 4;
-                    string[] aScanListNames = new String[] { "AIN0", "FIO_STATE", "SYSTEM_TIMER_20HZ", "STREAM_DATA_CAPTURE_16" };  //Scan list names to stream.
+                    string[] aScanListNames = new String[] { "AIN0", "FIO_STATE", "CORE_TIMER", "STREAM_DATA_CAPTURE_16" };  //Scan list names to stream.
                     int[] aTypes = new int[numAddresses];  //Dummy
                     int[] aScanList = new int[numAddresses];  //Scan list addresses to stream. eStreamStart uses Modbus addresses.
                     LJM.NamesToAddresses(numAddresses, aScanListNames, aScanList, aTypes);
@@ -149,27 +153,51 @@ namespace StreamExternalClock
 
                     //Configure stream clock source to external clock source on
                     //CIO3 for the T7, or FIO2 for the T8.
-                    Console.WriteLine("Setting up externally clocked stream");
+                    Console.WriteLine("\nSetting up externally clocked stream.\n");
                     LJM.eWriteName(handle, "STREAM_CLOCK_SOURCE", 2);
                     LJM.eWriteName(handle, "STREAM_EXTERNAL_CLOCK_DIVISOR", 1);
 
                     if (FIO3_CLOCK)
                     {
-                        //Enable a PWM output with 50% duty cycle on FIO3.
+                        //Enable Pulse Out with frequency of 1 kHz and 50% duty
+                        //# cycle on FIO3.
                         double pulseRate = scanRate;
                         double numPulses = scanRate * NUM_LOOP_ITERATIONS + 5000;
-                        double rollValue = 10000000 / pulseRate;  //10MHz/pulseRate
+                        double rollValue = 0;
+                        double clockDivisor = 0;
 
-                        Console.WriteLine("Enabling {0} pulses on FIO3 at a {1} Hz pulse rate", numPulses, pulseRate);
+                        //Set the clock divisor so that the clock frequency is
+                        //10 MHz.
+                        if(devType == LJM.CONSTANTS.dtT8)
+                        {
+                            //ClockFrequency = 100 MHz / 4 = 25 MHz
+                            //PulseOutFrequency = 25 MHz / 25 KHz = 1 KHz
+                            clockDivisor = 4;
+                            rollValue = 25000;
+                        }
+                        else
+                        {
+                            //ClockFrequency = 80 MHz / 8 = 10 MHz
+                            //PulseOutFrequency = 10 MHz / 10 KHz = 1 KHz
+                            clockDivisor = 8;
+                            rollValue = 10000;
+                        }
+
+                        //DutyCycle% = 100 * CONFIG_A / RollValue
+                        //CONFIG_A = DutyCycle% / 100 * RollValue
+                        double dutyCyclePercent = 50;
+                        double dutyCycleValue = dutyCyclePercent / 100 * rollValue;
+
+                        Console.WriteLine("Enabling {0} pulses on FIO3 at a {1} Hz pulse rate.\n", numPulses, pulseRate);
 
                         LJM.eWriteName(handle, "DIO3_EF_ENABLE", 0);
-                        LJM.eWriteName(handle, "DIO_EF_CLOCK0_DIVISOR", 8);
+                        LJM.eWriteName(handle, "DIO3", 0);
+                        LJM.eWriteName(handle, "DIO_EF_CLOCK0_DIVISOR", clockDivisor);
                         LJM.eWriteName(handle, "DIO_EF_CLOCK0_ROLL_VALUE", rollValue);
                         LJM.eWriteName(handle, "DIO_EF_CLOCK0_ENABLE", 1);
                         LJM.eWriteName(handle, "DIO3_EF_INDEX", 2);
-                        LJM.eWriteName(handle, "DIO3_EF_OPTIONS", 0);
-                        LJM.eWriteName(handle, "DIO3", 0);
-                        LJM.eWriteName(handle, "DIO3_EF_CONFIG_A", rollValue/2);
+                        LJM.eWriteName(handle, "DIO3_EF_CLOCK_SOURCE", 0);
+                        LJM.eWriteName(handle, "DIO3_EF_CONFIG_A", dutyCycleValue);
                         LJM.eWriteName(handle, "DIO3_EF_CONFIG_B", 0);
                         LJM.eWriteName(handle, "DIO3_EF_CONFIG_C", numPulses);
                         LJM.eWriteName(handle, "DIO3_EF_ENABLE", 1);
@@ -209,10 +237,41 @@ namespace StreamExternalClock
                             skippedTotal += (UInt64)skippedCur;
                             loop++;
                             Console.WriteLine("\neStreamRead " + loop);
-                            Console.Write("  First scan out of " + scansPerRead + ": ");
+
+                            //Parse out first scan of samples to display.
+                            //CORE_TIMER and STREAM_DATA_CAPTURE_16 samples
+                            //are combined for the full 32-bit CORE_TIMER value.
+                            StringBuilder scanStr = new StringBuilder();
+                            uint coreTimer32bits = 0;
                             for (int j = 0; j < numAddresses; j++)
-                                Console.Write(aScanListNames[j] + " = " + aData[j].ToString("F4") + ", ");
-                            Console.WriteLine("\n  numSkippedScans: " + (skippedCur / numAddresses) + ", deviceScanBacklog: " + deviceScanBacklog + ", ljmScanBacklog: " + ljmScanBacklog);
+                            {
+                                if (j == 2)
+                                {
+                                    //Sample 2 = CORE_TIMER
+                                    //CORE_TIMER is the lower 16-bits of the full
+                                    //32-bit CORE_TIMER value.
+                                    coreTimer32bits = System.Convert.ToUInt32(aData[j]);
+                                }
+                                else if (j == 3)
+                                {
+                                    //Sample 3 = STREAM_DATA_CAPTURE_16
+                                    //STREAM_DATA_CAPTURE_16 is the upper 16-bits of the
+                                    //full 32-bit CORE_TIMER value.
+                                    coreTimer32bits += System.Convert.ToUInt32(aData[j]) << 16;
+                                    scanStr.AppendFormat("CORE_TIMER and STREAM_DATA_CAPTURE_16 = {0:D}", coreTimer32bits);
+                                }
+                                else
+                                {
+                                    //Sample 0 = AIN0
+                                    //Sample 1 = FIO_STATE
+                                    scanStr.AppendFormat("{0} = {1:F5}, ", aScanListNames[j], aData[j]);
+                                }
+                            }
+
+                            Console.WriteLine("  1st scan out of " + scansPerRead + ": " + scanStr);
+                            Console.WriteLine("  Scans Skipped: " + (skippedCur / numAddresses) + 
+                                ", Scan Backlogs: Device = " + deviceScanBacklog + ", LJM = " +
+                                ljmScanBacklog);
                         }
                         catch (LJM.LJMException e)
                         {
@@ -232,18 +291,18 @@ namespace StreamExternalClock
                     sw.Stop();
 
                     Console.WriteLine("\nTotal scans: " + totScans);
-                    Console.WriteLine("Skipped scans: " + (skippedTotal / numAddresses));
                     double time = sw.ElapsedMilliseconds / 1000.0;
                     Console.WriteLine("Time taken: " + time + " seconds");
                     Console.WriteLine("LJM Scan Rate: " + scanRate + " scans/second");
                     Console.WriteLine("Timed Scan Rate: " + (totScans / time).ToString("F2") + " scans/second");
-                    Console.WriteLine("Sample Rate: " + (totScans * numAddresses / time).ToString("F2") + " samples/second");
+                    Console.WriteLine("Timed Sample Rate: " + (totScans * numAddresses / time).ToString("F2") + " samples/second");
+                    Console.WriteLine("Skipped scans: " + (skippedTotal / numAddresses));
                 }
                 catch (LJM.LJMException e)
                 {
                     showErrorMessage(e);
                 }
-                Console.WriteLine("Stop Stream");
+                Console.WriteLine("\nStop Stream");
                 LJM.eStreamStop(handle);
             }
             catch (LJM.LJMException e)
