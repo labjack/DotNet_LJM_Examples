@@ -121,13 +121,14 @@ namespace DioEFConfigPwmAndCounter
                 };
 
                 /* --- How to Configure PWM and Counter ---
-                 * To Confiure a DIO_EF PWM out signal, you first need to configure the clock used by the DIO_EF mode,
+                 * To confiure a DIO_EF PWM out signal, you first need to configure the clock used by the DIO_EF mode,
                  * Then you can configure the PWM and the High-Speed Counter.
                  * 
+                 * 
                  * --- Registers used for configuring Clocks ---
-                 * "DIO_FE_CLOCK0_DIVISOR":    Divides the core clock. Valid options: 1,2,4,8,16,32,64,256.
-                 * "DIO_EF_CLOCK0_ROLL_VALUE": The clock count will increment continuously and then start over at zero as it reaches the roll value.
-                 * "DIO_EF_CLOCK0_ENABLE":     Enables/Disables the Clock.
+                 * "DIO_FE_CLOCK#_DIVISOR":    Divides the core clock. Valid options: 1,2,4,8,16,32,64,256.
+                 * "DIO_EF_CLOCK#_ROLL_VALUE": The clock count will increment continuously and then start over at zero as it reaches the roll value.
+                 * "DIO_EF_CLOCK#_ENABLE":     Enables/Disables the Clock.
                  *
                  * --- Registers used for configuring PWM ---
                  * "DIO#_EF_INDEX":            Sets desired DIO_EF feature, DIO_EF PWM mode is index 0.
@@ -138,20 +139,26 @@ namespace DioEFConfigPwmAndCounter
                  * --- Registers used for configuring High-Speed Counter ---
                  * "DIO#_EF_INDEX":            Sets desired DIO_EF feature, DIO_EF High-Speed Counter is index 7.
                  * "DIO#_EF_ENABLE":           Enables/Disables the DIO_EF mode.
+                 * 
+                 * For more info on the DIO_EF Clocks see section 13.2.1 of the T-Series Datasheet
+                 * https://support.labjack.com/docs/13-2-1-ef-clock-source-t-series-datasheet
+                 * 
+                 * For a more detailed walkthrough see Configuring a PWM Output
+                 * https://support.labjack.com/docs/configuring-a-pwm-output
                  */
 
                 // --- Calculate Clock Values from user defined values ---
                 int clockTickRate = coreFrequency / clockDivisor;
-                int clockRollValue = clockTickRate / desiredFrequency; // clockRollValue should be written to DIO_EF_CLOCK0_ROLL_VALUE
+                int clockRollValue = clockTickRate / desiredFrequency; // clockRollValue should be written to "DIO_EF_CLOCK0_ROLL_VALUE"
                 // Below is a single equation which calculates the same value as the above equations
-                // clockRollValue = coreFrequency / clockDivisor / desiredFreq;
+                // clockRollValue = coreFrequency / clockDivisor / desiredFrequency;
 
                 // --- Calculate PWM Values ---
                 // Calculate the clock tick value where the line will transition from high to low based on user defined duty cycle percentage, rounded to the nearest integer.
                 int pwmConfigA = clockRollValue / (100 / desiredDutyCyclePercent);
 
                 // --- Configure and write values to connected device ---
-                // Configure Clock Registers
+                // Configure Clock Registers, use 32-bit Clock0 for this example.
                 LJM.eWriteName(handle, "DIO_EF_CLOCK0_DIVISOR", clockDivisor);   // Set Clock Divisor.
                 LJM.eWriteName(handle, "DIO_EF_CLOCK0_ROLL_VALUE", clockRollValue); // Set calculated Clock Roll Value.
 

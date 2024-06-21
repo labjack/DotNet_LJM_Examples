@@ -65,9 +65,11 @@ namespace DioEFConfigFreq
                 // --- Configure Clock and Frequency In ---
                 int errorAddress = -1;
                 int freqDIO      = 0;   // DIO Pin that will measure the signal, T7/T8 use FIO0, T4 use FIO4.
+                int numFrames    = 0;
+                int intervalHandle   = 1;
+                int skippedIntervals = 0;
                 string[] aNames;
                 double[] aValues;
-                int numFrames = 0;
 
 
                 // Selecting a specific DIO# Pin is necessary for each T-Series Device, only specific DIO# pins can measure a Frequency In signal.
@@ -89,9 +91,9 @@ namespace DioEFConfigFreq
                  * "DAC1_FREQUENCY_OUT_ENABLE": 0 = off, 1 = output 10 Hz signal on DAC1. The signal will be a square wave with peaks of 0 and 3.3V. 
                  *
                  * --- Registers used for configuring DIO_EF Clock ---
-                 * "DIO_FE_CLOCK0_DIVISOR":    Divides the core clock. Valid options: 1,2,4,8,16,32,64,256.
-                 * "DIO_EF_CLOCK0_ROLL_VALUE": The clock count will increment continuously and then start over at zero as it reaches the roll value.
-                 * "DIO_EF_CLOCK0_ENABLE":     Enables/Disables the Clock.
+                 * "DIO_FE_CLOCK#_DIVISOR":    Divides the core clock. Valid options: 1,2,4,8,16,32,64,256.
+                 * "DIO_EF_CLOCK#_ROLL_VALUE": The clock count will increment continuously and then start over at zero as it reaches the roll value.
+                 * "DIO_EF_CLOCK#_ENABLE":     Enables/Disables the Clock.
                  *
                  * --- Registers used for configuring Frequency In ---
                  * "DIO#_EF_INDEX":            Sets desired DIO_EF feature, DIO_EF Frequency In uses index 3 for rising edges, 4 for falling edges.
@@ -119,6 +121,8 @@ namespace DioEFConfigFreq
 
                 /*
                  * --- Configure Clock Values ---
+                 * T-Series devices provide 2 16-bit clocks (Clock1 & Clock2) or a combined 32-bit clock (Clock0).
+                 * For this example we will use the combined 32-bit Clock0.
                  * Most applications can use default clock settings, Divisor of 1, and a Roll Value of 0.
                  * Sometimes, other DIO-EF might interact with this feature. 
                  * For example, roll value would usually be set to 0 to provide the maximum measurable period, 
@@ -135,6 +139,10 @@ namespace DioEFConfigFreq
                  * This clock configuration results in:
                  * Resolution = 1 / 6.25 MHz = 0.16 us
                  * MaxPeriod = 10000 / 6.25 MHz = 1.6 ms
+                 * 
+                 * * For more information on DIO_EF Clocks see section 13.2.1 - EF Clock Source of the T-Series Datasheet
+                 * https://support.labjack.com/docs/13-2-1-ef-clock-source-t-series-datasheet
+                 * 
                  * For a more detailed walkthrough, see Configuring & Reading Frequency.
                  * https://support.labjack.com/docs/configuring-reading-frequency
                  */
@@ -150,7 +158,7 @@ namespace DioEFConfigFreq
                 //int freqConfigA = 2; // Measurement mode set to one-shot.
 
                 // --- Configure and write values to connected device --- 
-                // Configure Clock Registers
+                // Configure Clock Registers, use 32-bit Clock0.
                 LJM.eWriteName(handle, "DIO_EF_CLOCK0_DIVISOR", clockDivisor);      // Set Clock Divisor.
                 LJM.eWriteName(handle, "DIO_EF_CLOCK0_ROLL_VALUE", clockRollValue); // Set Clock Roll Value
 
@@ -193,10 +201,13 @@ namespace DioEFConfigFreq
                 double periodTicks = 0;
                 double periodSec   = 0;
                 double freqHz      = 0;
+                // Start a 1 second interval
+                LJM.StartInterval(intervalHandle, 1000000);
                 // Read all of the measured values.
                 for (int i = 0; i < 5; i++)
                 {
-                    Thread.Sleep(1000); // Sleep for 1 Second = 1000 ms.
+                    LJM.WaitForNextInterval(intervalHandle, ref skippedIntervals); // Wait for 1 Second = 1000 ms.
+                    // Does this need to be eReadNames if using LJM Interval?
                     LJM.eReadName(handle, $"DIO{freqDIO}_EF_READ_A", ref periodTicks);
                     LJM.eReadName(handle, $"DIO{freqDIO}_EF_READ_A_F", ref periodSec);
                     LJM.eReadName(handle, $"DIO{freqDIO}_EF_READ_B_F", ref freqHz);

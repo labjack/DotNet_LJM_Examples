@@ -25,8 +25,8 @@ namespace DioEFConfigCounter
     {
         static void Main(string[] args)
         {
-            DioEFConfigCounter obj = new DioEFConfigCounter();
-            obj.ConfigureCounter();
+            DioEFConfigCounter dioef = new DioEFConfigCounter();
+            dioef.ConfigureCounter();
         }
         public void showErrorMessage(LJM.LJMException e)
         {
@@ -93,6 +93,9 @@ namespace DioEFConfigCounter
                  * Interrupt Counter counts the rising edge of pulses on the associated IO line.
                  * This interrupt-based digital I/O extended feature (DIO-EF) is not purely implemented in hardware, but rather firmware must service each edge.
                  *
+                 * For a more detailed walkthrough see Configuring & Reading a Counter
+                 * https://support.labjack.com/docs/configuring-reading-a-counter
+                 * 
                  * For a more accurate measurement for counting Rising edges, use the hardware clocked High-Speed Counter mode
                  * See the docs for High-Speed Counter here: https://support.labjack.com/docs/13-2-8-high-speed-counter-t-series-datasheet
                  */
