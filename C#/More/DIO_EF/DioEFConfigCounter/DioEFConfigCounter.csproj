@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+	<!-- Import LJM based on OS -->
+	<ItemGroup Condition="$([MSBuild]::IsOsPlatform('Windows'))">
+		<Reference Include="LabJack.LJM" Version="1.*">
+			<HintPath>C:\Program Files (x86)\LabJack\Drivers\LabJack.LJM.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+
+	<ItemGroup Condition="$([MSBuild]::IsOsPlatform('OSX'))">
+		<Reference Include="LabJack.LJM" Version="1.*">
+			<HintPath>/usr/local/lib/LabJack.LJM.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+
+	<ItemGroup Condition="$([MSBuild]::IsOsPlatform('Linux'))">
+		<Reference Include="LabJack.LJM" Version="1.*">
+			<HintPath>/usr/local/lib/LabJack.LJM.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+
+</Project>
