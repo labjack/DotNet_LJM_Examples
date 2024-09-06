@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// DioEFConfigPwm.cs
+// DioEFConfigCounter.cs
 //
 // Enables an Interrupt Counter measurement to rising edges and a 10 Hz square wave on DAC1.
 // To measure the rising edges on DAC1, connect a jumper between DAC1 and FIO0 on T7/T8 or FIO4 on T4.
@@ -115,7 +115,7 @@ namespace DioEFConfigCounter
                 /*
                  * --- How to read the measured count of rising edges? ---
                  * To read the count of Rising Edges, use the register below.
-                 * DIO#_EF_READ_A: Returns the current Count
+                 * DIO#_EF_READ_A: Returns the current Count.
                  *
                  * To read and reset the count:
                  * DIO#_EF_READ_A_AND_RESET: Reads the current count then clears the counter.
