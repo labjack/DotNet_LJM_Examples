@@ -2,12 +2,12 @@
 // DioEFConfigPwm.cs
 //
 // Enables an Interrupt Counter measurement to rising edges and a 10 Hz square wave on DAC1.
-// To measure the riging edges on DAC1, connect a jumper between DAC1 and FIO0 on T7/T8 or FIO4 on T4.
+// To measure the rising edges on DAC1, connect a jumper between DAC1 and FIO0 on T7/T8 or FIO4 on T4.
 //
-// Interrupt Counter counts the rising edge of pulses on the associated IO line.
+// The Interrupt Counter counts the rising edge of pulses on the associated IO line.
 // This interrupt-based digital I/O extended feature (DIO-EF) is not purely implemented in hardware, but rather firmware must service each edge.
 //
-// This example will read the DAC1 rising edge count at 1 second intervals 5 times. 
+// This example will read the DAC1 rising edge count at 1 second intervals 5 times.
 // Then the count will be read and reset, and after 1 second, the count is read again.
 //
 // For more information on the Interrupt Counter DIO_EF mode see section 13.2.9 of the T-Series Datasheet.
@@ -19,6 +19,7 @@ using System;
 using System.Threading;
 using LabJack;
 
+
 namespace DioEFConfigCounter
 {
     class DioEFConfigCounter
@@ -28,6 +29,7 @@ namespace DioEFConfigCounter
             DioEFConfigCounter dioef = new DioEFConfigCounter();
             dioef.ConfigureCounter();
         }
+
         public void showErrorMessage(LJM.LJMException e)
         {
             Console.Out.WriteLine("LJMException: " + e.ToString());
@@ -49,11 +51,11 @@ namespace DioEFConfigCounter
             try
             {
                 // --- Connect to a LabJack Device ---
-                //Open first found LabJack
+                // Open first found LabJack
                 LJM.OpenS("ANY", "ANY", "ANY", ref handle); // Any device, Any connection, Any identifier
-                //LJM.OpenS("T8", "ANY", "ANY", ref handle);  //  T8 device, Any connection, Any identifier
-                //LJM.OpenS("T7", "ANY", "ANY", ref handle);  //  T7 device, Any connection, Any identifier
-                //LJM.OpenS("T4", "ANY", "ANY", ref handle);  //  T4 device, Any connection, Any identifier
+                //LJM.OpenS("T8", "ANY", "ANY", ref handle);  // T8 device, Any connection, Any identifier
+                //LJM.OpenS("T7", "ANY", "ANY", ref handle);  // T7 device, Any connection, Any identifier
+                //LJM.OpenS("T4", "ANY", "ANY", ref handle);  // T4 device, Any connection, Any identifier
                 //LJM.Open(LJM.CONSTANTS.dtANY, LJM.CONSTANTS.ctANY, "ANY", ref handle);  // Any device, Any connection, Any identifier
 
                 LJM.GetHandleInfo(handle, ref devType, ref conType, ref serNum, ref ipAddr, ref port, ref maxBytesPerMB);
@@ -72,7 +74,7 @@ namespace DioEFConfigCounter
 
 
                 // Selecting a specific DIO# Pin is necessary for each T-Series Device, only specific DIO# pins can do an Interrupt Counter measurement.
-                // For detailed T-Series Device DIO_EF pin mapping tables see section 13.2 of the T-Series Data Sheet:
+                // For detailed T-Series Device DIO_EF pin mapping tables see section 13.2 of the T-Series Datasheet:
                 // https://support.labjack.com/docs/13-2-dio-extended-features-t-series-datasheet
                 if (devType == LJM.CONSTANTS.dtT4)
                 {
@@ -81,30 +83,32 @@ namespace DioEFConfigCounter
                 }
 
                 /* --- How to Configure Interrupt Counter Measurment ---
-                 * See Datasheet reference for DIO_EF Interrupt Counter: https://support.labjack.com/docs/13-2-9-interrupt-counter-t-series-datasheet
+                 * See Datasheet reference for DIO_EF Interrupt Counter:
+                 * https://support.labjack.com/docs/13-2-9-interrupt-counter-t-series-datasheet
                  *
                  * -- Registers used for configuring DAC1 Frequency Out ---
-                 * "DAC1_FREQUENCY_OUT_ENABLE": 0 = off, 1 = output 10 Hz signal on DAC1. The signal will be a square wave with peaks of 0 and 3.3V. 
+                 * "DAC1_FREQUENCY_OUT_ENABLE": 0 = off, 1 = output 10 Hz signal on DAC1. The signal will be a square wave with peaks of 0 and 3.3V.
                  *
                  * --- Registers used for configuring Interrupt Counter ---
-                 * "DIO#_EF_INDEX":            Sets desired DIO_EF feature, Interrupt Counter is DIO_EF Index 8
+                 * "DIO#_EF_INDEX":            Sets desired DIO_EF feature, Interrupt Counter is DIO_EF Index 8.
                  * "DIO#_EF_ENABLE":           Enables/Disables the DIO_EF mode.
                  *
                  * Interrupt Counter counts the rising edge of pulses on the associated IO line.
                  * This interrupt-based digital I/O extended feature (DIO-EF) is not purely implemented in hardware, but rather firmware must service each edge.
                  *
-                 * For a more detailed walkthrough see Configuring & Reading a Counter
+                 * For a more detailed walkthrough see Configuring and Reading a Counter:
                  * https://support.labjack.com/docs/configuring-reading-a-counter
-                 * 
-                 * For a more accurate measurement for counting Rising edges, use the hardware clocked High-Speed Counter mode
-                 * See the docs for High-Speed Counter here: https://support.labjack.com/docs/13-2-8-high-speed-counter-t-series-datasheet
+                 *
+                 * For a more accurate measurement for counting Rising edges, use the hardware clocked High-Speed Counter mode.
+                 * See the docs for High-Speed Counter here:
+                 * https://support.labjack.com/docs/13-2-8-high-speed-counter-t-series-datasheet
                  */
 
 
                 // Configure Interrupt Counter Registers
-                LJM.eWriteName(handle, $"DIO{counterDIO}_EF_INDEX",  8);     // Set DIO#_EF_INDEX to 8 for Interrupt Counter
+                LJM.eWriteName(handle, $"DIO{counterDIO}_EF_INDEX",  8);     // Set DIO#_EF_INDEX to 8 for Interrupt Counter.
                 LJM.eWriteName(handle, "DAC1_FREQUENCY_OUT_ENABLE",  1);     // Enable 10 Hz square wave on DAC1.
-                LJM.eWriteName(handle, $"DIO{counterDIO}_EF_ENABLE", 1);     // Enable the DIO#_EF Mode
+                LJM.eWriteName(handle, $"DIO{counterDIO}_EF_ENABLE", 1);     // Enable the DIO#_EF Mode.
 
                 Console.WriteLine($"\n--- Outputting a 10 Hz signal on DAC1, measuring signal on FIO{counterDIO} ---\n");
 
@@ -113,7 +117,7 @@ namespace DioEFConfigCounter
                  * To read the count of Rising Edges, use the register below.
                  * DIO#_EF_READ_A: Returns the current Count
                  *
-                 * To read and reset the count: 
+                 * To read and reset the count:
                  * DIO#_EF_READ_A_AND_RESET: Reads the current count then clears the counter.
                  *
                  * Note that there is a brief period of time between reading and clearing during which edges can be missed.
@@ -126,6 +130,7 @@ namespace DioEFConfigCounter
                 double numRisingEdges = 0;
                 double numRisingEdgesBeforeReset = 0;
                 double numRisingEdgesAfterReset  = 0;
+
                 // Read all of the measured values.
                 for (int i = 0; i < 5; i++)
                 {
@@ -136,6 +141,7 @@ namespace DioEFConfigCounter
                 }
 
                 Console.WriteLine($"\n--- Reading and Resetting the count of DIO{counterDIO} ---\n");
+
                 LJM.eReadName(handle, $"DIO{counterDIO}_EF_READ_A_AND_RESET", ref numRisingEdgesBeforeReset);
                 Thread.Sleep(1000); // Sleep for 1 Second = 1000 ms.
                 LJM.eReadName(handle, $"DIO{counterDIO}_EF_READ_A_AND_RESET", ref numRisingEdgesAfterReset);
@@ -157,7 +163,7 @@ namespace DioEFConfigCounter
                 LJM.eWriteNames(handle, numFrames, aNames, aValues, ref errorAddress);
 
 
-                LJM.CloseAll(); //Close all handles
+                LJM.CloseAll(); // Close all handles
 
                 Console.WriteLine("\nDone.\nPress the enter key to exit.");
                 Console.ReadLine(); // Pause for user
